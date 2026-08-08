@@ -83,6 +83,7 @@ function Field({
 }
 
 function RegisterPage() {
+  const t = useT();
   const { data } = useSuspenseQuery(siteContentQuery);
   const settings = data.settings;
   const navigate = useNavigate();
