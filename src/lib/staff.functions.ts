@@ -609,5 +609,8 @@ export const listContentRows = createServerFn({ method: "POST" })
     const orderCol = data.table === "announcements" ? "created_at" : "sort_order";
     const { data: rows, error } = await db.from(data.table).select("*").order(orderCol);
     if (error) throw new Error(error.message);
-    return (rows ?? []) as Record<string, unknown>[];
+    return JSON.parse(JSON.stringify(rows ?? [])) as Record<
+      string,
+      string | number | boolean | null
+    >[];
   });
