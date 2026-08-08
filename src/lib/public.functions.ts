@@ -149,25 +149,7 @@ export const createRegistration = createServerFn({ method: "POST" })
   });
 
 export const submitPayment = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) =>
-    z
-      .object({
-        registration_id: z.string().uuid(),
-        utr_number: z
-          .string()
-          .trim()
-          .min(6, "UTR looks too short")
-          .max(40)
-          .regex(/^[A-Za-z0-9-]+$/, "UTR can only contain letters, numbers and dashes"),
-        paid_on: z.string().trim().min(4).max(20),
-        paid_time: z.string().trim().min(3).max(20),
-        screenshot: z
-          .object({ name: z.string().max(140), type: z.string().max(60), base64: z.string() })
-          .nullable()
-          .optional(),
-      })
-      .parse(d),
-  )
+  .inputValidator((d: unknown) => paymentSchema.parse(d))
   .handler(async ({ data }) => {
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
