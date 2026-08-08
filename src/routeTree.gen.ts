@@ -28,6 +28,7 @@ import { Route as AuthenticatedDashboardLogsRouteImport } from './routes/_authen
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as AuthenticatedDashboardRegistrationsRouteImport } from './routes/_authenticated/dashboard.registrations'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
+import { Route as AuthenticatedDashboardTextsRouteImport } from './routes/_authenticated/dashboard.texts'
 import { Route as AuthenticatedDashboardUsersRouteImport } from './routes/_authenticated/dashboard.users'
 
 const IndexRoute = IndexRouteImport.update({
@@ -129,6 +130,12 @@ const AuthenticatedDashboardSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardTextsRoute =
+  AuthenticatedDashboardTextsRouteImport.update({
+    id: '/texts',
+    path: '/texts',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardUsersRoute =
   AuthenticatedDashboardUsersRouteImport.update({
     id: '/users',
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
   '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
@@ -174,6 +182,7 @@ export interface FileRoutesByTo {
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
   '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
 }
@@ -197,6 +206,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/_authenticated/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/_authenticated/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
   '/_authenticated/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/dashboard/registrations'
     | '/dashboard/settings'
+    | '/dashboard/texts'
     | '/dashboard/users'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
@@ -240,6 +251,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/dashboard/registrations'
     | '/dashboard/settings'
+    | '/dashboard/texts'
     | '/dashboard/users'
     | '/dashboard'
   id:
@@ -262,6 +274,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/messages'
     | '/_authenticated/dashboard/registrations'
     | '/_authenticated/dashboard/settings'
+    | '/_authenticated/dashboard/texts'
     | '/_authenticated/dashboard/users'
     | '/_authenticated/dashboard/'
   fileRoutesById: FileRoutesById
@@ -417,6 +430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/texts': {
+      id: '/_authenticated/dashboard/texts'
+      path: '/texts'
+      fullPath: '/dashboard/texts'
+      preLoaderRoute: typeof AuthenticatedDashboardTextsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/users': {
       id: '/_authenticated/dashboard/users'
       path: '/users'
@@ -432,6 +452,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
   AuthenticatedDashboardRegistrationsRoute: typeof AuthenticatedDashboardRegistrationsRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
+  AuthenticatedDashboardTextsRoute: typeof AuthenticatedDashboardTextsRoute
   AuthenticatedDashboardUsersRoute: typeof AuthenticatedDashboardUsersRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
@@ -443,6 +464,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardRegistrationsRoute:
       AuthenticatedDashboardRegistrationsRoute,
     AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
+    AuthenticatedDashboardTextsRoute: AuthenticatedDashboardTextsRoute,
     AuthenticatedDashboardUsersRoute: AuthenticatedDashboardUsersRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   }
