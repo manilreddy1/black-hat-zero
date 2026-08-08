@@ -149,12 +149,13 @@ export function TimelineSection({ timeline }: { timeline: SiteContent["timeline"
 }
 
 export function RulesSection({ rules }: { rules: SiteContent["rules"] }) {
+  const t = useT();
   return (
     <SectionShell
       id="rules"
-      eyebrow="// 05 — RULES OF ENGAGEMENT"
-      title="Rules"
-      subtitle="Read carefully. Violations end your run."
+      eyebrow={t("rules.eyebrow", "// 05 — PROTOCOL")}
+      title={t("rules.title", "Rules of engagement")}
+      subtitle={t("rules.subtitle", "Read carefully. Violations end your run.")}
     >
       <div className="grid gap-4 md:grid-cols-2">
         {rules.map((r, i) => (
