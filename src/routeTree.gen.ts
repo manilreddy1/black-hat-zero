@@ -24,6 +24,11 @@ import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedDashboardLogsRouteImport } from './routes/_authenticated/dashboard.logs'
+import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
+import { Route as AuthenticatedDashboardRegistrationsRouteImport } from './routes/_authenticated/dashboard.registrations'
+import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
+import { Route as AuthenticatedDashboardUsersRouteImport } from './routes/_authenticated/dashboard.users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +105,36 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardLogsRoute =
+  AuthenticatedDashboardLogsRouteImport.update({
+    id: '/logs',
+    path: '/logs',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardMessagesRoute =
+  AuthenticatedDashboardMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardRegistrationsRoute =
+  AuthenticatedDashboardRegistrationsRouteImport.update({
+    id: '/registrations',
+    path: '/registrations',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardSettingsRoute =
+  AuthenticatedDashboardSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardUsersRoute =
+  AuthenticatedDashboardUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -115,6 +150,11 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof TimelineRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
+  '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
+  '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
+  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -130,6 +170,11 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
+  '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
+  '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
+  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -148,6 +193,11 @@ export interface FileRoutesById {
   '/timeline': typeof TimelineRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
+  '/_authenticated/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
+  '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/_authenticated/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
+  '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/_authenticated/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -166,6 +216,11 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/dashboard'
     | '/payment/$id'
+    | '/dashboard/logs'
+    | '/dashboard/messages'
+    | '/dashboard/registrations'
+    | '/dashboard/settings'
+    | '/dashboard/users'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -181,6 +236,11 @@ export interface FileRouteTypes {
     | '/status'
     | '/timeline'
     | '/payment/$id'
+    | '/dashboard/logs'
+    | '/dashboard/messages'
+    | '/dashboard/registrations'
+    | '/dashboard/settings'
+    | '/dashboard/users'
     | '/dashboard'
   id:
     | '__root__'
@@ -198,6 +258,11 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/_authenticated/dashboard'
     | '/payment/$id'
+    | '/_authenticated/dashboard/logs'
+    | '/_authenticated/dashboard/messages'
+    | '/_authenticated/dashboard/registrations'
+    | '/_authenticated/dashboard/settings'
+    | '/_authenticated/dashboard/users'
     | '/_authenticated/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -324,15 +389,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/logs': {
+      id: '/_authenticated/dashboard/logs'
+      path: '/logs'
+      fullPath: '/dashboard/logs'
+      preLoaderRoute: typeof AuthenticatedDashboardLogsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/messages': {
+      id: '/_authenticated/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof AuthenticatedDashboardMessagesRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/registrations': {
+      id: '/_authenticated/dashboard/registrations'
+      path: '/registrations'
+      fullPath: '/dashboard/registrations'
+      preLoaderRoute: typeof AuthenticatedDashboardRegistrationsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/settings': {
+      id: '/_authenticated/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/users': {
+      id: '/_authenticated/dashboard/users'
+      path: '/users'
+      fullPath: '/dashboard/users'
+      preLoaderRoute: typeof AuthenticatedDashboardUsersRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
   }
 }
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardLogsRoute: typeof AuthenticatedDashboardLogsRoute
+  AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
+  AuthenticatedDashboardRegistrationsRoute: typeof AuthenticatedDashboardRegistrationsRoute
+  AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
+  AuthenticatedDashboardUsersRoute: typeof AuthenticatedDashboardUsersRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardLogsRoute: AuthenticatedDashboardLogsRoute,
+    AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
+    AuthenticatedDashboardRegistrationsRoute:
+      AuthenticatedDashboardRegistrationsRoute,
+    AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
+    AuthenticatedDashboardUsersRoute: AuthenticatedDashboardUsersRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   }
 
