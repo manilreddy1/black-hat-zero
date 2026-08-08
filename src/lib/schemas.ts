@@ -40,3 +40,13 @@ export const paymentSchema = z.object({
     .nullable()
     .optional(),
 });
+
+export const CONTENT_TABLES = [
+  "timeline_items",
+  "prizes",
+  "rules",
+  "faqs",
+  "sponsors",
+  "challenges",
+  "announcements",
+] as const;

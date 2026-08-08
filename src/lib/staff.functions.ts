@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { CONTENT_TABLES } from "./schemas";
 
 export const getMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -331,7 +332,8 @@ export const updateEventSettings = createServerFn({ method: "POST" })
     await requireRole(context.supabase, context.userId, ["admin"]);
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
-    const { data: current } = await db.from("event_settings").select("*").limit(1).single();
+    const { data: current } = await db.from("event_settings").select("*").limit(1).maybeSingle();
+    if (!current) throw new Error("Event settings not found.");
     const patch = { ...data } as Record<string, unknown>;
     delete patch["id"];
     delete patch["created_at"];
@@ -354,8 +356,6 @@ export const updateEventSettings = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
-
-const CONTENT_TABLES = ["timeline_items", "prizes", "rules", "faqs", "sponsors", "challenges", "announcements"] as const;
 
 export const saveContentRow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -385,7 +385,7 @@ export const saveContentRow = createServerFn({ method: "POST" })
       actor_role: "admin",
       action: "CONTENT_UPDATED",
       entity: data.table,
-      entity_id: data.id ?? undefined,
+      entity_id: data.id ?? "new",
     });
     return { ok: true };
   });
