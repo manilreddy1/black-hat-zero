@@ -1,0 +1,151 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { siteContentQuery } from "@/hooks/useSiteContent";
+import { updateEventSettings } from "@/lib/staff.functions";
+
+export const Route = createFileRoute("/_authenticated/dashboard/settings")({
+  component: SettingsPage,
+});
+
+const TEXT_FIELDS = [
+  "event_name",
+  "tagline",
+  "about",
+  "college",
+  "venue",
+  "event_date",
+  "start_time",
+  "end_time",
+  "eligibility",
+  "mode",
+  "contact_email",
+  "contact_phone",
+  "upi_id",
+  "upi_payee_name",
+  "payment_instructions",
+] as const;
+
+const NUMBER_FIELDS = [
+  "registration_fee",
+  "min_team_size",
+  "max_team_size",
+  "max_teams",
+] as const;
+
+const BOOL_FIELDS = [
+  "registration_open",
+  "payments_enabled",
+  "waitlist_enabled",
+  "maintenance_mode",
+] as const;
+
+function SettingsPage() {
+  const { data } = useQuery(siteContentQuery);
+  const save = useServerFn(updateEventSettings);
+  const qc = useQueryClient();
+  const [form, setForm] = useState<Record<string, unknown>>({});
+
+  useEffect(() => {
+    if (data?.settings) setForm({ ...data.settings });
+  }, [data]);
+
+  const mutation = useMutation({
+    mutationFn: () => save({ data: form }),
+    onSuccess: () => {
+      toast.success("Settings updated.");
+      qc.invalidateQueries({ queryKey: ["site-content"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const input = "w-full border border-input bg-surface px-3 py-2.5 font-mono text-xs";
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <p className="font-mono text-[11px] tracking-[0.4em] text-primary">// CONFIG</p>
+        <h1 className="mt-2 font-display text-3xl font-bold tracking-widest uppercase">
+          Event settings
+        </h1>
+      </div>
+
+      <div className="panel grid gap-4 p-6 sm:grid-cols-2">
+        {TEXT_FIELDS.map((k) => (
+          <label key={k} className="block">
+            <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase">
+              {k.replace(/_/g, " ")}
+            </span>
+            <input
+              value={String(form[k] ?? "")}
+              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+              className={`mt-2 ${input}`}
+            />
+          </label>
+        ))}
+        {NUMBER_FIELDS.map((k) => (
+          <label key={k} className="block">
+            <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase">
+              {k.replace(/_/g, " ")}
+            </span>
+            <input
+              type="number"
+              value={Number(form[k] ?? 0)}
+              onChange={(e) => setForm({ ...form, [k]: Number(e.target.value) })}
+              className={`mt-2 ${input}`}
+            />
+          </label>
+        ))}
+        <label className="block">
+          <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase">
+            registration deadline
+          </span>
+          <input
+            type="datetime-local"
+            value={String(form["registration_deadline"] ?? "").slice(0, 16)}
+            onChange={(e) =>
+              setForm({ ...form, registration_deadline: new Date(e.target.value).toISOString() })
+            }
+            className={`mt-2 ${input}`}
+          />
+        </label>
+        <label className="block">
+          <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase">
+            event start (countdown)
+          </span>
+          <input
+            type="datetime-local"
+            value={String(form["start_at"] ?? "").slice(0, 16)}
+            onChange={(e) => setForm({ ...form, start_at: new Date(e.target.value).toISOString() })}
+            className={`mt-2 ${input}`}
+          />
+        </label>
+
+        <div className="sm:col-span-2 flex flex-wrap gap-5 border-t border-border pt-4">
+          {BOOL_FIELDS.map((k) => (
+            <label key={k} className="flex items-center gap-2 font-mono text-[11px] uppercase">
+              <input
+                type="checkbox"
+                checked={Boolean(form[k])}
+                onChange={(e) => setForm({ ...form, [k]: e.target.checked })}
+              />
+              {k.replace(/_/g, " ")}
+            </label>
+          ))}
+        </div>
+
+        <div className="sm:col-span-2">
+          <button
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate()}
+            className="clip-notch bg-primary px-6 py-3 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+          >
+            {mutation.isPending ? "SAVING..." : "[ Save settings ]"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
