@@ -111,9 +111,10 @@ function RegisterPage() {
   );
 
   const total = useMemo(() => fee * teamSize, [fee, teamSize]);
-  const closed =
-    !settings?.registration_open ||
-    (settings && new Date(settings.registration_deadline).getTime() < Date.now());
+  const deadlinePassed =
+    !!settings && new Date(settings.registration_deadline).getTime() < Date.now();
+  const closed = !settings?.registration_open || deadlinePassed;
+
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -163,14 +164,22 @@ function RegisterPage() {
         <CyberBackground />
         <div className="panel clip-notch relative max-w-lg p-10 text-center">
           <h1 className="font-display text-3xl font-bold tracking-widest uppercase">
-            {t("register.closed_title", "Registrations are closed")}
+            {deadlinePassed
+              ? t("register.deadline_title", "Registration deadline has passed")
+              : t("register.closed_title", "Registrations are closed")}
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            {t(
-              "register.closed_message",
-              "Team registration for this edition is currently closed. Follow our channels for the next drop.",
-            )}
+            {deadlinePassed
+              ? t(
+                  "register.deadline_message",
+                  "The registration window for this edition has ended. Follow our channels for the next drop.",
+                )
+              : t(
+                  "register.closed_message",
+                  "Team registration for this edition is currently closed. Follow our channels for the next drop.",
+                )}
           </p>
+
         </div>
       </div>
     );
