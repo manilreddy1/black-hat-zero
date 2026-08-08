@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useT } from "@/hooks/useSiteContent";
 import { motion } from "framer-motion";
 import { lookupRegistration } from "@/lib/public.functions";
 import { formatMoney, STATUS_LABELS } from "@/lib/constants";
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/status")({
 });
 
 function StatusPage() {
+  const t = useT();
   const lookup = useServerFn(lookupRegistration);
   const [query, setQuery] = useState("");
   const mutation = useMutation({ mutationFn: (q: string) => lookup({ data: { query: q } }) });
@@ -39,10 +41,10 @@ function StatusPage() {
       <div className="relative mx-auto max-w-3xl">
         <p className="font-mono text-[11px] tracking-[0.4em] text-primary">// STATUS TERMINAL</p>
         <h1 className="mt-3 font-display text-[clamp(2rem,6vw,3.4rem)] leading-none font-bold tracking-tight uppercase">
-          Track your slot
+          {t("status.title", "Trace your registration")}
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Enter your registration code, team code or team leader email.
+          {t("status.subtitle", "Enter your registration code, team code or team leader email.")}
         </p>
 
         <form
