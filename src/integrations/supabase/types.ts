@@ -557,6 +557,42 @@ export type Database = {
         }
         Relationships: []
       }
+      site_texts: {
+        Row: {
+          created_at: string
+          group_name: string
+          id: string
+          key: string
+          label: string
+          multiline: boolean
+          sort_order: number
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          group_name?: string
+          id?: string
+          key: string
+          label?: string
+          multiline?: boolean
+          sort_order?: number
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          created_at?: string
+          group_name?: string
+          id?: string
+          key?: string
+          label?: string
+          multiline?: boolean
+          sort_order?: number
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       sponsors: {
         Row: {
           created_at: string
