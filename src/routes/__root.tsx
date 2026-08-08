@@ -101,8 +101,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
-  loader: ({ context }) => {
-    void context.queryClient.ensureQueryData(siteContentQuery);
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(siteContentQuery);
   },
   shellComponent: RootShell,
   component: RootComponent,
