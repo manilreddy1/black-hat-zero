@@ -24,6 +24,8 @@ const LINKS = [
     roles: ["admin", "coordinator", "payment_verifier"],
   },
   { to: "/dashboard/messages", label: "Messages", roles: ["admin", "coordinator"] },
+  { to: "/dashboard/content", label: "Content", roles: ["admin"] },
+  { to: "/dashboard/texts", label: "Website Text", roles: ["admin"] },
   { to: "/dashboard/settings", label: "Settings", roles: ["admin"] },
   { to: "/dashboard/users", label: "Staff", roles: ["admin"] },
   { to: "/dashboard/logs", label: "Audit Logs", roles: ["admin"] },

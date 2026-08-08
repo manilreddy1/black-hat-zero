@@ -24,6 +24,7 @@ import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedDashboardContentRouteImport } from './routes/_authenticated/dashboard.content'
 import { Route as AuthenticatedDashboardLogsRouteImport } from './routes/_authenticated/dashboard.logs'
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as AuthenticatedDashboardRegistrationsRouteImport } from './routes/_authenticated/dashboard.registrations'
@@ -106,6 +107,12 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardContentRoute =
+  AuthenticatedDashboardContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardLogsRoute =
   AuthenticatedDashboardLogsRouteImport.update({
     id: '/logs',
@@ -157,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof TimelineRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
+  '/dashboard/content': typeof AuthenticatedDashboardContentRoute
   '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
@@ -178,6 +186,7 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
+  '/dashboard/content': typeof AuthenticatedDashboardContentRoute
   '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/timeline': typeof TimelineRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
+  '/_authenticated/dashboard/content': typeof AuthenticatedDashboardContentRoute
   '/_authenticated/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/_authenticated/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/dashboard'
     | '/payment/$id'
+    | '/dashboard/content'
     | '/dashboard/logs'
     | '/dashboard/messages'
     | '/dashboard/registrations'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/timeline'
     | '/payment/$id'
+    | '/dashboard/content'
     | '/dashboard/logs'
     | '/dashboard/messages'
     | '/dashboard/registrations'
@@ -270,6 +282,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/_authenticated/dashboard'
     | '/payment/$id'
+    | '/_authenticated/dashboard/content'
     | '/_authenticated/dashboard/logs'
     | '/_authenticated/dashboard/messages'
     | '/_authenticated/dashboard/registrations'
@@ -402,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/content': {
+      id: '/_authenticated/dashboard/content'
+      path: '/content'
+      fullPath: '/dashboard/content'
+      preLoaderRoute: typeof AuthenticatedDashboardContentRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/logs': {
       id: '/_authenticated/dashboard/logs'
       path: '/logs'
@@ -448,6 +468,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardContentRoute: typeof AuthenticatedDashboardContentRoute
   AuthenticatedDashboardLogsRoute: typeof AuthenticatedDashboardLogsRoute
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
   AuthenticatedDashboardRegistrationsRoute: typeof AuthenticatedDashboardRegistrationsRoute
@@ -459,6 +480,7 @@ interface AuthenticatedDashboardRouteChildren {
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardContentRoute: AuthenticatedDashboardContentRoute,
     AuthenticatedDashboardLogsRoute: AuthenticatedDashboardLogsRoute,
     AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
     AuthenticatedDashboardRegistrationsRoute:
