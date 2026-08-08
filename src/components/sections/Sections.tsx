@@ -14,31 +14,30 @@ import { Reveal } from "@/components/site/GlitchText";
 import { TerminalPanel } from "@/components/site/TerminalPanel";
 import { submitContactMessage } from "@/lib/public.functions";
 import { formatMoney } from "@/lib/constants";
-import type { SiteContent, EventSettings } from "@/hooks/useSiteContent";
+import { useT, type SiteContent, type EventSettings } from "@/hooks/useSiteContent";
 
 export function AboutSection({ settings }: { settings: EventSettings | null }) {
+  const t = useT();
   return (
     <SectionShell
       id="about"
-      eyebrow="// 01 — ABOUT"
-      title="Think like a hacker, innovate like a leader"
+      eyebrow={t("about.eyebrow", "// 01 — ABOUT")}
+      title={t("about.title", "Think like a hacker, innovate like a leader")}
       subtitle={settings?.about}
     >
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="grid gap-4 sm:grid-cols-2">
-          {[
-            ["OFFENSIVE MINDSET", "Break systems before attackers do. Every track rewards depth over polish."],
-            ["24 HOURS", "One night. One objective. Ship something that survives a real adversary."],
-            ["REAL JUDGES", "Security engineers and researchers score your exploit chain and defence."],
-            ["OPEN TRACKS", "Web, crypto, reversing, forensics, AI security and a free build track."],
-          ].map(([title, body], i) => (
-            <Reveal key={title} delay={i * 0.06}>
-              <div className="panel clip-notch group h-full p-5 transition-colors hover:border-primary/60">
-                <p className="font-mono text-[11px] tracking-[0.25em] text-primary">{title}</p>
-                <p className="mt-3 text-sm text-muted-foreground">{body}</p>
-              </div>
-            </Reveal>
-          ))}
+          {[1, 2, 3, 4]
+            .map((n) => [t(`about.card${n}_title`), t(`about.card${n}_body`)])
+            .filter(([title, body]) => title || body)
+            .map(([title, body], i) => (
+              <Reveal key={title} delay={i * 0.06}>
+                <div className="panel clip-notch group h-full p-5 transition-colors hover:border-primary/60">
+                  <p className="font-mono text-[11px] tracking-[0.25em] text-primary">{title}</p>
+                  <p className="mt-3 text-sm text-muted-foreground">{body}</p>
+                </div>
+              </Reveal>
+            ))}
         </div>
         <Reveal delay={0.15}>
           <TerminalPanel className="h-full" />
@@ -49,6 +48,7 @@ export function AboutSection({ settings }: { settings: EventSettings | null }) {
 }
 
 export function EventSection({ settings }: { settings: EventSettings | null }) {
+  const t = useT();
   if (!settings) return null;
   const rows: [string, string][] = [
     ["EVENT", settings.event_name],
@@ -66,9 +66,9 @@ export function EventSection({ settings }: { settings: EventSettings | null }) {
   return (
     <SectionShell
       id="event"
-      eyebrow="// 02 — EVENT BRIEF"
-      title="Mission parameters"
-      subtitle="Everything below is live from the organiser control panel."
+      eyebrow={t("event.eyebrow", "// 02 — EVENT BRIEF")}
+      title={t("event.title", "Mission parameters")}
+      subtitle={t("event.subtitle", "Everything below is live from the organiser control panel.")}
     >
       <div className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
         {rows.map(([k, v], i) => (
@@ -90,12 +90,13 @@ export function EventSection({ settings }: { settings: EventSettings | null }) {
 }
 
 export function ChallengesSection({ challenges }: { challenges: SiteContent["challenges"] }) {
+  const t = useT();
   return (
     <SectionShell
       id="challenges"
-      eyebrow="// 03 — TRACKS"
-      title="Challenge tracks"
-      subtitle="Pick your battlefield. Each track is scored independently."
+      eyebrow={t("challenges.eyebrow", "// 03 — TRACKS")}
+      title={t("challenges.title", "Challenge tracks")}
+      subtitle={t("challenges.subtitle", "Pick your battlefield. Each track is scored independently.")}
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {challenges.map((c, i) => (
@@ -116,8 +117,14 @@ export function ChallengesSection({ challenges }: { challenges: SiteContent["cha
 }
 
 export function TimelineSection({ timeline }: { timeline: SiteContent["timeline"] }) {
+  const t = useT();
   return (
-    <SectionShell id="timeline" eyebrow="// 04 — TIMELINE" title="Operation schedule">
+    <SectionShell
+      id="timeline"
+      eyebrow={t("timeline.eyebrow", "// 04 — TIMELINE")}
+      title={t("timeline.title", "Operation schedule")}
+      subtitle={t("timeline.subtitle") || undefined}
+    >
       <ol className="relative ml-3 border-l border-border">
         {timeline.map((t, i) => (
           <motion.li
@@ -172,8 +179,14 @@ export function PrizesSection({
   prizes: SiteContent["prizes"];
   currency?: string | undefined;
 }) {
+  const t = useT();
   return (
-    <SectionShell id="prizes" eyebrow="// 06 — BOUNTY" title="Prize pool">
+    <SectionShell
+      id="prizes"
+      eyebrow={t("prizes.eyebrow", "// 06 — BOUNTY")}
+      title={t("prizes.title", "Prize pool")}
+      subtitle={t("prizes.subtitle") || undefined}
+    >
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {prizes.map((p, i) => (
           <Reveal key={p.id} delay={i * 0.06}>
@@ -203,9 +216,14 @@ export function PrizesSection({
 }
 
 export function SponsorsSection({ sponsors }: { sponsors: SiteContent["sponsors"] }) {
+  const t = useT();
   const tiers = [...new Set(sponsors.map((s) => s.tier))];
   return (
-    <SectionShell id="sponsors" eyebrow="// 07 — BACKED BY" title="Sponsors & partners">
+    <SectionShell
+      id="sponsors"
+      eyebrow={t("sponsors.eyebrow", "// 07 — BACKED BY")}
+      title={t("sponsors.title", "Sponsors & partners")}
+    >
       <div className="space-y-8">
         {tiers.map((tier) => (
           <div key={tier}>
@@ -244,8 +262,13 @@ export function SponsorsSection({ sponsors }: { sponsors: SiteContent["sponsors"
 }
 
 export function FaqSection({ faqs }: { faqs: SiteContent["faqs"] }) {
+  const t = useT();
   return (
-    <SectionShell id="faq" eyebrow="// 08 — FAQ" title="Frequently asked">
+    <SectionShell
+      id="faq"
+      eyebrow={t("faq.eyebrow", "// 08 — FAQ")}
+      title={t("faq.title", "Frequently asked")}
+    >
       <Accordion type="single" collapsible className="mx-auto max-w-3xl">
         {faqs.map((f) => (
           <AccordionItem key={f.id} value={f.id} className="border-border">
@@ -261,6 +284,7 @@ export function FaqSection({ faqs }: { faqs: SiteContent["faqs"] }) {
 }
 
 export function ContactSection({ settings }: { settings: EventSettings | null }) {
+  const t = useT();
   const send = useServerFn(submitContactMessage);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const mutation = useMutation({
@@ -276,7 +300,11 @@ export function ContactSection({ settings }: { settings: EventSettings | null })
     "w-full border border-input bg-surface px-3 py-3 font-mono text-sm outline-none transition-shadow focus:border-primary focus:shadow-[var(--glow-red)]";
 
   return (
-    <SectionShell id="contact" eyebrow="// 09 — CONTACT" title="Open a channel">
+    <SectionShell
+      id="contact"
+      eyebrow={t("contact.eyebrow", "// 09 — CONTACT")}
+      title={t("contact.title", "Open a channel")}
+    >
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="panel clip-notch space-y-4 p-6">
           <div>
