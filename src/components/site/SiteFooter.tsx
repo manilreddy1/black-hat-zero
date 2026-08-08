@@ -25,21 +25,23 @@ export function SiteFooter({ settings }: { settings: EventSettings | null }) {
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary">Navigate</p>
           <ul className="mt-4 grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-            {[
-              ["/about", "About"],
-              ["/event", "Event"],
-              ["/timeline", "Timeline"],
-              ["/rules", "Rules"],
-              ["/prizes", "Prizes"],
-              ["/faq", "FAQ"],
-              ["/register", "Register"],
-              ["/status", "Track Status"],
-              ["/contact", "Contact"],
-              ["/auth", "Staff Login"],
-            ].map(([to, label]) => (
-              <li key={to}>
-                <Link to={to} className="transition-colors hover:text-primary">
-                  {label}
+            {(
+              [
+                { to: "/about", label: "About" },
+                { to: "/event", label: "Event" },
+                { to: "/timeline", label: "Timeline" },
+                { to: "/rules", label: "Rules" },
+                { to: "/prizes", label: "Prizes" },
+                { to: "/faq", label: "FAQ" },
+                { to: "/register", label: "Register" },
+                { to: "/status", label: "Track Status" },
+                { to: "/contact", label: "Contact" },
+                { to: "/auth", label: "Staff Login" },
+              ] as const
+            ).map((l) => (
+              <li key={l.to}>
+                <Link to={l.to} className="transition-colors hover:text-primary">
+                  {l.label}
                 </Link>
               </li>
             ))}
