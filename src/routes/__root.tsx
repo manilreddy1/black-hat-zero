@@ -101,6 +101,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
+  loader: ({ context }) => {
+    void context.queryClient.ensureQueryData(siteContentQuery);
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -126,6 +129,32 @@ function SiteChrome() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isStaff = pathname.startsWith("/dashboard") || pathname.startsWith("/auth");
   const settings = data?.settings ?? null;
+  const texts = data?.texts ?? {};
+
+  if (settings?.maintenance_mode && !isStaff) {
+    return (
+      <>
+        <div className="scanlines flex min-h-screen items-center justify-center bg-background px-6">
+          <div className="panel clip-notch max-w-lg p-10 text-center">
+            <h1 className="font-display text-3xl font-bold tracking-widest text-primary uppercase text-glow">
+              {texts["maintenance.title"] || "SYSTEM MAINTENANCE"}
+            </h1>
+            <p className="mt-4 text-sm text-muted-foreground">
+              {texts["maintenance.message"] ||
+                "The site is temporarily offline for maintenance. Check back shortly."}
+            </p>
+            <Link
+              to="/auth"
+              className="mt-8 inline-block border border-border px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+            >
+              [ Staff login ]
+            </Link>
+          </div>
+        </div>
+        <Toaster position="top-right" />
+      </>
+    );
+  }
 
   return (
     <>

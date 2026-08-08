@@ -24,10 +24,12 @@ import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedDashboardContentRouteImport } from './routes/_authenticated/dashboard.content'
 import { Route as AuthenticatedDashboardLogsRouteImport } from './routes/_authenticated/dashboard.logs'
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as AuthenticatedDashboardRegistrationsRouteImport } from './routes/_authenticated/dashboard.registrations'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
+import { Route as AuthenticatedDashboardTextsRouteImport } from './routes/_authenticated/dashboard.texts'
 import { Route as AuthenticatedDashboardUsersRouteImport } from './routes/_authenticated/dashboard.users'
 
 const IndexRoute = IndexRouteImport.update({
@@ -105,6 +107,12 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardContentRoute =
+  AuthenticatedDashboardContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardLogsRoute =
   AuthenticatedDashboardLogsRouteImport.update({
     id: '/logs',
@@ -129,6 +137,12 @@ const AuthenticatedDashboardSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardTextsRoute =
+  AuthenticatedDashboardTextsRouteImport.update({
+    id: '/texts',
+    path: '/texts',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardUsersRoute =
   AuthenticatedDashboardUsersRouteImport.update({
     id: '/users',
@@ -150,10 +164,12 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof TimelineRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
+  '/dashboard/content': typeof AuthenticatedDashboardContentRoute
   '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
   '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
@@ -170,10 +186,12 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
+  '/dashboard/content': typeof AuthenticatedDashboardContentRoute
   '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
   '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
 }
@@ -193,10 +211,12 @@ export interface FileRoutesById {
   '/timeline': typeof TimelineRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
+  '/_authenticated/dashboard/content': typeof AuthenticatedDashboardContentRoute
   '/_authenticated/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/_authenticated/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
+  '/_authenticated/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
   '/_authenticated/dashboard/users': typeof AuthenticatedDashboardUsersRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
@@ -216,10 +236,12 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/dashboard'
     | '/payment/$id'
+    | '/dashboard/content'
     | '/dashboard/logs'
     | '/dashboard/messages'
     | '/dashboard/registrations'
     | '/dashboard/settings'
+    | '/dashboard/texts'
     | '/dashboard/users'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
@@ -236,10 +258,12 @@ export interface FileRouteTypes {
     | '/status'
     | '/timeline'
     | '/payment/$id'
+    | '/dashboard/content'
     | '/dashboard/logs'
     | '/dashboard/messages'
     | '/dashboard/registrations'
     | '/dashboard/settings'
+    | '/dashboard/texts'
     | '/dashboard/users'
     | '/dashboard'
   id:
@@ -258,10 +282,12 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/_authenticated/dashboard'
     | '/payment/$id'
+    | '/_authenticated/dashboard/content'
     | '/_authenticated/dashboard/logs'
     | '/_authenticated/dashboard/messages'
     | '/_authenticated/dashboard/registrations'
     | '/_authenticated/dashboard/settings'
+    | '/_authenticated/dashboard/texts'
     | '/_authenticated/dashboard/users'
     | '/_authenticated/dashboard/'
   fileRoutesById: FileRoutesById
@@ -389,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/content': {
+      id: '/_authenticated/dashboard/content'
+      path: '/content'
+      fullPath: '/dashboard/content'
+      preLoaderRoute: typeof AuthenticatedDashboardContentRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/logs': {
       id: '/_authenticated/dashboard/logs'
       path: '/logs'
@@ -417,6 +450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/texts': {
+      id: '/_authenticated/dashboard/texts'
+      path: '/texts'
+      fullPath: '/dashboard/texts'
+      preLoaderRoute: typeof AuthenticatedDashboardTextsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/users': {
       id: '/_authenticated/dashboard/users'
       path: '/users'
@@ -428,21 +468,25 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardContentRoute: typeof AuthenticatedDashboardContentRoute
   AuthenticatedDashboardLogsRoute: typeof AuthenticatedDashboardLogsRoute
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
   AuthenticatedDashboardRegistrationsRoute: typeof AuthenticatedDashboardRegistrationsRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
+  AuthenticatedDashboardTextsRoute: typeof AuthenticatedDashboardTextsRoute
   AuthenticatedDashboardUsersRoute: typeof AuthenticatedDashboardUsersRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardContentRoute: AuthenticatedDashboardContentRoute,
     AuthenticatedDashboardLogsRoute: AuthenticatedDashboardLogsRoute,
     AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
     AuthenticatedDashboardRegistrationsRoute:
       AuthenticatedDashboardRegistrationsRoute,
     AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
+    AuthenticatedDashboardTextsRoute: AuthenticatedDashboardTextsRoute,
     AuthenticatedDashboardUsersRoute: AuthenticatedDashboardUsersRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   }

@@ -16,21 +16,21 @@ import {
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(siteContentQuery),
-  head: () => ({
-    meta: [
-      { title: "BLACK HAT#0 '26 — Hackathon for Hackers" },
-      {
-        name: "description",
-        content:
-          "BLACK HAT ZERO '26: a 24-hour hackathon for hackers. Think like a hacker, innovate like a leader. Register your team of up to 4.",
-      },
-      { property: "og:title", content: "BLACK HAT#0 '26 — Hackathon for Hackers" },
-      {
-        property: "og:description",
-        content: "Code. Break. Innovate. Own the system. Register your team for BLACK HAT ZERO '26.",
-      },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const texts = loaderData?.texts ?? {};
+    const title = texts["seo.home_title"] || "BLACK HAT#0 '26 — Hackathon for Hackers";
+    const description =
+      texts["seo.home_description"] ||
+      "BLACK HAT ZERO '26: a 24-hour hackathon for hackers. Register your team of up to 4.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+      ],
+    };
+  },
   component: Home,
 });
 

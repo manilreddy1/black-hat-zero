@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { siteContentQuery } from "@/hooks/useSiteContent";
+import { siteContentQuery, useT } from "@/hooks/useSiteContent";
 import { createRegistration } from "@/lib/public.functions";
 import { formatMoney } from "@/lib/constants";
 import { GlitchText } from "@/components/site/GlitchText";
@@ -83,6 +83,7 @@ function Field({
 }
 
 function RegisterPage() {
+  const t = useT();
   const { data } = useSuspenseQuery(siteContentQuery);
   const settings = data.settings;
   const navigate = useNavigate();
@@ -162,10 +163,13 @@ function RegisterPage() {
         <CyberBackground />
         <div className="panel clip-notch relative max-w-lg p-10 text-center">
           <h1 className="font-display text-3xl font-bold tracking-widest uppercase">
-            Registration closed
+            {t("register.closed_title", "Registrations are closed")}
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Slots for BLACK HAT#0 are no longer open. Follow our channels for the next drop.
+            {t(
+              "register.closed_message",
+              "Team registration for this edition is currently closed. Follow our channels for the next drop.",
+            )}
           </p>
         </div>
       </div>
@@ -178,8 +182,11 @@ function RegisterPage() {
       <div className="relative mx-auto max-w-4xl">
         <p className="font-mono text-[11px] tracking-[0.4em] text-primary">// SECURE ENROLMENT</p>
         <h1 className="mt-3 font-display text-[clamp(2rem,6vw,3.5rem)] leading-none font-bold tracking-tight uppercase">
-          <GlitchText text="Register Team" />
+          <GlitchText text={t("register.title", "Register your team")} />
         </h1>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          {t("register.subtitle", "")}
+        </p>
 
         <div className="mt-8 flex items-center gap-2 font-mono text-[11px] tracking-[0.25em]">
           {steps.map((s, i) => (

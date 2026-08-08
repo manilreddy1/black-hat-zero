@@ -2,18 +2,20 @@ import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
+import { useT } from "@/hooks/useSiteContent";
 
 const NAV = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
-  { to: "/event", label: "Event" },
-  { to: "/timeline", label: "Timeline" },
-  { to: "/rules", label: "Rules" },
-  { to: "/prizes", label: "Prizes" },
-  { to: "/faq", label: "FAQ" },
+  { to: "/", key: "nav.home", label: "Home" },
+  { to: "/about", key: "nav.about", label: "About" },
+  { to: "/event", key: "nav.event", label: "Event" },
+  { to: "/timeline", key: "nav.timeline", label: "Timeline" },
+  { to: "/rules", key: "nav.rules", label: "Rules" },
+  { to: "/prizes", key: "nav.prizes", label: "Prizes" },
+  { to: "/faq", key: "nav.faq", label: "FAQ" },
 ] as const;
 
 export function SiteNav() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -44,7 +46,8 @@ export function SiteNav() {
         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           <Logo className="h-9 w-9" />
           <span className="font-display text-lg font-bold tracking-widest">
-            BLACK<span className="text-primary">HAT#0</span>
+            {t("brand.name_prefix", "BLACK")}
+            <span className="text-primary">{t("brand.name_suffix", "HAT#0")}</span>
           </span>
         </Link>
 
@@ -57,7 +60,7 @@ export function SiteNav() {
                 activeProps={{ className: "text-primary" }}
                 className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
               >
-                {item.label}
+                {t(item.key, item.label)}
               </Link>
             </li>
           ))}
@@ -68,13 +71,13 @@ export function SiteNav() {
             to="/status"
             className="hidden px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground sm:block"
           >
-            Status
+            {t("nav.status", "Status")}
           </Link>
           <Link
             to="/register"
             className="clip-notch hidden bg-primary px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-[var(--glow-red)] sm:inline-block"
           >
-            Register Now
+            {t("nav.register", "Register Now")}
           </Link>
           <button
             type="button"
@@ -108,7 +111,7 @@ export function SiteNav() {
             className="grid-bg fixed inset-x-0 top-16 bottom-0 z-40 border-t border-border bg-background/98 px-6 py-8 lg:hidden"
           >
             <ul className="space-y-1">
-              {[...NAV, { to: "/status", label: "Status" }].map((item, i) => (
+              {[...NAV, { to: "/status", key: "nav.status", label: "Status" }].map((item, i) => (
                 <motion.li
                   key={item.to}
                   initial={{ opacity: 0, x: -20 }}
@@ -123,7 +126,7 @@ export function SiteNav() {
                     <span className="mr-3 font-mono text-xs text-primary">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    {item.label}
+                    {t(item.key, item.label)}
                   </Link>
                 </motion.li>
               ))}

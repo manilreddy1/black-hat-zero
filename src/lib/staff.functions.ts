@@ -549,3 +549,68 @@ export const setUserActive = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+export const listSiteTexts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["admin"]);
+    const { admin } = await import("./db.server");
+    const db = await admin();
+    const { data, error } = await db
+      .from("site_texts")
+      .select("*")
+      .order("group_name")
+      .order("sort_order");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const saveSiteTexts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        items: z.array(z.object({ key: z.string().min(1).max(120), value: z.string().max(4000) })),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["admin"]);
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+    for (const item of data.items) {
+      const { error } = await db
+        .from("site_texts")
+        .update({ value: item.value })
+        .eq("key", item.key);
+      if (error) throw new Error(error.message);
+    }
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: "admin",
+      action: "CONTENT_UPDATED",
+      entity: "site_texts",
+      entity_id: String(data.items.length),
+      metadata: { keys: data.items.map((i) => i.key) },
+    });
+    return { ok: true };
+  });
+
+export const listContentRows = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ table: z.enum(CONTENT_TABLES) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["admin"]);
+    const { admin } = await import("./db.server");
+    const db = await admin();
+    const orderCol = data.table === "announcements" ? "created_at" : "sort_order";
+    const { data: rows, error } = await db.from(data.table).select("*").order(orderCol);
+    if (error) throw new Error(error.message);
+    return JSON.parse(JSON.stringify(rows ?? [])) as Record<
+      string,
+      string | number | boolean | null
+    >[];
+  });

@@ -5,9 +5,10 @@ import { CyberBackground } from "./CyberBackground";
 import { Countdown } from "./Countdown";
 import { Logo } from "./Logo";
 import { GlitchText } from "./GlitchText";
-import type { EventSettings } from "@/hooks/useSiteContent";
+import { useT, type EventSettings } from "@/hooks/useSiteContent";
 
 export function Hero({ settings }: { settings: EventSettings | null }) {
+  const t = useT();
   const ref = useRef<HTMLDivElement | null>(null);
   const [glow, setGlow] = useState({ x: 50, y: 40 });
   const [offset, setOffset] = useState(0);
@@ -53,8 +54,8 @@ export function Hero({ settings }: { settings: EventSettings | null }) {
         <div style={{ transform: `translateY(${offset * -0.08}px)` }}>
           {live && (
             <div className="mb-5 inline-flex items-center gap-2 border border-primary/60 bg-primary/10 px-3 py-1.5 font-mono text-[11px] tracking-[0.3em] text-primary">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" /> LIVE — HACKATHON IN
-              PROGRESS
+              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />{" "}
+              {t("hero.live_badge", "LIVE — HACKATHON IN PROGRESS")}
             </div>
           )}
           <motion.p
@@ -63,7 +64,7 @@ export function Hero({ settings }: { settings: EventSettings | null }) {
             transition={{ delay: 0.1 }}
             className="font-mono text-xs tracking-[0.45em] text-primary"
           >
-            HACKATHON FOR HACKERS
+            {t("hero.kicker", "HACKATHON FOR HACKERS")}
           </motion.p>
 
           <motion.h1
@@ -72,8 +73,8 @@ export function Hero({ settings }: { settings: EventSettings | null }) {
             transition={{ delay: 0.18, duration: 0.7 }}
             className="mt-4 font-display text-[clamp(2.8rem,9vw,6.5rem)] leading-[0.9] font-bold tracking-tight"
           >
-            <GlitchText text="BLACK" className="block" />
-            <span className="block text-primary text-glow">HAT#0</span>
+            <GlitchText text={t("hero.title_line1", "BLACK")} className="block" />
+            <span className="block text-primary text-glow">{t("hero.title_line2", "HAT#0")}</span>
           </motion.h1>
 
           <motion.p
@@ -82,9 +83,9 @@ export function Hero({ settings }: { settings: EventSettings | null }) {
             transition={{ delay: 0.35 }}
             className="mt-6 max-w-lg font-mono text-sm leading-relaxed tracking-wider text-muted-foreground sm:text-base"
           >
-            CODE. BREAK. INNOVATE.
+            {t("hero.subtitle_line1", "CODE. BREAK. INNOVATE.")}
             <br />
-            <span className="text-foreground">OWN THE SYSTEM.</span>
+            <span className="text-foreground">{t("hero.subtitle_line2", "OWN THE SYSTEM.")}</span>
           </motion.p>
 
           <motion.div
@@ -97,13 +98,13 @@ export function Hero({ settings }: { settings: EventSettings | null }) {
               to="/register"
               className="clip-notch bg-primary px-7 py-4 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[var(--glow-red)]"
             >
-              [ Register Your Team ]
+              {t("hero.cta_primary", "[ Register Your Team ]")}
             </Link>
             <Link
               to="/event"
               className="clip-notch border border-border bg-surface/60 px-7 py-4 font-mono text-xs font-bold tracking-[0.2em] uppercase transition-colors hover:border-primary hover:text-primary"
             >
-              [ Explore Event ]
+              {t("hero.cta_secondary", "[ Explore Event ]")}
             </Link>
           </motion.div>
 
@@ -115,7 +116,9 @@ export function Hero({ settings }: { settings: EventSettings | null }) {
               className="mt-12"
             >
               <p className="mb-3 font-mono text-[11px] tracking-[0.3em] text-muted-foreground">
-                {live ? "EVENT IN PROGRESS" : "COUNTDOWN TO BREACH"}
+                {live
+                  ? t("hero.countdown_label_live", "EVENT IN PROGRESS")
+                  : t("hero.countdown_label", "COUNTDOWN TO BREACH")}
               </p>
               <Countdown target={settings.start_at} />
             </motion.div>
