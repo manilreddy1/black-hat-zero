@@ -15,7 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
-import { CustomCursor } from "@/components/site/CustomCursor";
+
 import { BootLoader } from "@/components/site/BootLoader";
 import { siteContentQuery } from "@/hooks/useSiteContent";
 
@@ -159,7 +159,7 @@ function SiteChrome() {
   return (
     <>
       {!isStaff && <BootLoader />}
-      <CustomCursor />
+      
       <div className="flex min-h-screen flex-col">
         {!isStaff && <SiteNav />}
         <main className="flex-1">
