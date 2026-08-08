@@ -15,8 +15,11 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventRouteImport } from './routes/event'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as PrizesRouteImport } from './routes/prizes'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RulesRouteImport } from './routes/rules'
+import { Route as StatusRouteImport } from './routes/status'
 import { Route as TimelineRouteImport } from './routes/timeline'
+import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,14 +51,29 @@ const PrizesRoute = PrizesRouteImport.update({
   path: '/prizes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RulesRoute = RulesRouteImport.update({
   id: '/rules',
   path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentIdRoute = PaymentIdRouteImport.update({
+  id: '/payment/$id',
+  path: '/payment/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -66,8 +84,11 @@ export interface FileRoutesByFullPath {
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
   '/prizes': typeof PrizesRoute
+  '/register': typeof RegisterRoute
   '/rules': typeof RulesRoute
+  '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
+  '/payment/$id': typeof PaymentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,8 +97,11 @@ export interface FileRoutesByTo {
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
   '/prizes': typeof PrizesRoute
+  '/register': typeof RegisterRoute
   '/rules': typeof RulesRoute
+  '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
+  '/payment/$id': typeof PaymentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,8 +111,11 @@ export interface FileRoutesById {
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
   '/prizes': typeof PrizesRoute
+  '/register': typeof RegisterRoute
   '/rules': typeof RulesRoute
+  '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
+  '/payment/$id': typeof PaymentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,8 +126,11 @@ export interface FileRouteTypes {
     | '/event'
     | '/faq'
     | '/prizes'
+    | '/register'
     | '/rules'
+    | '/status'
     | '/timeline'
+    | '/payment/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +139,11 @@ export interface FileRouteTypes {
     | '/event'
     | '/faq'
     | '/prizes'
+    | '/register'
     | '/rules'
+    | '/status'
     | '/timeline'
+    | '/payment/$id'
   id:
     | '__root__'
     | '/'
@@ -119,8 +152,11 @@ export interface FileRouteTypes {
     | '/event'
     | '/faq'
     | '/prizes'
+    | '/register'
     | '/rules'
+    | '/status'
     | '/timeline'
+    | '/payment/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,8 +166,11 @@ export interface RootRouteChildren {
   EventRoute: typeof EventRoute
   FaqRoute: typeof FaqRoute
   PrizesRoute: typeof PrizesRoute
+  RegisterRoute: typeof RegisterRoute
   RulesRoute: typeof RulesRoute
+  StatusRoute: typeof StatusRoute
   TimelineRoute: typeof TimelineRoute
+  PaymentIdRoute: typeof PaymentIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -178,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrizesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rules': {
       id: '/rules'
       path: '/rules'
@@ -185,11 +231,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/timeline': {
       id: '/timeline'
       path: '/timeline'
       fullPath: '/timeline'
       preLoaderRoute: typeof TimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/$id': {
+      id: '/payment/$id'
+      path: '/payment/$id'
+      fullPath: '/payment/$id'
+      preLoaderRoute: typeof PaymentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -202,8 +262,11 @@ const rootRouteChildren: RootRouteChildren = {
   EventRoute: EventRoute,
   FaqRoute: FaqRoute,
   PrizesRoute: PrizesRoute,
+  RegisterRoute: RegisterRoute,
   RulesRoute: RulesRoute,
+  StatusRoute: StatusRoute,
   TimelineRoute: TimelineRoute,
+  PaymentIdRoute: PaymentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
