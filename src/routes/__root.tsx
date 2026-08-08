@@ -132,7 +132,7 @@ function SiteChrome() {
       {!isStaff && <BootLoader />}
       <CustomCursor />
       <div className="flex min-h-screen flex-col">
-        {!isStaff && <SiteNav settings={settings} />}
+        {!isStaff && <SiteNav />}
         <main className="flex-1">
           <Outlet />
         </main>

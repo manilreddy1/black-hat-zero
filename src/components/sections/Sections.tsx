@@ -170,7 +170,7 @@ export function PrizesSection({
   currency = "INR",
 }: {
   prizes: SiteContent["prizes"];
-  currency?: string;
+  currency?: string | undefined;
 }) {
   return (
     <SectionShell id="prizes" eyebrow="// 06 — BOUNTY" title="Prize pool">
