@@ -1,27 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-
-const memberSchema = z.object({
-  full_name: z.string().trim().min(2).max(80),
-  email: z.string().trim().email().max(120),
-  phone: z.string().trim().min(7).max(20),
-  student_id: z.string().trim().max(60).optional().default(""),
-  department: z.string().trim().max(80).optional().default(""),
-  year: z.string().trim().max(20).optional().default(""),
-});
-
-const registrationSchema = z.object({
-  team_name: z.string().trim().min(2).max(60),
-  leader_name: z.string().trim().min(2).max(80),
-  leader_email: z.string().trim().email().max(120),
-  leader_phone: z.string().trim().min(7).max(20),
-  college: z.string().trim().min(2).max(120),
-  department: z.string().trim().min(1).max(80),
-  year: z.string().trim().min(1).max(20),
-  city: z.string().trim().min(1).max(80),
-  team_size: z.number().int().min(1).max(10),
-  members: z.array(memberSchema).min(1).max(10),
-});
+import { registrationSchema, paymentSchema } from "./schemas";
 
 export const getSiteContent = createServerFn({ method: "GET" }).handler(async () => {
   const { publicClient } = await import("./db.server");
