@@ -111,9 +111,10 @@ function RegisterPage() {
   );
 
   const total = useMemo(() => fee * teamSize, [fee, teamSize]);
-  const closed =
-    !settings?.registration_open ||
-    (settings && new Date(settings.registration_deadline).getTime() < Date.now());
+  const deadlinePassed =
+    !!settings && new Date(settings.registration_deadline).getTime() < Date.now();
+  const closed = !settings?.registration_open || deadlinePassed;
+
 
   const mutation = useMutation({
     mutationFn: () =>
