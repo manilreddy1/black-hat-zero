@@ -1,24 +1,55 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { siteContentQuery } from "@/hooks/useSiteContent";
+import { Hero } from "@/components/site/Hero";
+import {
+  AboutSection,
+  ChallengesSection,
+  ContactSection,
+  EventSection,
+  FaqSection,
+  PrizesSection,
+  RulesSection,
+  SponsorsSection,
+  TimelineSection,
+} from "@/components/sections/Sections";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  loader: ({ context }) => context.queryClient.ensureQueryData(siteContentQuery),
+  head: () => ({
+    meta: [
+      { title: "BLACK HAT#0 '26 — Hackathon for Hackers" },
+      {
+        name: "description",
+        content:
+          "BLACK HAT ZERO '26: a 24-hour hackathon for hackers. Think like a hacker, innovate like a leader. Register your team of up to 4.",
+      },
+      { property: "og:title", content: "BLACK HAT#0 '26 — Hackathon for Hackers" },
+      {
+        property: "og:description",
+        content: "Code. Break. Innovate. Own the system. Register your team for BLACK HAT ZERO '26.",
+      },
+    ],
+  }),
+  component: Home,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Home() {
+  const { data } = useSuspenseQuery(siteContentQuery);
+  const settings = data.settings ?? null;
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <>
+      <Hero settings={settings} />
+      <AboutSection settings={settings} />
+      <EventSection settings={settings} />
+      <ChallengesSection challenges={data.challenges} />
+      <TimelineSection timeline={data.timeline} />
+      <RulesSection rules={data.rules} />
+      <PrizesSection prizes={data.prizes} currency={settings?.currency} />
+      <SponsorsSection sponsors={data.sponsors} />
+      <FaqSection faqs={data.faqs} />
+      <ContactSection settings={settings} />
+    </>
   );
 }
