@@ -160,7 +160,7 @@ function RegisterPage() {
       );
     if (step === 1)
       return members
-        .slice(0, teamSize)
+        .slice(0, coMemberCount)
         .every(
           (m) => m.full_name.trim().length >= 2 && /.+@.+\..+/.test(m.email) && m.phone.trim().length >= 7,
         );
