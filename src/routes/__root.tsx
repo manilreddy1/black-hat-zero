@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useSuspenseQuery } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -125,7 +125,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function SiteChrome() {
-  const { data } = useQuery(siteContentQuery);
+  const { data } = useSuspenseQuery(siteContentQuery);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isStaff = pathname.startsWith("/dashboard") || pathname.startsWith("/auth");
   const settings = data?.settings ?? null;
