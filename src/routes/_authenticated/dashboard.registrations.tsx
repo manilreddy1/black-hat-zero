@@ -56,6 +56,26 @@ function RegistrationsPage() {
     enabled: !!openId,
   });
 
+  const remove = useMutation({
+    mutationFn: (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Team deleted.");
+      setOpenId(null);
+      qc.invalidateQueries({ queryKey: ["registrations"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const confirmDelete = (id: string, label: string) => {
+    if (
+      window.confirm(
+        `Delete ${label}? This permanently removes the team, its members, payment records and proof files.`,
+      )
+    )
+      remove.mutate(id);
+  };
+
   const decide = useMutation({
     mutationFn: (decision: "APPROVE" | "REJECT") =>
       verifyFn({ data: { registration_id: openId!, decision, reason, notes } }),
