@@ -3,7 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { getRegistrationDetail, listRegistrations, verifyPayment } from "@/lib/staff.functions";
+import {
+  deleteRegistration,
+  getMe,
+  getRegistrationDetail,
+  listRegistrations,
+  verifyPayment,
+} from "@/lib/staff.functions";
 import { formatMoney, REJECTION_REASONS } from "@/lib/constants";
 import { StatusBadge } from "@/components/site/StatusBadge";
 
