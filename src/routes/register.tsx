@@ -298,65 +298,65 @@ function RegisterPage() {
 
               {step === 1 && (
                 <div className="space-y-8">
-                  {members.slice(0, teamSize).map((m, i) => (
-                    <div key={i} className="border-l-2 border-l-primary/70 pl-5">
-                      <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
-                        MEMBER {String(i + 1).padStart(2, "0")} {i === 0 && "— TEAM LEADER"}
-                      </p>
-                      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                        <Field
-                          label="FULL NAME"
-                          value={m.full_name}
-                          onChange={(v) => setMember(i, { full_name: v })}
-                        />
-                        <Field
-                          label="EMAIL"
-                          type="email"
-                          value={m.email}
-                          onChange={(v) => setMember(i, { email: v })}
-                        />
-                        <Field
-                          label="PHONE"
-                          value={m.phone}
-                          onChange={(v) => setMember(i, { phone: v })}
-                        />
-                        <Field
-                          label="STUDENT ID (OPTIONAL)"
-                          required={false}
-                          value={m.student_id}
-                          onChange={(v) => setMember(i, { student_id: v })}
-                        />
-                        <Field
-                          label="DEPARTMENT (OPTIONAL)"
-                          required={false}
-                          value={m.department}
-                          onChange={(v) => setMember(i, { department: v })}
-                        />
-                        <Field
-                          label="YEAR (OPTIONAL)"
-                          required={false}
-                          value={m.year}
-                          onChange={(v) => setMember(i, { year: v })}
-                        />
+                  <div className="border-l-2 border-l-primary/70 pl-5">
+                    <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
+                      MEMBER 01 — TEAM LEADER
+                    </p>
+                    <p className="mt-2 font-mono text-xs text-muted-foreground">
+                      {team.leader_name} · {team.leader_email} · {team.leader_phone}
+                    </p>
+                    <p className="mt-1 font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+                      ALREADY CAPTURED IN STEP 01
+                    </p>
+                  </div>
+                  {coMemberCount === 0 ? (
+                    <p className="font-mono text-xs text-muted-foreground">
+                      SOLO ENTRY — NO ADDITIONAL MEMBERS REQUIRED.
+                    </p>
+                  ) : (
+                    members.slice(0, coMemberCount).map((m, i) => (
+                      <div key={i} className="border-l-2 border-l-primary/70 pl-5">
+                        <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
+                          MEMBER {String(i + 2).padStart(2, "0")}
+                        </p>
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                          <Field
+                            label="FULL NAME"
+                            value={m.full_name}
+                            onChange={(v) => setMember(i, { full_name: v })}
+                          />
+                          <Field
+                            label="EMAIL"
+                            type="email"
+                            value={m.email}
+                            onChange={(v) => setMember(i, { email: v })}
+                          />
+                          <Field
+                            label="PHONE"
+                            value={m.phone}
+                            onChange={(v) => setMember(i, { phone: v })}
+                          />
+                          <Field
+                            label="STUDENT ID (OPTIONAL)"
+                            required={false}
+                            value={m.student_id}
+                            onChange={(v) => setMember(i, { student_id: v })}
+                          />
+                          <Field
+                            label="DEPARTMENT (OPTIONAL)"
+                            required={false}
+                            value={m.department}
+                            onChange={(v) => setMember(i, { department: v })}
+                          />
+                          <Field
+                            label="YEAR (OPTIONAL)"
+                            required={false}
+                            value={m.year}
+                            onChange={(v) => setMember(i, { year: v })}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  {members[0] && !members[0].full_name && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setMember(0, {
-                          full_name: team.leader_name,
-                          email: team.leader_email,
-                          phone: team.leader_phone,
-                          department: team.department,
-                          year: team.year,
-                        })
-                      }
-                      className="font-mono text-[11px] tracking-[0.2em] text-primary underline-offset-4 hover:underline"
-                    >
-                      [ COPY LEADER DETAILS INTO MEMBER 01 ]
-                    </button>
+                    ))
                   )}
                 </div>
               )}
