@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
 import { getPaymentContext, submitPayment } from "@/lib/public.functions";
 import { buildUpiUri, formatMoney } from "@/lib/constants";
 import { CyberBackground } from "@/components/site/CyberBackground";
+import { supabase } from "@/integrations/supabase/client";
 import upiLogo from "@/assets/upi-logo.png.asset.json";
 
 export const Route = createFileRoute("/payment/$id")({
