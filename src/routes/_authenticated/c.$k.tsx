@@ -113,6 +113,7 @@ function DashboardLayout() {
               <Link
                 key={l.to}
                 to={l.to}
+                params={{ k }}
                 className="font-mono text-[10px] tracking-[0.15em] whitespace-nowrap text-muted-foreground uppercase"
               >
                 {l.label}
