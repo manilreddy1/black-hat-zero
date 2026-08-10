@@ -72,10 +72,18 @@ function PaymentPage() {
 
 
   const [utr, setUtr] = useState("");
-  const [paidOn, setPaidOn] = useState(() => new Date().toISOString().slice(0, 10));
-  const [paidTime, setPaidTime] = useState(() => new Date().toTimeString().slice(0, 5));
+  const [paidOn, setPaidOn] = useState("");
+  const [paidTime, setPaidTime] = useState("");
   const [shot, setShot] = useState<{ name: string; type: string; base64: string } | null>(null);
   const [done, setDone] = useState(false);
+
+  // Set the fixed payment timestamp on the client only (avoids SSR/client mismatch)
+  useEffect(() => {
+    const now = new Date();
+    setPaidOn(now.toISOString().slice(0, 10));
+    setPaidTime(now.toTimeString().slice(0, 5));
+  }, []);
+
 
   const mutation = useMutation({
     mutationFn: () =>
