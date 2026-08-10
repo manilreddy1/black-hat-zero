@@ -13,6 +13,7 @@ import {
   SponsorsSection,
   TimelineSection,
 } from "@/components/sections/Sections";
+import { CustomSection } from "@/components/sections/CustomSection";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(siteContentQuery),
@@ -37,19 +38,36 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { data } = useSuspenseQuery(siteContentQuery);
   const settings = data.settings ?? null;
+  const sections = (data.sections ?? []).filter((s) => s.is_visible);
+
+  const builtin: Record<string, React.ReactNode> = {
+    hero: <Hero settings={settings} />,
+    about: <AboutSection settings={settings} />,
+    event: <EventSection settings={settings} />,
+    challenges: <ChallengesSection challenges={data.challenges} />,
+    timeline: <TimelineSection timeline={data.timeline} />,
+    rules: <RulesSection rules={data.rules} />,
+    prizes: <PrizesSection prizes={data.prizes} currency={settings?.currency} />,
+    sponsors: <SponsorsSection sponsors={data.sponsors} />,
+    faq: <FaqSection faqs={data.faqs} />,
+    contact: <ContactSection settings={settings} />,
+  };
 
   return (
     <>
-      <Hero settings={settings} />
-      <AboutSection settings={settings} />
-      <EventSection settings={settings} />
-      <ChallengesSection challenges={data.challenges} />
-      <TimelineSection timeline={data.timeline} />
-      <RulesSection rules={data.rules} />
-      <PrizesSection prizes={data.prizes} currency={settings?.currency} />
-      <SponsorsSection sponsors={data.sponsors} />
-      <FaqSection faqs={data.faqs} />
-      <ContactSection settings={settings} />
+      {sections.map((s) => (
+        <div key={s.id}>
+          {builtin[s.key] ?? (
+            <CustomSection
+              sectionKey={s.key}
+              label={s.label}
+              title={s.title}
+              subtitle={s.subtitle}
+              body={s.body}
+            />
+          )}
+        </div>
+      ))}
     </>
   );
 }
