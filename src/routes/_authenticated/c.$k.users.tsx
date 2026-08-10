@@ -45,6 +45,9 @@ function UsersPage() {
       <div>
         <p className="font-mono text-[11px] tracking-[0.4em] text-primary">// ACCESS CONTROL</p>
         <h1 className="mt-2 font-display text-3xl font-bold tracking-widest uppercase">Staff</h1>
+        <p className="mt-2 font-mono text-xs text-muted-foreground">
+          Super admin only. Only this account can create administrators or change roles.
+        </p>
       </div>
 
       <form
@@ -116,6 +119,11 @@ function UsersPage() {
                 <td className="px-3 py-3">{u.full_name}</td>
                 <td className="px-3 py-3 font-mono text-xs">{u.email}</td>
                 <td className="px-3 py-3">
+                  {u.roles.includes("super_admin") ? (
+                    <span className="font-mono text-[11px] tracking-[0.2em] text-primary uppercase">
+                      Super admin
+                    </span>
+                  ) : (
                   <select
                     value={u.roles[0] ?? "coordinator"}
                     onChange={async (e) => {
@@ -133,15 +141,17 @@ function UsersPage() {
                       </option>
                     ))}
                   </select>
+                  )}
                 </td>
                 <td className="px-3 py-3">
                   <button
+                    disabled={u.roles.includes("super_admin")}
                     onClick={async () => {
                       await activeFn({ data: { user_id: u.id, is_active: !u.is_active } });
                       toast.success(u.is_active ? "Account disabled." : "Account enabled.");
                       refresh();
                     }}
-                    className={`font-mono text-[11px] tracking-[0.2em] uppercase ${
+                    className={`font-mono text-[11px] tracking-[0.2em] uppercase disabled:opacity-50 ${
                       u.is_active ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
