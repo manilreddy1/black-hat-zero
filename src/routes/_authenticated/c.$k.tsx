@@ -76,8 +76,9 @@ function DashboardLayout() {
             <Link
               key={l.to}
               to={l.to}
+              params={{ k }}
               className={`px-3 py-2 font-mono text-xs tracking-[0.15em] uppercase transition-colors ${
-                pathname === l.to
+                pathname === l.to.replace("$k", k)
                   ? "border-l-2 border-l-primary bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
