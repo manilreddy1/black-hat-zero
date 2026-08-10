@@ -5,7 +5,7 @@ import { registrationSchema, paymentSchema } from "./schemas";
 export const getSiteContent = createServerFn({ method: "GET" }).handler(async () => {
   const { publicClient } = await import("./db.server");
   const sb = publicClient();
-  const [settings, timeline, prizes, rules, faqs, sponsors, challenges, announcements, texts, sections] =
+  const [settings, timeline, prizes, rules, faqs, sponsors, challenges, announcements, texts, sections, nav, pages] =
     await Promise.all([
       sb.from("event_settings").select("*").limit(1).maybeSingle(),
       sb.from("timeline_items").select("*").order("sort_order"),
@@ -17,6 +17,8 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(async ()
       sb.from("announcements").select("*").order("created_at", { ascending: false }).limit(5),
       sb.from("site_texts").select("key,value"),
       sb.from("page_sections").select("*").order("sort_order"),
+      sb.from("nav_items").select("*").eq("is_visible", true).order("sort_order"),
+      sb.from("custom_pages").select("id,slug,title").eq("is_published", true).order("sort_order"),
     ]);
   const textMap: Record<string, string> = {};
   for (const row of texts.data ?? []) textMap[row.key] = row.value;
@@ -30,6 +32,8 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(async ()
     challenges: challenges.data ?? [],
     announcements: announcements.data ?? [],
     sections: sections.data ?? [],
+    nav: nav.data ?? [],
+    pages: pages.data ?? [],
     texts: textMap,
   };
 });
@@ -373,4 +377,18 @@ export const joinWaitlist = createServerFn({ method: "POST" })
       team_size: data.team_size,
     });
     return { ok: true };
+  });
+
+export const getCustomPage = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
+  .handler(async ({ data }) => {
+    const { publicClient } = await import("./db.server");
+    const sb = publicClient();
+    const { data: page } = await sb
+      .from("custom_pages")
+      .select("*")
+      .eq("slug", data.slug)
+      .eq("is_published", true)
+      .maybeSingle();
+    return page;
   });

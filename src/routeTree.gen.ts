@@ -22,6 +22,7 @@ import { Route as RulesRouteImport } from './routes/rules'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as Sys9f4c2aRouteImport } from './routes/sys-9f4c2a'
 import { Route as TimelineRouteImport } from './routes/timeline'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
 import { Route as AuthenticatedCKIndexRouteImport } from './routes/_authenticated/c.$k.index'
@@ -98,6 +99,11 @@ const TimelineRoute = TimelineRouteImport.update({
   path: '/timeline',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PaymentIdRoute = PaymentIdRouteImport.update({
   id: '/payment/$id',
   path: '/payment/$id',
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/status': typeof StatusRoute
   '/sys-9f4c2a': typeof Sys9f4c2aRoute
   '/timeline': typeof TimelineRoute
+  '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
   '/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/sys-9f4c2a': typeof Sys9f4c2aRoute
   '/timeline': typeof TimelineRoute
+  '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/status': typeof StatusRoute
   '/sys-9f4c2a': typeof Sys9f4c2aRoute
   '/timeline': typeof TimelineRoute
+  '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
   '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/_authenticated/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/sys-9f4c2a'
     | '/timeline'
+    | '/p/$slug'
     | '/payment/$id'
     | '/c/$k'
     | '/c/$k/certificates'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/sys-9f4c2a'
     | '/timeline'
+    | '/p/$slug'
     | '/payment/$id'
     | '/c/$k/certificates'
     | '/c/$k/content'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/sys-9f4c2a'
     | '/timeline'
+    | '/p/$slug'
     | '/payment/$id'
     | '/_authenticated/c/$k'
     | '/_authenticated/c/$k/certificates'
@@ -324,6 +336,7 @@ export interface RootRouteChildren {
   StatusRoute: typeof StatusRoute
   Sys9f4c2aRoute: typeof Sys9f4c2aRoute
   TimelineRoute: typeof TimelineRoute
+  PSlugRoute: typeof PSlugRoute
   PaymentIdRoute: typeof PaymentIdRoute
 }
 
@@ -418,6 +431,13 @@ declare module '@tanstack/react-router' {
       path: '/timeline'
       fullPath: '/timeline'
       preLoaderRoute: typeof TimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment/$id': {
@@ -553,6 +573,7 @@ const rootRouteChildren: RootRouteChildren = {
   StatusRoute: StatusRoute,
   Sys9f4c2aRoute: Sys9f4c2aRoute,
   TimelineRoute: TimelineRoute,
+  PSlugRoute: PSlugRoute,
   PaymentIdRoute: PaymentIdRoute,
 }
 export const routeTree = rootRouteImport

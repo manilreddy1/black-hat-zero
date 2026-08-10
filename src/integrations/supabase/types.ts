@@ -209,6 +209,45 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_pages: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          seo_description: string | null
+          slug: string
+          sort_order: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          slug: string
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          slug?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_settings: {
         Row: {
           about: string
@@ -344,6 +383,42 @@ export type Database = {
           is_published?: boolean
           question?: string
           sort_order?: number
+        }
+        Relationships: []
+      }
+      nav_items: {
+        Row: {
+          created_at: string
+          href: string
+          id: string
+          is_button: boolean
+          is_visible: boolean
+          label: string
+          new_tab: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          id?: string
+          is_button?: boolean
+          is_visible?: boolean
+          label: string
+          new_tab?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          id?: string
+          is_button?: boolean
+          is_visible?: boolean
+          label?: string
+          new_tab?: boolean
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }

@@ -96,6 +96,31 @@ const CONFIG: Record<
       { name: "is_visible", label: "Visible", type: "bool" },
     ],
   },
+  nav_items: {
+    label: "Navigation menu",
+    titleField: "label",
+    fields: [
+      { name: "label", label: "Label", type: "text" },
+      { name: "href", label: "Link (e.g. /about or /p/my-page or https://...)", type: "text" },
+      { name: "sort_order", label: "Order", type: "number" },
+      { name: "is_button", label: "Show as button", type: "bool" },
+      { name: "new_tab", label: "Open in new tab", type: "bool" },
+      { name: "is_visible", label: "Visible", type: "bool" },
+    ],
+  },
+  custom_pages: {
+    label: "Pages",
+    titleField: "title",
+    fields: [
+      { name: "title", label: "Page title", type: "text" },
+      { name: "slug", label: "URL slug (page opens at /p/slug)", type: "text" },
+      { name: "subtitle", label: "Subtitle", type: "text" },
+      { name: "body", label: "Body", type: "textarea" },
+      { name: "seo_description", label: "SEO description", type: "text" },
+      { name: "sort_order", label: "Order", type: "number" },
+      { name: "is_published", label: "Published", type: "bool" },
+    ],
+  },
   announcements: {
     label: "Announcements",
     titleField: "title",
