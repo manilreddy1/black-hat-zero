@@ -52,7 +52,7 @@ export function PreviewMode() {
 
   if (!preview) return null;
 
-  const failed = Boolean(error);
+  const failed = Boolean(error) || signedIn === false;
 
   return (
     <div className="fixed inset-x-0 top-0 z-[100] border-b border-primary/60 bg-primary/15 backdrop-blur-md">
