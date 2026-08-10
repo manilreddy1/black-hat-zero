@@ -111,6 +111,15 @@ function RegisterPage() {
   );
 
   const total = useMemo(() => fee * teamSize, [fee, teamSize]);
+  const coMemberCount = Math.max(0, teamSize - 1);
+  const leaderMember: Member = {
+    ...emptyMember(),
+    full_name: team.leader_name,
+    email: team.leader_email,
+    phone: team.leader_phone,
+    department: team.department,
+    year: team.year,
+  };
   const deadlinePassed =
     !!settings && new Date(settings.registration_deadline).getTime() < Date.now();
   const closed = !settings?.registration_open || deadlinePassed;
@@ -122,7 +131,7 @@ function RegisterPage() {
         data: {
           ...team,
           team_size: teamSize,
-          members: members.slice(0, teamSize),
+          members: [leaderMember, ...members.slice(0, coMemberCount)],
         },
       }),
     onSuccess: (res) => {
