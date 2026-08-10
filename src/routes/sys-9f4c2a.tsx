@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getConsoleKey } from "@/lib/console.functions";
+import { preStaffLogin, reportStaffLogin } from "@/lib/security.functions";
 import { Logo } from "@/components/site/Logo";
 import { CyberBackground } from "@/components/site/CyberBackground";
 
@@ -32,12 +33,31 @@ function AuthPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
+    const addr = email.trim().toLowerCase();
+    try {
+      // Server-side brute-force gate (exponential backoff per email + IP).
+      await preStaffLogin({ data: { email: addr } });
+    } catch (err) {
       setBusy(false);
-      toast.error(error.message);
+      toast.error((err as Error).message);
       return;
     }
+
+    const { error } = await supabase.auth.signInWithPassword({ email: addr, password });
+    if (error) {
+      const res = await reportStaffLogin({ data: { email: addr, success: false } }).catch(
+        () => ({ locked_ms: 0 }),
+      );
+      setBusy(false);
+      toast.error(
+        res.locked_ms > 0
+          ? `${error.message} Locked for ${Math.ceil(res.locked_ms / 1000)}s.`
+          : error.message,
+      );
+      return;
+    }
+
+    await reportStaffLogin({ data: { email: addr, success: true } }).catch(() => null);
     const { key } = await getConsoleKey();
     setBusy(false);
     toast.success("Access granted.");

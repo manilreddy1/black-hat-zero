@@ -6,18 +6,23 @@ import {
   useRouterState,
   notFound,
 } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { getMe } from "@/lib/staff.functions";
-import { getConsoleKey } from "@/lib/console.functions";
+import { verifyConsoleAccess } from "@/lib/security.functions";
 import { Logo } from "@/components/site/Logo";
 
 export const Route = createFileRoute("/_authenticated/c/$k")({
+  // Re-validates the session, the console key and the roles on the server for
+  // every single /c request. Client state is never trusted.
+  staleTime: 0,
+  shouldReload: true,
   loader: async ({ params }) => {
-    const { key } = await getConsoleKey();
-    if (key !== params.k) throw notFound();
-    return { key };
+    try {
+      const access = await verifyConsoleAccess({ data: { k: params.k } });
+      return access;
+    } catch {
+      throw notFound();
+    }
   },
   head: () => ({
     meta: [
@@ -46,13 +51,12 @@ const LINKS = [
 ] as const;
 
 function DashboardLayout() {
-  const me = useServerFn(getMe);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { k } = Route.useParams();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { data } = useQuery({ queryKey: ["me"], queryFn: () => me() });
-  const roles = data?.roles ?? [];
+  const data = Route.useLoaderData();
+  const roles = data.roles;
 
   const signOut = async () => {
     await queryClient.cancelQueries();
@@ -90,7 +94,7 @@ function DashboardLayout() {
         </nav>
         <div className="mt-auto space-y-3 border-t border-border pt-4">
           <p className="font-mono text-[10px] break-all text-muted-foreground">
-            {data?.profile?.email}
+            {data.profile?.email}
           </p>
           <p className="font-mono text-[10px] tracking-[0.2em] text-primary uppercase">
             {roles.join(" · ") || "no role"}
@@ -126,7 +130,7 @@ function DashboardLayout() {
           </div>
         </header>
         <div className="p-5 sm:p-8">
-          {roles.length === 0 && data ? (
+          {roles.length === 0 ? (
             <div className="panel p-6">
               <p className="font-display text-lg font-bold tracking-widest uppercase">
                 No role assigned
