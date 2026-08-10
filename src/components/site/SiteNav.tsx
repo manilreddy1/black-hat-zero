@@ -124,33 +124,39 @@ export function SiteNav() {
             className="grid-bg fixed inset-x-0 top-16 bottom-0 z-40 border-t border-border bg-background/98 px-6 py-8 lg:hidden"
           >
             <ul className="space-y-1">
-              {[...NAV, { to: "/status", key: "nav.status", label: "Status" }].map((item, i) => (
+              {links.map((item, i) => (
                 <motion.li
-                  key={item.to}
+                  key={item.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.05 * i }}
                 >
-                  <Link
-                    to={item.to}
+                  <DynamicLink
+                    href={item.href}
+                    newTab={item.new_tab}
                     onClick={() => setOpen(false)}
                     className="block border-b border-border/60 py-4 font-display text-2xl uppercase tracking-wider"
                   >
                     <span className="mr-3 font-mono text-xs text-primary">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    {t(item.key, item.label)}
-                  </Link>
+                    {item.label}
+                  </DynamicLink>
                 </motion.li>
               ))}
             </ul>
-            <Link
-              to="/register"
-              onClick={() => setOpen(false)}
-              className="clip-notch mt-8 block bg-primary py-4 text-center font-mono text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground"
-            >
-              Register Now
-            </Link>
+            {buttons.map((item) => (
+              <DynamicLink
+                key={item.id}
+                href={item.href}
+                newTab={item.new_tab}
+                onClick={() => setOpen(false)}
+                className="clip-notch mt-8 block bg-primary py-4 text-center font-mono text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground"
+              >
+                {item.label}
+              </DynamicLink>
+            ))}
+
           </motion.div>
         )}
       </AnimatePresence>
