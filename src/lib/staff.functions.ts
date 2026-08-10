@@ -458,8 +458,12 @@ export const listMessages = createServerFn({ method: "GET" })
 export const listStaffUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["super_admin"]);
+    const { getRoles } = await import("./staff.server");
+    const myRoles = await getRoles(context.supabase, context.userId);
+    const isSuperAdmin = myRoles.includes("super_admin");
+    if (!isSuperAdmin && !myRoles.includes("admin")) {
+      throw new Error("Unauthorized: insufficient permissions.");
+    }
     const { admin } = await import("./db.server");
     const db = await admin();
     const { data: roles } = await db.from("user_roles").select("user_id, role");
@@ -467,10 +471,14 @@ export const listStaffUsers = createServerFn({ method: "GET" })
     const { data: profiles } = ids.length
       ? await db.from("profiles").select("*").in("id", ids)
       : { data: [] };
-    return (profiles ?? []).map((p) => ({
-      ...p,
-      roles: (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role as string),
-    }));
+    const users = (profiles ?? [])
+      .map((p) => ({
+        ...p,
+        roles: (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role as string),
+      }))
+      // The super admin account stays invisible to ordinary admins.
+      .filter((u) => isSuperAdmin || !u.roles.includes("super_admin"));
+    return { isSuperAdmin, users };
   });
 
 export const createStaffUser = createServerFn({ method: "POST" })
@@ -486,8 +494,15 @@ export const createStaffUser = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["super_admin"]);
+    const { getRoles } = await import("./staff.server");
+    const myRoles = await getRoles(context.supabase, context.userId);
+    const isSuperAdmin = myRoles.includes("super_admin");
+    if (!isSuperAdmin && !myRoles.includes("admin")) {
+      throw new Error("Unauthorized: insufficient permissions.");
+    }
+    if (!isSuperAdmin && data.role === "admin") {
+      throw new Error("Only the super admin can create administrators.");
+    }
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
     const created = await db.auth.admin.createUser({
@@ -502,7 +517,7 @@ export const createStaffUser = createServerFn({ method: "POST" })
     await db.from("user_roles").insert({ user_id: uid, role: data.role });
     await writeAudit({
       actor_id: context.userId,
-      actor_role: "super_admin",
+      actor_role: isSuperAdmin ? "super_admin" : "admin",
       action: "USER_CREATED",
       entity: "profiles",
       entity_id: uid,
@@ -523,6 +538,7 @@ export const setUserRole = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
+    // Role changes are exclusively a super admin power.
     await requireRole(context.supabase, context.userId, ["super_admin"]);
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
@@ -552,16 +568,24 @@ export const setUserActive = createServerFn({ method: "POST" })
     z.object({ user_id: z.string().uuid(), is_active: z.boolean() }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["super_admin"]);
+    const { getRoles } = await import("./staff.server");
+    const myRoles = await getRoles(context.supabase, context.userId);
+    const isSuperAdmin = myRoles.includes("super_admin");
+    if (!isSuperAdmin && !myRoles.includes("admin")) {
+      throw new Error("Unauthorized: insufficient permissions.");
+    }
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
     const { data: targetRoles } = await db
       .from("user_roles")
       .select("role")
       .eq("user_id", data.user_id);
-    if ((targetRoles ?? []).some((r) => r.role === "super_admin")) {
+    const target = (targetRoles ?? []).map((r) => r.role as string);
+    if (target.includes("super_admin")) {
       throw new Error("The super admin account cannot be modified.");
+    }
+    if (!isSuperAdmin && target.includes("admin")) {
+      throw new Error("Only the super admin can modify administrator accounts.");
     }
     await db.from("profiles").update({ is_active: data.is_active }).eq("id", data.user_id);
     await db.auth.admin.updateUserById(data.user_id, {
@@ -569,7 +593,7 @@ export const setUserActive = createServerFn({ method: "POST" })
     });
     await writeAudit({
       actor_id: context.userId,
-      actor_role: "super_admin",
+      actor_role: isSuperAdmin ? "super_admin" : "admin",
       action: data.is_active ? "USER_ENABLED" : "USER_DISABLED",
       entity: "profiles",
       entity_id: data.user_id,
