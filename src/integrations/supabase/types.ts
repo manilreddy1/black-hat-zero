@@ -1005,7 +1005,7 @@ export type Database = {
       next_registration_number: { Args: never; Returns: number }
     }
     Enums: {
-      app_role: "admin" | "coordinator" | "payment_verifier"
+      app_role: "admin" | "coordinator" | "payment_verifier" | "super_admin"
       reg_status:
         | "DRAFT"
         | "PAYMENT_PENDING"
@@ -1141,7 +1141,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "coordinator", "payment_verifier"],
+      app_role: ["admin", "coordinator", "payment_verifier", "super_admin"],
       reg_status: [
         "DRAFT",
         "PAYMENT_PENDING",

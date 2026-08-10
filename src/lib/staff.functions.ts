@@ -459,7 +459,7 @@ export const listStaffUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["admin"]);
+    await requireRole(context.supabase, context.userId, ["super_admin"]);
     const { admin } = await import("./db.server");
     const db = await admin();
     const { data: roles } = await db.from("user_roles").select("user_id, role");
@@ -487,7 +487,7 @@ export const createStaffUser = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["admin"]);
+    await requireRole(context.supabase, context.userId, ["super_admin"]);
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
     const created = await db.auth.admin.createUser({
@@ -502,7 +502,7 @@ export const createStaffUser = createServerFn({ method: "POST" })
     await db.from("user_roles").insert({ user_id: uid, role: data.role });
     await writeAudit({
       actor_id: context.userId,
-      actor_role: "admin",
+      actor_role: "super_admin",
       action: "USER_CREATED",
       entity: "profiles",
       entity_id: uid,
@@ -523,14 +523,21 @@ export const setUserRole = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["admin"]);
+    await requireRole(context.supabase, context.userId, ["super_admin"]);
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
+    const { data: targetRoles } = await db
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user_id);
+    if ((targetRoles ?? []).some((r) => r.role === "super_admin")) {
+      throw new Error("The super admin account cannot be modified.");
+    }
     await db.from("user_roles").delete().eq("user_id", data.user_id);
     await db.from("user_roles").insert({ user_id: data.user_id, role: data.role });
     await writeAudit({
       actor_id: context.userId,
-      actor_role: "admin",
+      actor_role: "super_admin",
       action: "ROLE_CHANGED",
       entity: "user_roles",
       entity_id: data.user_id,
@@ -546,16 +553,23 @@ export const setUserActive = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["admin"]);
+    await requireRole(context.supabase, context.userId, ["super_admin"]);
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
+    const { data: targetRoles } = await db
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user_id);
+    if ((targetRoles ?? []).some((r) => r.role === "super_admin")) {
+      throw new Error("The super admin account cannot be modified.");
+    }
     await db.from("profiles").update({ is_active: data.is_active }).eq("id", data.user_id);
     await db.auth.admin.updateUserById(data.user_id, {
       ban_duration: data.is_active ? "none" : "876000h",
     });
     await writeAudit({
       actor_id: context.userId,
-      actor_role: "admin",
+      actor_role: "super_admin",
       action: data.is_active ? "USER_ENABLED" : "USER_DISABLED",
       entity: "profiles",
       entity_id: data.user_id,
