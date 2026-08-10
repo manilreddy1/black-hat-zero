@@ -314,6 +314,16 @@ function ContentPage() {
               </p>
             </div>
             <div className="flex shrink-0 gap-2">
+              {table === "custom_pages" && r["slug"] ? (
+                <a
+                  href={`/p/${String(r["slug"])}?preview=1`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border border-border px-3 py-1.5 font-mono text-[10px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+                >
+                  Preview
+                </a>
+              ) : null}
               <button
                 onClick={() => setEditing(r)}
                 className="border border-border px-3 py-1.5 font-mono text-[10px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
