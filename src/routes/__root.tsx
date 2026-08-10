@@ -159,9 +159,8 @@ function SiteChrome() {
                 "The site is temporarily offline for maintenance. Check back shortly."}
             </p>
           </div>
-
-          </div>
         </div>
+
         <Toaster position="top-right" />
       </>
     );
