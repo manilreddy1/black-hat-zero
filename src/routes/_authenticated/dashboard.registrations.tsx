@@ -31,7 +31,13 @@ function RegistrationsPage() {
   const listFn = useServerFn(listRegistrations);
   const detailFn = useServerFn(getRegistrationDetail);
   const verifyFn = useServerFn(verifyPayment);
+  const deleteFn = useServerFn(deleteRegistration);
+  const meFn = useServerFn(getMe);
   const qc = useQueryClient();
+
+  const me = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
+  const isAdmin = !!me.data?.roles.includes("admin");
+
 
   const [status, setStatus] = useState("ALL");
   const [search, setSearch] = useState("");
