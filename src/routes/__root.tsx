@@ -17,6 +17,7 @@ import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 
 import { BootLoader } from "@/components/site/BootLoader";
+import { PreviewMode } from "@/components/site/PreviewMode";
 import { siteContentQuery } from "@/hooks/useSiteContent";
 
 function NotFoundComponent() {
@@ -149,6 +150,7 @@ function SiteChrome() {
   if (settings?.maintenance_mode && !isStaff) {
     return (
       <>
+        <PreviewMode />
         <div className="scanlines flex min-h-screen items-center justify-center bg-background px-6">
           <div className="panel clip-notch max-w-lg p-10 text-center">
             <h1 className="font-display text-3xl font-bold tracking-widest text-primary uppercase text-glow">
@@ -168,6 +170,7 @@ function SiteChrome() {
 
   return (
     <>
+      <PreviewMode />
       {!isStaff && <BootLoader />}
       
       <div className="flex min-h-screen flex-col">

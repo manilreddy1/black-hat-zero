@@ -279,3 +279,11 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Staff live-preview bar: shift page chrome down so nothing is hidden behind it. */
+body.preview-bar {
+  padding-top: 34px;
+}
+body.preview-bar header.fixed {
+  top: 34px;
+}

@@ -656,3 +656,59 @@ export const deleteRegistration = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/** Staff-only: full site content including hidden sections and unpublished pages, for live preview. */
+export const getPreviewContent = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { requireStaff } = await import("./staff.server");
+    await requireStaff(context.supabase, context.userId);
+    const { admin } = await import("./db.server");
+    const db = await admin();
+
+    const [
+      settings,
+      timeline,
+      prizes,
+      rules,
+      faqs,
+      sponsors,
+      challenges,
+      announcements,
+      texts,
+      sections,
+      nav,
+      pages,
+    ] = await Promise.all([
+      db.from("event_settings").select("*").limit(1).maybeSingle(),
+      db.from("timeline_items").select("*").order("sort_order"),
+      db.from("prizes").select("*").order("sort_order"),
+      db.from("rules").select("*").order("sort_order"),
+      db.from("faqs").select("*").order("sort_order"),
+      db.from("sponsors").select("*").order("sort_order"),
+      db.from("challenges").select("*").order("sort_order"),
+      db.from("announcements").select("*").order("created_at", { ascending: false }).limit(5),
+      db.from("site_texts").select("key,value"),
+      db.from("page_sections").select("*").order("sort_order"),
+      db.from("nav_items").select("*").order("sort_order"),
+      db.from("custom_pages").select("*").order("sort_order"),
+    ]);
+
+    const textMap: Record<string, string> = {};
+    for (const row of texts.data ?? []) textMap[row.key] = row.value;
+
+    return {
+      settings: settings.data,
+      timeline: timeline.data ?? [],
+      prizes: prizes.data ?? [],
+      rules: rules.data ?? [],
+      faqs: faqs.data ?? [],
+      sponsors: sponsors.data ?? [],
+      challenges: challenges.data ?? [],
+      announcements: announcements.data ?? [],
+      sections: sections.data ?? [],
+      nav: nav.data ?? [],
+      pages: pages.data ?? [],
+      texts: textMap,
+    };
+  });
