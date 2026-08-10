@@ -50,4 +50,6 @@ export const CONTENT_TABLES = [
   "challenges",
   "announcements",
   "page_sections",
+  "nav_items",
+  "custom_pages",
 ] as const;
