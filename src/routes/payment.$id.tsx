@@ -42,7 +42,13 @@ function PaymentPage() {
     queryKey: ["payment-context", id],
     queryFn: () => ctxFn({ data: { registration_id: id } }),
     retry: false,
+    // Keep the QR/amount/UPI details in sync if an admin changes them mid-session
+    refetchInterval: 10000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
+
 
   const [utr, setUtr] = useState("");
   const [paidOn, setPaidOn] = useState(() => new Date().toISOString().slice(0, 10));
