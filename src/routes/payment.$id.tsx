@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
 import { getPaymentContext, submitPayment } from "@/lib/public.functions";
 import { buildUpiUri, formatMoney } from "@/lib/constants";
 import { CyberBackground } from "@/components/site/CyberBackground";
+import { supabase } from "@/integrations/supabase/client";
 import upiLogo from "@/assets/upi-logo.png.asset.json";
 
 export const Route = createFileRoute("/payment/$id")({
@@ -37,12 +38,38 @@ function PaymentPage() {
   const { id } = Route.useParams();
   const ctxFn = useServerFn(getPaymentContext);
   const payFn = useServerFn(submitPayment);
+  const qc = useQueryClient();
+
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["payment-context", id],
     queryFn: () => ctxFn({ data: { registration_id: id } }),
     retry: false,
+    // Keep the QR/amount/UPI details in sync if an admin changes them mid-session
+    refetchInterval: 10000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
+
+  // Instant refresh when an admin edits UPI/fee settings or this registration
+  useEffect(() => {
+    const channel = supabase
+      .channel(`payment-ctx-${id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "event_settings" }, () =>
+        qc.invalidateQueries({ queryKey: ["payment-context", id] }),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "registrations", filter: `id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["payment-context", id] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, qc]);
+
 
   const [utr, setUtr] = useState("");
   const [paidOn, setPaidOn] = useState(() => new Date().toISOString().slice(0, 10));
