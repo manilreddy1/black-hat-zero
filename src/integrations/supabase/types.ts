@@ -275,6 +275,48 @@ export type Database = {
         }
         Relationships: []
       }
+      page_sections: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          is_visible: boolean
+          key: string
+          kind: string
+          label: string
+          sort_order: number
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          key: string
+          kind?: string
+          label: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          key?: string
+          kind?: string
+          label?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_verifications: {
         Row: {
           created_at: string
