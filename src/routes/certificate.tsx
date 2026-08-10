@@ -122,11 +122,14 @@ function CertificatePage() {
 
         {result && !result.found && (
           <div className="panel mt-6 border-l-2 border-l-destructive p-5 font-mono text-sm">
-            {"reason" in result && result.reason === "not_verified"
-              ? "THIS REGISTRATION IS NOT VERIFIED YET."
-              : "NO RECORD FOUND FOR THAT IDENTIFIER."}
+            {result.reason === "throttled" || result.reason === "disabled"
+              ? result.message.toUpperCase()
+              : result.reason === "not_verified"
+                ? "THIS REGISTRATION IS NOT VERIFIED YET."
+                : `NO RECORD FOUND FOR THAT IDENTIFIER.${result.message ? ` ${result.message.toUpperCase()}` : ""}`}
           </div>
         )}
+
 
         {result?.found && (
           <motion.div
