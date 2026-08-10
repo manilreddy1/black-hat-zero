@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { getPaymentContext, submitPayment } from "@/lib/public.functions";
 import { buildUpiUri, formatMoney } from "@/lib/constants";
 import { CyberBackground } from "@/components/site/CyberBackground";
-import { UpiLogo } from "@/components/site/UpiLogo";
+import upiLogo from "@/assets/upi-logo.png.asset.json";
 
 export const Route = createFileRoute("/payment/$id")({
   head: () => ({
