@@ -82,6 +82,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  headers: () => ({
+    Link: '</favicon.ico>; rel="icon"',
+  }),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
