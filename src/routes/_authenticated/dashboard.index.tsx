@@ -76,7 +76,10 @@ function Overview() {
                 <XAxis dataKey="date" stroke="#8a8f98" fontSize={11} />
                 <YAxis stroke="#8a8f98" fontSize={11} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12 }}
+                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12, color: "#e6e8ea" }}
+                  labelStyle={{ color: "#e6e8ea" }}
+                  itemStyle={{ color: "#e6e8ea" }}
+                  cursor={{ fill: "rgba(225,29,46,0.08)" }}
                 />
                 <Line type="monotone" dataKey="count" stroke="#e11d2e" strokeWidth={2} dot={false} />
               </LineChart>
@@ -89,13 +92,16 @@ function Overview() {
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={data.statusDist} dataKey="value" nameKey="name" outerRadius={90} label>
+                <Pie data={data.statusDist} dataKey="value" nameKey="name" outerRadius={90} label={{ fill: "#e6e8ea", fontSize: 11 }}>
                   {data.statusDist.map((_, i) => (
                     <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12 }}
+                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12, color: "#e6e8ea" }}
+                  labelStyle={{ color: "#e6e8ea" }}
+                  itemStyle={{ color: "#e6e8ea" }}
+                  cursor={{ fill: "rgba(225,29,46,0.08)" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -111,7 +117,10 @@ function Overview() {
                 <XAxis dataKey="name" stroke="#8a8f98" fontSize={11} />
                 <YAxis stroke="#8a8f98" fontSize={11} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12 }}
+                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12, color: "#e6e8ea" }}
+                  labelStyle={{ color: "#e6e8ea" }}
+                  itemStyle={{ color: "#e6e8ea" }}
+                  cursor={{ fill: "rgba(225,29,46,0.08)" }}
                 />
                 <Bar dataKey="count" fill="#e11d2e" />
               </BarChart>
@@ -128,7 +137,10 @@ function Overview() {
                 <XAxis type="number" stroke="#8a8f98" fontSize={11} allowDecimals={false} />
                 <YAxis type="category" dataKey="name" stroke="#8a8f98" fontSize={10} width={110} />
                 <Tooltip
-                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12 }}
+                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12, color: "#e6e8ea" }}
+                  labelStyle={{ color: "#e6e8ea" }}
+                  itemStyle={{ color: "#e6e8ea" }}
+                  cursor={{ fill: "rgba(225,29,46,0.08)" }}
                 />
                 <Bar dataKey="count" fill="#f97362" />
               </BarChart>
