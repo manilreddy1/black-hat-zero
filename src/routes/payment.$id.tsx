@@ -155,7 +155,7 @@ function PaymentPage() {
                     <QRCode value={upiUri} size={200} level="H" />
                     <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
                       <span className="rounded-[6px] bg-white p-1 shadow-[0_0_0_2px_#fff]">
-                        <UpiLogo className="h-8 w-16" />
+                        <img src={upiLogo.url} alt="UPI" className="h-8 w-16 object-contain" />
                       </span>
                     </span>
                   </div>
