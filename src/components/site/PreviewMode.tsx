@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouterState } from "@tanstack/react-router";
 import { previewContentQuery, usePreviewMode } from "@/hooks/useSiteContent";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * When ?preview=1 is present, staff see unpublished/hidden content live:
