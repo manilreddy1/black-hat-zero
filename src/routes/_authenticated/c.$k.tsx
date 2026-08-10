@@ -7,6 +7,8 @@ import {
   notFound,
 } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyConsoleAccess } from "@/lib/security.functions";
 import { Logo } from "@/components/site/Logo";
@@ -57,6 +59,8 @@ function DashboardLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const data = Route.useLoaderData();
   const roles = data.roles;
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const visibleLinks = LINKS.filter((l) => l.roles.some((r) => roles.includes(r)));
 
   const signOut = async () => {
     await queryClient.cancelQueries();
@@ -77,7 +81,7 @@ function DashboardLayout() {
         </Link>
         <p className="mt-8 font-mono text-[10px] tracking-[0.3em] text-primary">CONSOLE</p>
         <nav className="mt-3 flex flex-col gap-1">
-          {LINKS.filter((l) => l.roles.some((r) => roles.includes(r))).map((l) => (
+          {visibleLinks.map((l) => (
             <Link
               key={l.to}
               to={l.to}
@@ -109,25 +113,51 @@ function DashboardLayout() {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="flex items-center justify-between gap-3 overflow-x-auto border-b border-border px-5 py-3 lg:hidden">
-          <span className="font-display text-sm font-bold tracking-widest">
-            BLACK<span className="text-primary">HAT#0</span>
-          </span>
-          <div className="flex gap-2">
-            {LINKS.filter((l) => l.roles.some((r) => roles.includes(r))).map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                params={{ k }}
-                className="font-mono text-[10px] tracking-[0.15em] whitespace-nowrap text-muted-foreground uppercase"
-              >
-                {l.label}
-              </Link>
-            ))}
-            <button onClick={signOut} className="font-mono text-[10px] text-primary uppercase">
-              Exit
+        <header className="relative border-b border-border px-4 py-3 lg:hidden">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <span className="truncate font-display text-sm font-bold tracking-widest">
+              BLACK<span className="text-primary">HAT#0</span>
+            </span>
+            <button
+              type="button"
+              aria-label={mobileMenuOpen ? "Close admin menu" : "Open admin menu"}
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="grid h-10 w-10 shrink-0 place-items-center border border-border text-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              {mobileMenuOpen ? <X size={19} aria-hidden="true" /> : <Menu size={19} aria-hidden="true" />}
             </button>
           </div>
+
+          {mobileMenuOpen && (
+            <nav className="panel absolute inset-x-4 top-[calc(100%+8px)] z-30 p-2 shadow-[var(--glow-soft)]" aria-label="Admin menu">
+              {visibleLinks.map((l) => {
+                const isActive = pathname === l.to.replace("$k", k);
+                return (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    params={{ k }}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block border-l-2 px-3 py-3 font-mono text-xs tracking-[0.15em] uppercase transition-colors ${
+                      isActive
+                        ? "border-l-primary bg-primary/10 text-primary"
+                        : "border-l-transparent text-muted-foreground hover:border-l-primary hover:text-foreground"
+                    }`}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
+              <button
+                type="button"
+                onClick={signOut}
+                className="mt-2 w-full border-t border-border px-3 py-3 text-left font-mono text-xs tracking-[0.15em] text-primary uppercase transition-colors hover:bg-primary/10"
+              >
+                Sign out
+              </button>
+            </nav>
+          )}
         </header>
         <div className="p-5 sm:p-8">
           {roles.length === 0 ? (
