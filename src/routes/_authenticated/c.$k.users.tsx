@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { createStaffUser, listStaffUsers, setUserActive, setUserRole } from "@/lib/staff.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/users")({
+export const Route = createFileRoute("/_authenticated/c/$k/users")({
   component: UsersPage,
 });
 

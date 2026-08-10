@@ -13,7 +13,7 @@ import {
 import { formatMoney, REJECTION_REASONS } from "@/lib/constants";
 import { StatusBadge } from "@/components/site/StatusBadge";
 
-export const Route = createFileRoute("/_authenticated/dashboard/registrations")({
+export const Route = createFileRoute("/_authenticated/c/$k/registrations")({
   component: RegistrationsPage,
 });
 

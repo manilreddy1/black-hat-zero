@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/staff.functions";
 import { Logo } from "@/components/site/Logo";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
+export const Route = createFileRoute("/_authenticated/c/$k")({
   head: () => ({
     meta: [
       { title: "Control Console — BLACK HAT#0 '26" },

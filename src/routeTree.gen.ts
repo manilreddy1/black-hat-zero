@@ -21,16 +21,16 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as TimelineRouteImport } from './routes/timeline'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
-import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
-import { Route as AuthenticatedDashboardContentRouteImport } from './routes/_authenticated/dashboard.content'
-import { Route as AuthenticatedDashboardLogsRouteImport } from './routes/_authenticated/dashboard.logs'
-import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
-import { Route as AuthenticatedDashboardRegistrationsRouteImport } from './routes/_authenticated/dashboard.registrations'
-import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
-import { Route as AuthenticatedDashboardTextsRouteImport } from './routes/_authenticated/dashboard.texts'
-import { Route as AuthenticatedDashboardUsersRouteImport } from './routes/_authenticated/dashboard.users'
+import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
+import { Route as AuthenticatedCKIndexRouteImport } from './routes/_authenticated/c.$k.index'
+import { Route as AuthenticatedCKContentRouteImport } from './routes/_authenticated/c.$k.content'
+import { Route as AuthenticatedCKLogsRouteImport } from './routes/_authenticated/c.$k.logs'
+import { Route as AuthenticatedCKMessagesRouteImport } from './routes/_authenticated/c.$k.messages'
+import { Route as AuthenticatedCKRegistrationsRouteImport } from './routes/_authenticated/c.$k.registrations'
+import { Route as AuthenticatedCKSettingsRouteImport } from './routes/_authenticated/c.$k.settings'
+import { Route as AuthenticatedCKTextsRouteImport } from './routes/_authenticated/c.$k.texts'
+import { Route as AuthenticatedCKUsersRouteImport } from './routes/_authenticated/c.$k.users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -91,64 +91,57 @@ const TimelineRoute = TimelineRouteImport.update({
   path: '/timeline',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const PaymentIdRoute = PaymentIdRouteImport.update({
   id: '/payment/$id',
   path: '/payment/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedDashboardIndexRoute =
-  AuthenticatedDashboardIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardContentRoute =
-  AuthenticatedDashboardContentRouteImport.update({
-    id: '/content',
-    path: '/content',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardLogsRoute =
-  AuthenticatedDashboardLogsRouteImport.update({
-    id: '/logs',
-    path: '/logs',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardMessagesRoute =
-  AuthenticatedDashboardMessagesRouteImport.update({
-    id: '/messages',
-    path: '/messages',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardRegistrationsRoute =
-  AuthenticatedDashboardRegistrationsRouteImport.update({
+const AuthenticatedCKRoute = AuthenticatedCKRouteImport.update({
+  id: '/c/$k',
+  path: '/c/$k',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCKIndexRoute = AuthenticatedCKIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
+const AuthenticatedCKContentRoute = AuthenticatedCKContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
+const AuthenticatedCKLogsRoute = AuthenticatedCKLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
+const AuthenticatedCKMessagesRoute = AuthenticatedCKMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
+const AuthenticatedCKRegistrationsRoute =
+  AuthenticatedCKRegistrationsRouteImport.update({
     id: '/registrations',
     path: '/registrations',
-    getParentRoute: () => AuthenticatedDashboardRoute,
+    getParentRoute: () => AuthenticatedCKRoute,
   } as any)
-const AuthenticatedDashboardSettingsRoute =
-  AuthenticatedDashboardSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardTextsRoute =
-  AuthenticatedDashboardTextsRouteImport.update({
-    id: '/texts',
-    path: '/texts',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardUsersRoute =
-  AuthenticatedDashboardUsersRouteImport.update({
-    id: '/users',
-    path: '/users',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
+const AuthenticatedCKSettingsRoute = AuthenticatedCKSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
+const AuthenticatedCKTextsRoute = AuthenticatedCKTextsRouteImport.update({
+  id: '/texts',
+  path: '/texts',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
+const AuthenticatedCKUsersRoute = AuthenticatedCKUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -162,16 +155,16 @@ export interface FileRoutesByFullPath {
   '/rules': typeof RulesRoute
   '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
-  '/dashboard/content': typeof AuthenticatedDashboardContentRoute
-  '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
-  '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
-  '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
-  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
-  '/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
-  '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
-  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/c/$k': typeof AuthenticatedCKRouteWithChildren
+  '/c/$k/content': typeof AuthenticatedCKContentRoute
+  '/c/$k/logs': typeof AuthenticatedCKLogsRoute
+  '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
+  '/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
+  '/c/$k/settings': typeof AuthenticatedCKSettingsRoute
+  '/c/$k/texts': typeof AuthenticatedCKTextsRoute
+  '/c/$k/users': typeof AuthenticatedCKUsersRoute
+  '/c/$k/': typeof AuthenticatedCKIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -186,14 +179,14 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
-  '/dashboard/content': typeof AuthenticatedDashboardContentRoute
-  '/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
-  '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
-  '/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
-  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
-  '/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
-  '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
-  '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/c/$k/content': typeof AuthenticatedCKContentRoute
+  '/c/$k/logs': typeof AuthenticatedCKLogsRoute
+  '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
+  '/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
+  '/c/$k/settings': typeof AuthenticatedCKSettingsRoute
+  '/c/$k/texts': typeof AuthenticatedCKTextsRoute
+  '/c/$k/users': typeof AuthenticatedCKUsersRoute
+  '/c/$k': typeof AuthenticatedCKIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -209,16 +202,16 @@ export interface FileRoutesById {
   '/rules': typeof RulesRoute
   '/status': typeof StatusRoute
   '/timeline': typeof TimelineRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/payment/$id': typeof PaymentIdRoute
-  '/_authenticated/dashboard/content': typeof AuthenticatedDashboardContentRoute
-  '/_authenticated/dashboard/logs': typeof AuthenticatedDashboardLogsRoute
-  '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
-  '/_authenticated/dashboard/registrations': typeof AuthenticatedDashboardRegistrationsRoute
-  '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
-  '/_authenticated/dashboard/texts': typeof AuthenticatedDashboardTextsRoute
-  '/_authenticated/dashboard/users': typeof AuthenticatedDashboardUsersRoute
-  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
+  '/_authenticated/c/$k/content': typeof AuthenticatedCKContentRoute
+  '/_authenticated/c/$k/logs': typeof AuthenticatedCKLogsRoute
+  '/_authenticated/c/$k/messages': typeof AuthenticatedCKMessagesRoute
+  '/_authenticated/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
+  '/_authenticated/c/$k/settings': typeof AuthenticatedCKSettingsRoute
+  '/_authenticated/c/$k/texts': typeof AuthenticatedCKTextsRoute
+  '/_authenticated/c/$k/users': typeof AuthenticatedCKUsersRoute
+  '/_authenticated/c/$k/': typeof AuthenticatedCKIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -234,16 +227,16 @@ export interface FileRouteTypes {
     | '/rules'
     | '/status'
     | '/timeline'
-    | '/dashboard'
     | '/payment/$id'
-    | '/dashboard/content'
-    | '/dashboard/logs'
-    | '/dashboard/messages'
-    | '/dashboard/registrations'
-    | '/dashboard/settings'
-    | '/dashboard/texts'
-    | '/dashboard/users'
-    | '/dashboard/'
+    | '/c/$k'
+    | '/c/$k/content'
+    | '/c/$k/logs'
+    | '/c/$k/messages'
+    | '/c/$k/registrations'
+    | '/c/$k/settings'
+    | '/c/$k/texts'
+    | '/c/$k/users'
+    | '/c/$k/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -258,14 +251,14 @@ export interface FileRouteTypes {
     | '/status'
     | '/timeline'
     | '/payment/$id'
-    | '/dashboard/content'
-    | '/dashboard/logs'
-    | '/dashboard/messages'
-    | '/dashboard/registrations'
-    | '/dashboard/settings'
-    | '/dashboard/texts'
-    | '/dashboard/users'
-    | '/dashboard'
+    | '/c/$k/content'
+    | '/c/$k/logs'
+    | '/c/$k/messages'
+    | '/c/$k/registrations'
+    | '/c/$k/settings'
+    | '/c/$k/texts'
+    | '/c/$k/users'
+    | '/c/$k'
   id:
     | '__root__'
     | '/'
@@ -280,16 +273,16 @@ export interface FileRouteTypes {
     | '/rules'
     | '/status'
     | '/timeline'
-    | '/_authenticated/dashboard'
     | '/payment/$id'
-    | '/_authenticated/dashboard/content'
-    | '/_authenticated/dashboard/logs'
-    | '/_authenticated/dashboard/messages'
-    | '/_authenticated/dashboard/registrations'
-    | '/_authenticated/dashboard/settings'
-    | '/_authenticated/dashboard/texts'
-    | '/_authenticated/dashboard/users'
-    | '/_authenticated/dashboard/'
+    | '/_authenticated/c/$k'
+    | '/_authenticated/c/$k/content'
+    | '/_authenticated/c/$k/logs'
+    | '/_authenticated/c/$k/messages'
+    | '/_authenticated/c/$k/registrations'
+    | '/_authenticated/c/$k/settings'
+    | '/_authenticated/c/$k/texts'
+    | '/_authenticated/c/$k/users'
+    | '/_authenticated/c/$k/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -394,13 +387,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TimelineRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/payment/$id': {
       id: '/payment/$id'
       path: '/payment/$id'
@@ -408,100 +394,104 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard/': {
-      id: '/_authenticated/dashboard/'
+    '/_authenticated/c/$k': {
+      id: '/_authenticated/c/$k'
+      path: '/c/$k'
+      fullPath: '/c/$k'
+      preLoaderRoute: typeof AuthenticatedCKRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/c/$k/': {
+      id: '/_authenticated/c/$k/'
       path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/'
+      preLoaderRoute: typeof AuthenticatedCKIndexRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
-    '/_authenticated/dashboard/content': {
-      id: '/_authenticated/dashboard/content'
+    '/_authenticated/c/$k/content': {
+      id: '/_authenticated/c/$k/content'
       path: '/content'
-      fullPath: '/dashboard/content'
-      preLoaderRoute: typeof AuthenticatedDashboardContentRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/content'
+      preLoaderRoute: typeof AuthenticatedCKContentRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
-    '/_authenticated/dashboard/logs': {
-      id: '/_authenticated/dashboard/logs'
+    '/_authenticated/c/$k/logs': {
+      id: '/_authenticated/c/$k/logs'
       path: '/logs'
-      fullPath: '/dashboard/logs'
-      preLoaderRoute: typeof AuthenticatedDashboardLogsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/logs'
+      preLoaderRoute: typeof AuthenticatedCKLogsRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
-    '/_authenticated/dashboard/messages': {
-      id: '/_authenticated/dashboard/messages'
+    '/_authenticated/c/$k/messages': {
+      id: '/_authenticated/c/$k/messages'
       path: '/messages'
-      fullPath: '/dashboard/messages'
-      preLoaderRoute: typeof AuthenticatedDashboardMessagesRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/messages'
+      preLoaderRoute: typeof AuthenticatedCKMessagesRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
-    '/_authenticated/dashboard/registrations': {
-      id: '/_authenticated/dashboard/registrations'
+    '/_authenticated/c/$k/registrations': {
+      id: '/_authenticated/c/$k/registrations'
       path: '/registrations'
-      fullPath: '/dashboard/registrations'
-      preLoaderRoute: typeof AuthenticatedDashboardRegistrationsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/registrations'
+      preLoaderRoute: typeof AuthenticatedCKRegistrationsRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
-    '/_authenticated/dashboard/settings': {
-      id: '/_authenticated/dashboard/settings'
+    '/_authenticated/c/$k/settings': {
+      id: '/_authenticated/c/$k/settings'
       path: '/settings'
-      fullPath: '/dashboard/settings'
-      preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/settings'
+      preLoaderRoute: typeof AuthenticatedCKSettingsRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
-    '/_authenticated/dashboard/texts': {
-      id: '/_authenticated/dashboard/texts'
+    '/_authenticated/c/$k/texts': {
+      id: '/_authenticated/c/$k/texts'
       path: '/texts'
-      fullPath: '/dashboard/texts'
-      preLoaderRoute: typeof AuthenticatedDashboardTextsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/texts'
+      preLoaderRoute: typeof AuthenticatedCKTextsRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
-    '/_authenticated/dashboard/users': {
-      id: '/_authenticated/dashboard/users'
+    '/_authenticated/c/$k/users': {
+      id: '/_authenticated/c/$k/users'
       path: '/users'
-      fullPath: '/dashboard/users'
-      preLoaderRoute: typeof AuthenticatedDashboardUsersRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      fullPath: '/c/$k/users'
+      preLoaderRoute: typeof AuthenticatedCKUsersRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
     }
   }
 }
 
-interface AuthenticatedDashboardRouteChildren {
-  AuthenticatedDashboardContentRoute: typeof AuthenticatedDashboardContentRoute
-  AuthenticatedDashboardLogsRoute: typeof AuthenticatedDashboardLogsRoute
-  AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
-  AuthenticatedDashboardRegistrationsRoute: typeof AuthenticatedDashboardRegistrationsRoute
-  AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
-  AuthenticatedDashboardTextsRoute: typeof AuthenticatedDashboardTextsRoute
-  AuthenticatedDashboardUsersRoute: typeof AuthenticatedDashboardUsersRoute
-  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+interface AuthenticatedCKRouteChildren {
+  AuthenticatedCKContentRoute: typeof AuthenticatedCKContentRoute
+  AuthenticatedCKLogsRoute: typeof AuthenticatedCKLogsRoute
+  AuthenticatedCKMessagesRoute: typeof AuthenticatedCKMessagesRoute
+  AuthenticatedCKRegistrationsRoute: typeof AuthenticatedCKRegistrationsRoute
+  AuthenticatedCKSettingsRoute: typeof AuthenticatedCKSettingsRoute
+  AuthenticatedCKTextsRoute: typeof AuthenticatedCKTextsRoute
+  AuthenticatedCKUsersRoute: typeof AuthenticatedCKUsersRoute
+  AuthenticatedCKIndexRoute: typeof AuthenticatedCKIndexRoute
 }
 
-const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
-  {
-    AuthenticatedDashboardContentRoute: AuthenticatedDashboardContentRoute,
-    AuthenticatedDashboardLogsRoute: AuthenticatedDashboardLogsRoute,
-    AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
-    AuthenticatedDashboardRegistrationsRoute:
-      AuthenticatedDashboardRegistrationsRoute,
-    AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
-    AuthenticatedDashboardTextsRoute: AuthenticatedDashboardTextsRoute,
-    AuthenticatedDashboardUsersRoute: AuthenticatedDashboardUsersRoute,
-    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
-  }
+const AuthenticatedCKRouteChildren: AuthenticatedCKRouteChildren = {
+  AuthenticatedCKContentRoute: AuthenticatedCKContentRoute,
+  AuthenticatedCKLogsRoute: AuthenticatedCKLogsRoute,
+  AuthenticatedCKMessagesRoute: AuthenticatedCKMessagesRoute,
+  AuthenticatedCKRegistrationsRoute: AuthenticatedCKRegistrationsRoute,
+  AuthenticatedCKSettingsRoute: AuthenticatedCKSettingsRoute,
+  AuthenticatedCKTextsRoute: AuthenticatedCKTextsRoute,
+  AuthenticatedCKUsersRoute: AuthenticatedCKUsersRoute,
+  AuthenticatedCKIndexRoute: AuthenticatedCKIndexRoute,
+}
 
-const AuthenticatedDashboardRouteWithChildren =
-  AuthenticatedDashboardRoute._addFileChildren(
-    AuthenticatedDashboardRouteChildren,
-  )
+const AuthenticatedCKRouteWithChildren = AuthenticatedCKRoute._addFileChildren(
+  AuthenticatedCKRouteChildren,
+)
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+  AuthenticatedCKRoute: typeof AuthenticatedCKRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+  AuthenticatedCKRoute: AuthenticatedCKRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

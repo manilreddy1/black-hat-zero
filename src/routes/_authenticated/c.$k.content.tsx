@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { deleteContentRow, listContentRows, saveContentRow } from "@/lib/staff.functions";
 import { CONTENT_TABLES } from "@/lib/schemas";
 
-export const Route = createFileRoute("/_authenticated/dashboard/content")({
+export const Route = createFileRoute("/_authenticated/c/$k/content")({
   component: ContentPage,
 });
 

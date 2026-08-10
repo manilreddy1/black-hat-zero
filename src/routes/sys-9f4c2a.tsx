@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/site/Logo";
 import { CyberBackground } from "@/components/site/CyberBackground";
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute("/sys-9f4c2a")({
   ssr: false,
   head: () => ({
     meta: [

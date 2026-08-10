@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { listSiteTexts, saveSiteTexts } from "@/lib/staff.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/texts")({
+export const Route = createFileRoute("/_authenticated/c/$k/texts")({
   component: TextsPage,
 });
 

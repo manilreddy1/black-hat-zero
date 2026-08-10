@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listAuditLogs } from "@/lib/staff.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/logs")({
+export const Route = createFileRoute("/_authenticated/c/$k/logs")({
   component: LogsPage,
 });
 
