@@ -219,7 +219,15 @@ function ContentPage() {
         ))}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
+        <a
+          href="/?preview=1"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="clip-notch border border-border px-5 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+        >
+          [ Live preview ]
+        </a>
         <button
           onClick={() => setEditing(blank())}
           className="clip-notch border border-primary px-5 py-2.5 font-mono text-[11px] tracking-[0.2em] text-primary uppercase"
@@ -227,6 +235,7 @@ function ContentPage() {
           [ + New entry ]
         </button>
       </div>
+
 
       {editing && (
         <div className="panel grid gap-4 p-6 sm:grid-cols-2">
