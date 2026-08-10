@@ -13,12 +13,30 @@ export function PreviewMode() {
   const preview = usePreviewMode();
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // Draft content is staff-only: without a session the server fn 401s, so
+  // only fetch once we know a session exists.
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.session));
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(Boolean(session));
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
   const { data, error, isFetching, dataUpdatedAt } = useQuery({
     ...previewContentQuery,
-    enabled: preview,
-    refetchInterval: preview ? 4000 : false,
+    enabled: preview && signedIn === true,
+    refetchInterval: preview && signedIn === true ? 4000 : false,
   });
+
 
   useEffect(() => {
     if (preview && data) qc.setQueryData(["site-content"], data);
