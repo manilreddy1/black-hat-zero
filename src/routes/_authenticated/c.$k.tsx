@@ -1,11 +1,24 @@
-import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useNavigate,
+  useRouterState,
+  notFound,
+} from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/staff.functions";
+import { getConsoleKey } from "@/lib/console.functions";
 import { Logo } from "@/components/site/Logo";
 
 export const Route = createFileRoute("/_authenticated/c/$k")({
+  loader: async ({ params }) => {
+    const { key } = await getConsoleKey();
+    if (key !== params.k) throw notFound();
+    return { key };
+  },
   head: () => ({
     meta: [
       { title: "Control Console — BLACK HAT#0 '26" },
@@ -17,24 +30,25 @@ export const Route = createFileRoute("/_authenticated/c/$k")({
 });
 
 const LINKS = [
-  { to: "/dashboard", label: "Overview", roles: ["admin", "coordinator", "payment_verifier"] },
+  { to: "/c/$k", label: "Overview", roles: ["admin", "coordinator", "payment_verifier"] },
   {
-    to: "/dashboard/registrations",
+    to: "/c/$k/registrations",
     label: "Registrations",
     roles: ["admin", "coordinator", "payment_verifier"],
   },
-  { to: "/dashboard/messages", label: "Messages", roles: ["admin", "coordinator"] },
-  { to: "/dashboard/content", label: "Content", roles: ["admin"] },
-  { to: "/dashboard/texts", label: "Website Text", roles: ["admin"] },
-  { to: "/dashboard/settings", label: "Settings", roles: ["admin"] },
-  { to: "/dashboard/users", label: "Staff", roles: ["admin"] },
-  { to: "/dashboard/logs", label: "Audit Logs", roles: ["admin"] },
+  { to: "/c/$k/messages", label: "Messages", roles: ["admin", "coordinator"] },
+  { to: "/c/$k/content", label: "Content", roles: ["admin"] },
+  { to: "/c/$k/texts", label: "Website Text", roles: ["admin"] },
+  { to: "/c/$k/settings", label: "Settings", roles: ["admin"] },
+  { to: "/c/$k/users", label: "Staff", roles: ["admin"] },
+  { to: "/c/$k/logs", label: "Audit Logs", roles: ["admin"] },
 ] as const;
 
 function DashboardLayout() {
   const me = useServerFn(getMe);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { k } = Route.useParams();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data } = useQuery({ queryKey: ["me"], queryFn: () => me() });
   const roles = data?.roles ?? [];
@@ -43,8 +57,9 @@ function DashboardLayout() {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    navigate({ to: "/sys-9f4c2a", replace: true });
   };
+
 
   return (
     <div className="flex min-h-screen bg-background">
