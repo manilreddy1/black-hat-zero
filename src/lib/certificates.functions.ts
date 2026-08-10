@@ -49,14 +49,25 @@ export const lookupCertificate = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ query: z.string().trim().min(4).max(120) }).parse(d))
   .handler(async ({ data }) => {
     const { admin } = await import("./db.server");
+    const { throttleRetryMs, throttleMessage, recordFailure, clearThrottle, clientIp } =
+      await import("./security.server");
     const db = await admin();
 
+    // Abuse protection: exponential backoff per IP for wrong/unknown codes.
+    const ip = await clientIp();
+    const ids = [`ip:${ip}`];
+    const retry_ms = await throttleRetryMs("cert_lookup", ids);
+    if (retry_ms > 0)
+      return { found: false as const, reason: "throttled" as const, message: throttleMessage(retry_ms) };
+
     const cfg = await db.from("certificate_settings").select("is_enabled").limit(1).maybeSingle();
-    if (!cfg.data?.is_enabled) throw new Error("Certificates are not available yet.");
+    if (!cfg.data?.is_enabled)
+      return { found: false as const, reason: "disabled" as const, message: "Certificates are not available yet." };
 
     const q = data.query.trim();
     let teamId: string | null = null;
     let reg: { registration_code: string; status: string } | null = null;
+
 
     const byCode = await db
       .from("registrations")
@@ -84,15 +95,25 @@ export const lookupCertificate = createServerFn({ method: "POST" })
       }
     }
 
-    if (!teamId || !reg) return { found: false as const };
+    if (!teamId || !reg) {
+      const ms = await recordFailure("cert_lookup", ids);
+      return {
+        found: false as const,
+        reason: "not_found" as const,
+        message: ms > 0 ? throttleMessage(ms) : "",
+      };
+    }
     if (!["REGISTERED", "PAYMENT_APPROVED"].includes(reg.status))
-      return { found: false as const, reason: "not_verified" as const };
+      return { found: false as const, reason: "not_verified" as const, message: "" };
+
+    await clearThrottle("cert_lookup", ids);
 
     const [team, members, settings] = await Promise.all([
       db.from("teams").select("team_name, college").eq("id", teamId).maybeSingle(),
       db.from("team_members").select("full_name").eq("team_id", teamId).order("member_index"),
       db.from("event_settings").select("event_name, event_date").limit(1).maybeSingle(),
     ]);
+
 
     return {
       found: true as const,
