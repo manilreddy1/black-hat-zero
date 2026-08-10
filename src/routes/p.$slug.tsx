@@ -1,4 +1,6 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { previewContentQuery, usePreviewMode } from "@/hooks/useSiteContent";
 import { SectionShell } from "@/components/site/SectionShell";
 import { Reveal } from "@/components/site/GlitchText";
 import { getCustomPage } from "@/lib/public.functions";
@@ -6,11 +8,10 @@ import { getCustomPage } from "@/lib/public.functions";
 export const Route = createFileRoute("/p/$slug")({
   loader: async ({ params }) => {
     const page = await getCustomPage({ data: { slug: params.slug } });
-    if (!page) throw notFound();
     return { page };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) {
+    if (!loaderData?.page) {
       return {
         meta: [{ title: "Page not found — BLACK HAT#0 '26" }, { name: "robots", content: "noindex" }],
       };
@@ -31,7 +32,6 @@ export const Route = createFileRoute("/p/$slug")({
       ],
     };
   },
-  notFoundComponent: PageMissing,
   component: CustomPage,
 });
 
@@ -46,8 +46,25 @@ function PageMissing() {
   );
 }
 
+type PageRow = {
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  body: string | null;
+};
+
 function CustomPage() {
-  const { page } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const loaded = Route.useLoaderData().page as PageRow | null;
+  const preview = usePreviewMode();
+  const { data: draft } = useQuery({ ...previewContentQuery, enabled: preview && !loaded });
+  const draftPage = preview
+    ? ((draft?.pages ?? []).find((p) => p.slug === slug) as PageRow | undefined)
+    : undefined;
+  const page = loaded ?? draftPage ?? null;
+
+  if (!page) return <PageMissing />;
+
   return (
     <div className="pt-24">
       <SectionShell
