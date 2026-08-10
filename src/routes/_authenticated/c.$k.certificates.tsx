@@ -121,11 +121,6 @@ function CertificatesAdmin() {
       },
     ]);
 
-        font: "serif",
-        uppercase: false,
-      },
-    ]);
-
   const onStageMove = (e: React.MouseEvent) => {
     const id = dragging.current;
     const stage = stageRef.current;
