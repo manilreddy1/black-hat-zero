@@ -95,15 +95,25 @@ export const lookupCertificate = createServerFn({ method: "POST" })
       }
     }
 
-    if (!teamId || !reg) return { found: false as const };
+    if (!teamId || !reg) {
+      const ms = await recordFailure("cert_lookup", ids);
+      return {
+        found: false as const,
+        reason: "not_found" as const,
+        message: ms > 0 ? throttleMessage(ms) : "",
+      };
+    }
     if (!["REGISTERED", "PAYMENT_APPROVED"].includes(reg.status))
-      return { found: false as const, reason: "not_verified" as const };
+      return { found: false as const, reason: "not_verified" as const, message: "" };
+
+    await clearThrottle("cert_lookup", ids);
 
     const [team, members, settings] = await Promise.all([
       db.from("teams").select("team_name, college").eq("id", teamId).maybeSingle(),
       db.from("team_members").select("full_name").eq("team_id", teamId).order("member_index"),
       db.from("event_settings").select("event_name, event_date").limit(1).maybeSingle(),
     ]);
+
 
     return {
       found: true as const,
