@@ -378,3 +378,17 @@ export const joinWaitlist = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+export const getCustomPage = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
+  .handler(async ({ data }) => {
+    const { publicClient } = await import("./db.server");
+    const sb = publicClient();
+    const { data: page } = await sb
+      .from("custom_pages")
+      .select("*")
+      .eq("slug", data.slug)
+      .eq("is_published", true)
+      .maybeSingle();
+    return page;
+  });
