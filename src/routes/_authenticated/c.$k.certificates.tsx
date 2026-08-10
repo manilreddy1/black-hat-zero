@@ -249,9 +249,12 @@ function CertificatesAdmin() {
                   f.align === "center" ? "-50%" : f.align === "right" ? "-100%" : "0"
                 }, -50%)`,
                 color: f.color,
-                fontFamily: f.font,
+                fontFamily: fontStack(f.font),
+                fontStyle: f.italic ? "italic" : "normal",
+                letterSpacing: f.letterSpacing ? `${f.letterSpacing / 14.14}cqw` : undefined,
                 fontWeight: Number(f.weight) || 400,
                 fontSize: `${f.size / 14.14}cqw`,
+
               }}
             >
               {resolveField(f, SAMPLE) || f.label}
