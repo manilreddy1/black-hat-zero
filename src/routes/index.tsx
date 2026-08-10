@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { siteContentQuery } from "@/hooks/useSiteContent";
@@ -40,7 +41,7 @@ function Home() {
   const settings = data.settings ?? null;
   const sections = (data.sections ?? []).filter((s) => s.is_visible);
 
-  const builtin: Record<string, React.ReactNode> = {
+  const builtin: Record<string, ReactNode> = {
     hero: <Hero settings={settings} />,
     about: <AboutSection settings={settings} />,
     event: <EventSection settings={settings} />,
