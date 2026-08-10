@@ -150,8 +150,13 @@ function PaymentPage() {
 
               {upiUri ? (
                 <>
-                  <div className="mt-6 inline-block bg-white p-4">
-                    <QRCode value={upiUri} size={200} />
+                  <div className="relative mt-6 inline-block bg-white p-4">
+                    <QRCode value={upiUri} size={200} level="H" />
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                      <span className="rounded-[6px] bg-white p-1 shadow-[0_0_0_2px_#fff]">
+                        <UpiLogo className="h-8 w-16" />
+                      </span>
+                    </span>
                   </div>
                   <a
                     href={upiUri}
@@ -159,6 +164,7 @@ function PaymentPage() {
                   >
                     [ Open UPI app ]
                   </a>
+
                   <div className="mt-4 space-y-1 font-mono text-xs text-muted-foreground">
                     <p>
                       UPI ID: <span className="text-foreground">{data.settings?.upi_id}</span>
