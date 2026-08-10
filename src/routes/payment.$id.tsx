@@ -263,20 +263,22 @@ function PaymentPage() {
                       <span className={labelCls}>PAID ON</span>
                       <input
                         required
+                        disabled
                         type="date"
                         value={paidOn}
-                        onChange={(e) => setPaidOn(e.target.value)}
-                        className={`mt-2 ${field}`}
+                        aria-label="Payment date"
+                        className={`mt-2 ${field} cursor-not-allowed opacity-70`}
                       />
                     </label>
                     <label className="block">
                       <span className={labelCls}>PAID AT</span>
                       <input
                         required
+                        disabled
                         type="time"
                         value={paidTime}
-                        onChange={(e) => setPaidTime(e.target.value)}
-                        className={`mt-2 ${field}`}
+                        aria-label="Payment time"
+                        className={`mt-2 ${field} cursor-not-allowed opacity-70`}
                       />
                     </label>
                   </div>
