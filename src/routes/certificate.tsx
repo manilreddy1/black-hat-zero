@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { getCertificateConfig, lookupCertificate } from "@/lib/certificates.functions";
-import { CertificateCanvas, downloadCanvas } from "@/components/site/CertificateCanvas";
+import { CertificateCanvas, downloadCanvasPdf } from "@/components/site/CertificateCanvas";
 import { CyberBackground } from "@/components/site/CyberBackground";
 
 export const Route = createFileRoute("/certificate")({
