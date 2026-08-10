@@ -77,6 +77,42 @@ export type Database = {
         }
         Relationships: []
       }
+      certificate_settings: {
+        Row: {
+          created_at: string
+          fields: Json
+          id: string
+          is_enabled: boolean
+          note: string
+          section_subtitle: string
+          section_title: string
+          template_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fields?: Json
+          id?: string
+          is_enabled?: boolean
+          note?: string
+          section_subtitle?: string
+          section_title?: string
+          template_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fields?: Json
+          id?: string
+          is_enabled?: boolean
+          note?: string
+          section_subtitle?: string
+          section_title?: string
+          template_path?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           created_at: string
