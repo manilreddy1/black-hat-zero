@@ -183,14 +183,24 @@ function RegistrationsPage() {
                 <td className="px-3 py-3">
                   <StatusBadge status={r.status} />
                 </td>
-                <td className="px-3 py-3">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <button
                     onClick={() => setOpenId(r.id)}
                     className="font-mono text-[11px] tracking-[0.2em] text-primary uppercase"
                   >
                     View
                   </button>
+                  {isAdmin && (
+                    <button
+                      disabled={remove.isPending}
+                      onClick={() => confirmDelete(r.id, r.team_name || r.registration_code)}
+                      className="ml-3 font-mono text-[11px] tracking-[0.2em] text-destructive uppercase disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
+
               </tr>
             ))}
           </tbody>
