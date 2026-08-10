@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getConsoleKey } from "@/lib/console.functions";
 import { Logo } from "@/components/site/Logo";
 import { CyberBackground } from "@/components/site/CyberBackground";
 
