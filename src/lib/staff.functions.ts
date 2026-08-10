@@ -614,3 +614,45 @@ export const listContentRows = createServerFn({ method: "POST" })
       string | number | boolean | null
     >[];
   });
+
+export const deleteRegistration = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["admin"]);
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+
+    const { data: reg } = await db
+      .from("registrations")
+      .select("id, registration_code, team_id")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!reg) throw new Error("Registration not found.");
+
+    const { data: pays } = await db
+      .from("payments")
+      .select("id, screenshot_path")
+      .eq("registration_id", reg.id);
+    const paths = (pays ?? []).map((p) => p.screenshot_path).filter(Boolean) as string[];
+    if (paths.length) await db.storage.from("payment-proofs").remove(paths);
+
+    await db.from("payment_verifications").delete().eq("registration_id", reg.id);
+    await db.from("payments").delete().eq("registration_id", reg.id);
+    await db.from("registration_status_history").delete().eq("registration_id", reg.id);
+    const { error } = await db.from("registrations").delete().eq("id", reg.id);
+    if (error) throw new Error(error.message);
+    await db.from("team_members").delete().eq("team_id", reg.team_id);
+    await db.from("teams").delete().eq("id", reg.team_id);
+
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: "admin",
+      action: "REGISTRATION_DELETED",
+      entity: "registrations",
+      entity_id: reg.id,
+      metadata: { registration_code: reg.registration_code },
+    });
+    return { ok: true };
+  });

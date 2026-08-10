@@ -3,7 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { getRegistrationDetail, listRegistrations, verifyPayment } from "@/lib/staff.functions";
+import {
+  deleteRegistration,
+  getMe,
+  getRegistrationDetail,
+  listRegistrations,
+  verifyPayment,
+} from "@/lib/staff.functions";
 import { formatMoney, REJECTION_REASONS } from "@/lib/constants";
 import { StatusBadge } from "@/components/site/StatusBadge";
 
@@ -25,7 +31,13 @@ function RegistrationsPage() {
   const listFn = useServerFn(listRegistrations);
   const detailFn = useServerFn(getRegistrationDetail);
   const verifyFn = useServerFn(verifyPayment);
+  const deleteFn = useServerFn(deleteRegistration);
+  const meFn = useServerFn(getMe);
   const qc = useQueryClient();
+
+  const me = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
+  const isAdmin = !!me.data?.roles.includes("admin");
+
 
   const [status, setStatus] = useState("ALL");
   const [search, setSearch] = useState("");
@@ -43,6 +55,26 @@ function RegistrationsPage() {
     queryFn: () => detailFn({ data: { id: openId! } }),
     enabled: !!openId,
   });
+
+  const remove = useMutation({
+    mutationFn: (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Team deleted.");
+      setOpenId(null);
+      qc.invalidateQueries({ queryKey: ["registrations"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const confirmDelete = (id: string, label: string) => {
+    if (
+      window.confirm(
+        `Delete ${label}? This permanently removes the team, its members, payment records and proof files.`,
+      )
+    )
+      remove.mutate(id);
+  };
 
   const decide = useMutation({
     mutationFn: (decision: "APPROVE" | "REJECT") =>
@@ -151,14 +183,24 @@ function RegistrationsPage() {
                 <td className="px-3 py-3">
                   <StatusBadge status={r.status} />
                 </td>
-                <td className="px-3 py-3">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <button
                     onClick={() => setOpenId(r.id)}
                     className="font-mono text-[11px] tracking-[0.2em] text-primary uppercase"
                   >
                     View
                   </button>
+                  {isAdmin && (
+                    <button
+                      disabled={remove.isPending}
+                      onClick={() => confirmDelete(r.id, r.team_name || r.registration_code)}
+                      className="ml-3 font-mono text-[11px] tracking-[0.2em] text-destructive uppercase disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
+
               </tr>
             ))}
           </tbody>
@@ -276,6 +318,26 @@ function RegistrationsPage() {
                     ))}
                   </ul>
                 </div>
+
+                {isAdmin && (
+                  <div className="border-t border-border pt-4">
+                    <p className="font-mono text-[11px] tracking-[0.3em] text-destructive">
+                      DANGER ZONE
+                    </p>
+                    <button
+                      disabled={remove.isPending}
+                      onClick={() =>
+                        confirmDelete(
+                          detail.data!.registration.id,
+                          detail.data!.team?.team_name ?? detail.data!.registration.registration_code,
+                        )
+                      }
+                      className="clip-notch mt-3 w-full border border-destructive py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-destructive uppercase disabled:opacity-60"
+                    >
+                      [ Delete team permanently ]
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
