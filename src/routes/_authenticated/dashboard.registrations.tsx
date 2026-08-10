@@ -44,6 +44,7 @@ function RegistrationsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [reason, setReason] = useState(REJECTION_REASONS[0] ?? "");
   const [notes, setNotes] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
 
   const list = useQuery({
     queryKey: ["registrations", status, search],
@@ -60,6 +61,7 @@ function RegistrationsPage() {
     mutationFn: (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
       toast.success("Team deleted.");
+      setPendingDelete(null);
       setOpenId(null);
       qc.invalidateQueries({ queryKey: ["registrations"] });
       qc.invalidateQueries({ queryKey: ["stats"] });
@@ -67,14 +69,8 @@ function RegistrationsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const confirmDelete = (id: string, label: string) => {
-    if (
-      window.confirm(
-        `Delete ${label}? This permanently removes the team, its members, payment records and proof files.`,
-      )
-    )
-      remove.mutate(id);
-  };
+  const confirmDelete = (id: string, label: string) => setPendingDelete({ id, label });
+
 
   const decide = useMutation({
     mutationFn: (decision: "APPROVE" | "REJECT") =>
@@ -343,6 +339,48 @@ function RegistrationsPage() {
           </div>
         </div>
       )}
+
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-background/85 p-4 backdrop-blur-sm"
+          onClick={() => !remove.isPending && setPendingDelete(null)}
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            className="panel clip-notch w-full max-w-md border border-destructive/60 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="font-mono text-[11px] tracking-[0.4em] text-destructive">
+              // CONFIRM DELETE
+            </p>
+            <h2 className="mt-3 font-display text-xl font-bold tracking-widest uppercase">
+              Delete {pendingDelete.label}?
+            </h2>
+            <p className="mt-3 font-mono text-xs leading-relaxed text-muted-foreground">
+              This permanently removes the team, its members, payment records and proof files. This
+              action cannot be undone.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                disabled={remove.isPending}
+                onClick={() => setPendingDelete(null)}
+                className="clip-notch flex-1 border border-border py-3 font-mono text-[11px] font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary disabled:opacity-60"
+              >
+                [ Cancel ]
+              </button>
+              <button
+                disabled={remove.isPending}
+                onClick={() => remove.mutate(pendingDelete.id)}
+                className="clip-notch flex-1 bg-destructive py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-destructive-foreground uppercase disabled:opacity-60"
+              >
+                {remove.isPending ? "[ Deleting… ]" : "[ Delete ]"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }
