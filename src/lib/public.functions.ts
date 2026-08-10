@@ -5,7 +5,7 @@ import { registrationSchema, paymentSchema } from "./schemas";
 export const getSiteContent = createServerFn({ method: "GET" }).handler(async () => {
   const { publicClient } = await import("./db.server");
   const sb = publicClient();
-  const [settings, timeline, prizes, rules, faqs, sponsors, challenges, announcements, texts] =
+  const [settings, timeline, prizes, rules, faqs, sponsors, challenges, announcements, texts, sections] =
     await Promise.all([
       sb.from("event_settings").select("*").limit(1).maybeSingle(),
       sb.from("timeline_items").select("*").order("sort_order"),
@@ -16,6 +16,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(async ()
       sb.from("challenges").select("*").order("sort_order"),
       sb.from("announcements").select("*").order("created_at", { ascending: false }).limit(5),
       sb.from("site_texts").select("key,value"),
+      sb.from("page_sections").select("*").order("sort_order"),
     ]);
   const textMap: Record<string, string> = {};
   for (const row of texts.data ?? []) textMap[row.key] = row.value;
@@ -28,6 +29,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(async ()
     sponsors: sponsors.data ?? [],
     challenges: challenges.data ?? [],
     announcements: announcements.data ?? [],
+    sections: sections.data ?? [],
     texts: textMap,
   };
 });

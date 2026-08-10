@@ -49,4 +49,5 @@ export const CONTENT_TABLES = [
   "sponsors",
   "challenges",
   "announcements",
+  "page_sections",
 ] as const;
