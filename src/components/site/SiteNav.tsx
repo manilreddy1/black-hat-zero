@@ -1,23 +1,38 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
-import { useT } from "@/hooks/useSiteContent";
+import { DynamicLink } from "./DynamicLink";
+import { siteContentQuery, useT } from "@/hooks/useSiteContent";
 
-const NAV = [
-  { to: "/", key: "nav.home", label: "Home" },
-  { to: "/about", key: "nav.about", label: "About" },
-  { to: "/event", key: "nav.event", label: "Event" },
-  { to: "/timeline", key: "nav.timeline", label: "Timeline" },
-  { to: "/rules", key: "nav.rules", label: "Rules" },
-  { to: "/prizes", key: "nav.prizes", label: "Prizes" },
-  { to: "/faq", key: "nav.faq", label: "FAQ" },
-] as const;
+const FALLBACK_NAV = [
+  { id: "home", label: "Home", href: "/", is_button: false, new_tab: false },
+  { id: "about", label: "About", href: "/about", is_button: false, new_tab: false },
+  { id: "event", label: "Event", href: "/event", is_button: false, new_tab: false },
+  { id: "timeline", label: "Timeline", href: "/timeline", is_button: false, new_tab: false },
+  { id: "rules", label: "Rules", href: "/rules", is_button: false, new_tab: false },
+  { id: "prizes", label: "Prizes", href: "/prizes", is_button: false, new_tab: false },
+  { id: "faq", label: "FAQ", href: "/faq", is_button: false, new_tab: false },
+  { id: "status", label: "Status", href: "/status", is_button: false, new_tab: false },
+  { id: "register", label: "Register Now", href: "/register", is_button: true, new_tab: false },
+];
 
 export function SiteNav() {
   const t = useT();
+  const { data } = useQuery(siteContentQuery);
+  const items = (data?.nav?.length ? data.nav : FALLBACK_NAV) as Array<{
+    id: string;
+    label: string;
+    href: string;
+    is_button: boolean;
+    new_tab: boolean;
+  }>;
+  const links = items.filter((i) => !i.is_button);
+  const buttons = items.filter((i) => i.is_button);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
