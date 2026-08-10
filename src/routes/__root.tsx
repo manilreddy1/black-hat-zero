@@ -158,12 +158,8 @@ function SiteChrome() {
               {texts["maintenance.message"] ||
                 "The site is temporarily offline for maintenance. Check back shortly."}
             </p>
-            <Link
-              to="/auth"
-              className="mt-8 inline-block border border-border px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
-            >
-              [ Staff login ]
-            </Link>
+          </div>
+
           </div>
         </div>
         <Toaster position="top-right" />
