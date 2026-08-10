@@ -67,33 +67,31 @@ export function SiteNav() {
         </Link>
 
         <ul className="hidden items-center gap-1 lg:flex">
-          {NAV.map((item) => (
-            <li key={item.to}>
-              <Link
-                to={item.to}
-                activeOptions={{ exact: item.to === "/" }}
-                activeProps={{ className: "text-primary" }}
+          {links.map((item) => (
+            <li key={item.id}>
+              <DynamicLink
+                href={item.href}
+                newTab={item.new_tab}
                 className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
               >
-                {t(item.key, item.label)}
-              </Link>
+                {item.label}
+              </DynamicLink>
             </li>
           ))}
         </ul>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/status"
-            className="hidden px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground sm:block"
-          >
-            {t("nav.status", "Status")}
-          </Link>
-          <Link
-            to="/register"
-            className="clip-notch hidden bg-primary px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-[var(--glow-red)] sm:inline-block"
-          >
-            {t("nav.register", "Register Now")}
-          </Link>
+          {buttons.map((item) => (
+            <DynamicLink
+              key={item.id}
+              href={item.href}
+              newTab={item.new_tab}
+              className="clip-notch hidden bg-primary px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-[var(--glow-red)] sm:inline-block"
+            >
+              {item.label}
+            </DynamicLink>
+          ))}
+
           <button
             type="button"
             aria-label={open ? "Close menu" : "Open menu"}
