@@ -13,8 +13,12 @@ export const certificateFieldSchema = z.object({
   color: z.string().max(24),
   weight: z.string().max(10),
   align: z.enum(["left", "center", "right"]),
-  font: z.string().max(40),
+  font: z.string().max(60),
+  fontUrl: z.string().max(300).optional().default(""),
+  letterSpacing: z.number().min(-10).max(40).optional().default(0),
+  italic: z.boolean().optional().default(false),
   uppercase: z.boolean().default(false),
+
 });
 
 export type CertificateField = z.infer<typeof certificateFieldSchema>;

@@ -10,6 +10,16 @@ import {
   type CertificateField,
 } from "@/lib/certificates.functions";
 import { resolveField } from "@/components/site/CertificateCanvas";
+import {
+  ALL_GOOGLE_FONTS,
+  GOOGLE_FONT_GROUPS,
+  SYSTEM_FONTS,
+  ensureFontLoaded,
+  fontStack,
+} from "@/lib/certificate-fonts";
+
+const isCustomFont = (f: string) => !SYSTEM_FONTS.includes(f) && !ALL_GOOGLE_FONTS.includes(f);
+
 
 export const Route = createFileRoute("/_authenticated/c/$k/certificates")({
   component: CertificatesAdmin,
@@ -105,15 +115,18 @@ function CertificatesAdmin() {
       {
         id: `f${Date.now()}`,
         label: "New text",
-        source: "custom",
+        source: "custom" as const,
         text: "Text",
         x: 50,
         y: 50,
         size: 28,
         color: "#111111",
         weight: "400",
-        align: "center",
-        font: "serif",
+        align: "center" as const,
+        font: "Playfair Display",
+        fontUrl: "",
+        letterSpacing: 0,
+        italic: false,
         uppercase: false,
       },
     ]);
@@ -130,6 +143,11 @@ function CertificatesAdmin() {
 
   const input = "w-full border border-input bg-surface px-3 py-2 font-mono text-xs";
   const sel = fields.find((f) => f.id === selected) ?? null;
+
+  useEffect(() => {
+    for (const f of fields) ensureFontLoaded(f.font, f.fontUrl);
+  }, [fields]);
+
 
   return (
     <div className="space-y-6">
@@ -236,9 +254,12 @@ function CertificatesAdmin() {
                   f.align === "center" ? "-50%" : f.align === "right" ? "-100%" : "0"
                 }, -50%)`,
                 color: f.color,
-                fontFamily: f.font,
+                fontFamily: fontStack(f.font),
+                fontStyle: f.italic ? "italic" : "normal",
+                letterSpacing: f.letterSpacing ? `${f.letterSpacing / 14.14}cqw` : undefined,
                 fontWeight: Number(f.weight) || 400,
                 fontSize: `${f.size / 14.14}cqw`,
+
               }}
             >
               {resolveField(f, SAMPLE) || f.label}
@@ -391,22 +412,90 @@ function CertificatesAdmin() {
                     ))}
                   </select>
                 </label>
-                <label className="block">
+                <label className="col-span-2 block">
                   <span className="font-mono text-[10px] text-muted-foreground uppercase">
-                    Font
+                    Font family
                   </span>
                   <select
-                    value={sel.font}
-                    onChange={(e) => update(sel.id, { font: e.target.value })}
+                    value={isCustomFont(sel.font) ? "__custom" : sel.font}
+                    onChange={(e) =>
+                      update(sel.id, {
+                        font: e.target.value === "__custom" ? "My Custom Font" : e.target.value,
+                        ...(e.target.value === "__custom" ? {} : { fontUrl: "" }),
+                      })
+                    }
                     className={`mt-1 ${input}`}
+                    style={{ fontFamily: fontStack(sel.font) }}
                   >
-                    {["serif", "sans-serif", "monospace", "Georgia", "Times New Roman"].map((f) => (
-                      <option key={f} value={f}>
-                        {f}
-                      </option>
+                    <optgroup label="System">
+                      {SYSTEM_FONTS.map((f) => (
+                        <option key={f} value={f}>
+                          {f}
+                        </option>
+                      ))}
+                    </optgroup>
+                    {Object.entries(GOOGLE_FONT_GROUPS).map(([group, list]) => (
+                      <optgroup key={group} label={group}>
+                        {list.map((f) => (
+                          <option key={f} value={f}>
+                            {f}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
+                    <optgroup label="Custom">
+                      <option value="__custom">Custom font…</option>
+                    </optgroup>
                   </select>
                 </label>
+                {isCustomFont(sel.font) && (
+                  <>
+                    <label className="col-span-2 block">
+                      <span className="font-mono text-[10px] text-muted-foreground uppercase">
+                        Custom font family name
+                      </span>
+                      <input
+                        value={sel.font}
+                        onChange={(e) => update(sel.id, { font: e.target.value })}
+                        placeholder="e.g. Great Vibes"
+                        className={`mt-1 ${input}`}
+                      />
+                    </label>
+                    <label className="col-span-2 block">
+                      <span className="font-mono text-[10px] text-muted-foreground uppercase">
+                        Font stylesheet URL (optional — leave blank for Google Fonts)
+                      </span>
+                      <input
+                        value={sel.fontUrl ?? ""}
+                        onChange={(e) => update(sel.id, { fontUrl: e.target.value })}
+                        placeholder="https://fonts.googleapis.com/css2?family=..."
+                        className={`mt-1 ${input}`}
+                      />
+                    </label>
+                  </>
+                )}
+                <label className="block">
+                  <span className="font-mono text-[10px] text-muted-foreground uppercase">
+                    Letter spacing
+                  </span>
+                  <input
+                    type="number"
+                    value={sel.letterSpacing ?? 0}
+                    onChange={(e) => update(sel.id, { letterSpacing: Number(e.target.value) })}
+                    className={`mt-1 ${input}`}
+                  />
+                </label>
+                <label className="mt-6 flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={sel.italic ?? false}
+                    onChange={(e) => update(sel.id, { italic: e.target.checked })}
+                  />
+                  <span className="font-mono text-[10px] text-muted-foreground uppercase">
+                    Italic
+                  </span>
+                </label>
+
                 <label className="mt-6 flex items-center gap-2">
                   <input
                     type="checkbox"
