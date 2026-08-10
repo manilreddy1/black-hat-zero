@@ -52,17 +52,48 @@ export const GOOGLE_FONT_GROUPS: Record<string, string[]> = {
     "Dancing Script",
     "Yellowtail",
     "Mrs Saint Delafield",
+    "Mr De Haviland",
+    "Mrs Sheppards",
+    "Herr Von Muellerhoff",
+    "Monsieur La Doulaise",
     "Petit Formal Script",
     "Italianno",
     "Kaushan Script",
     "Satisfy",
+    "Style Script",
+    "Meddon",
+    "Norican",
+    "Qwigley",
+    "Rouge Script",
+    "Marck Script",
+    "Lovers Quarrel",
+    "Birthstone",
+    "Cookie",
+    "Arizonia",
+    "Bilbo Swash Caps",
+    "League Script",
+    "Ephesis",
+    "Redressed",
+    "Clicker Script",
+    "Charm",
+    "Bad Script",
+    "Caveat",
+    "Courgette",
+    "Homemade Apple",
+    "Kalam",
+    "Shadows Into Light",
+    "Pacifico",
   ],
   "Calligraphic & blackletter": [
     "UnifrakturMaguntia",
+    "UnifrakturCook",
     "Cormorant Unicase",
     "Rozha One",
     "Almendra",
     "IM Fell English",
+    "Berkshire Swash",
+    "Grenze Gotisch",
+    "Pirata One",
   ],
   "Modern sans": [
     "Montserrat",
@@ -94,18 +125,36 @@ export function isSystemFont(font: string) {
 
 const loaded = new Set<string>();
 
+/**
+ * Families that ship a single weight on Google Fonts. Asking for a weight axis
+ * they don't have makes the stylesheet request fail, so those load plain.
+ */
+const MULTI_WEIGHT = new Set(
+  [
+    ...GOOGLE_FONT_GROUPS["Classic serif"]!,
+    ...GOOGLE_FONT_GROUPS["Modern sans"]!,
+    ...GOOGLE_FONT_GROUPS.Monospace!,
+    "Dancing Script",
+    "Caveat",
+    "Kalam",
+    "Charm",
+    "Grenze Gotisch",
+  ].map(cssFamily),
+);
+
 /** Injects a Google Fonts stylesheet (or a custom URL) once per family. */
 export function ensureFontLoaded(font: string, url?: string) {
   if (typeof document === "undefined") return;
   const family = cssFamily(font);
   if (!family || isSystemFont(family)) return;
+  const name = encodeURIComponent(family).replace(/%20/g, "+");
   const href =
     url && url.trim()
       ? url.trim()
-      : `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(
-          /%20/g,
-          "+",
-        )}:wght@300;400;500;600;700;800&display=swap`;
+      : MULTI_WEIGHT.has(family)
+        ? `https://fonts.googleapis.com/css2?family=${name}:wght@300;400;500;600;700;800&display=swap`
+        : `https://fonts.googleapis.com/css2?family=${name}&display=swap`;
+
   if (loaded.has(href)) return;
   loaded.add(href);
   const link = document.createElement("link");
