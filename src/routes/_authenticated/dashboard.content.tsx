@@ -82,6 +82,20 @@ const CONFIG: Record<
       { name: "is_published", label: "Published", type: "bool" },
     ],
   },
+  page_sections: {
+    label: "Page sections",
+    titleField: "label",
+    fields: [
+      { name: "label", label: "Section name", type: "text" },
+      { name: "key", label: "Key (builtin: hero/about/event/challenges/timeline/rules/prizes/sponsors/faq/contact)", type: "text" },
+      { name: "kind", label: "Kind (builtin or custom)", type: "text" },
+      { name: "title", label: "Title (custom only)", type: "text" },
+      { name: "subtitle", label: "Subtitle (custom only)", type: "text" },
+      { name: "body", label: "Body (custom only)", type: "textarea" },
+      { name: "sort_order", label: "Order", type: "number" },
+      { name: "is_visible", label: "Visible", type: "bool" },
+    ],
+  },
   announcements: {
     label: "Announcements",
     titleField: "title",
