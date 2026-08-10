@@ -20,6 +20,8 @@ export async function requireStaff(supabase: unknown, userId: string) {
 
 export async function requireRole(supabase: unknown, userId: string, allowed: string[]) {
   const roles = await getRoles(supabase, userId);
+  // super_admin implicitly holds every role (admin, coordinator, payment_verifier).
+  if (roles.includes("super_admin")) return "super_admin";
   const match = roles.find((r) => allowed.includes(r));
   if (!match) throw new Error("Unauthorized: insufficient permissions.");
   return match;
