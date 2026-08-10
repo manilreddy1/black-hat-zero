@@ -12,7 +12,7 @@ import {
 import { resolveField } from "@/components/site/CertificateCanvas";
 
 export const Route = createFileRoute("/_authenticated/c/$k/certificates")({
-  component: CertificatesAdmin;
+  component: CertificatesAdmin,
 });
 
 const SAMPLE: Record<string, string> = {
@@ -204,7 +204,7 @@ function CertificatesAdmin() {
           onMouseMove={onStageMove}
           onMouseUp={() => (dragging.current = null)}
           onMouseLeave={() => (dragging.current = null)}
-          className="panel relative aspect-[1.414/1] w-full overflow-hidden select-none"
+          className="panel relative aspect-[1.414/1] w-full overflow-hidden select-none [container-type:inline-size]"
           style={
             data?.template_url
               ? {
@@ -238,8 +238,7 @@ function CertificatesAdmin() {
                 color: f.color,
                 fontFamily: f.font,
                 fontWeight: Number(f.weight) || 400,
-                fontSize: `${f.size / 14}cqw`,
-                containerType: "inline-size",
+                fontSize: `${f.size / 14.14}cqw`,
               }}
             >
               {resolveField(f, SAMPLE) || f.label}
