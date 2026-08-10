@@ -32,14 +32,17 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast.error(error.message);
       return;
     }
+    const { key } = await getConsoleKey();
+    setBusy(false);
     toast.success("Access granted.");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/c/$k", params: { k: key } });
   };
+
 
   const field =
     "w-full border border-input bg-surface px-3 py-3 font-mono text-sm outline-none transition-shadow focus:border-primary focus:shadow-[var(--glow-red)]";
