@@ -25,9 +25,9 @@ export function PreviewMode() {
 
   useEffect(() => {
     if (!preview) return;
-    document.body.style.paddingTop = "34px";
+    document.body.classList.add("preview-bar");
     return () => {
-      document.body.style.paddingTop = "";
+      document.body.classList.remove("preview-bar");
     };
   }, [preview]);
 
