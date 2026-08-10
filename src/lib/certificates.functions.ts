@@ -49,14 +49,25 @@ export const lookupCertificate = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ query: z.string().trim().min(4).max(120) }).parse(d))
   .handler(async ({ data }) => {
     const { admin } = await import("./db.server");
+    const { throttleRetryMs, throttleMessage, recordFailure, clearThrottle, clientIp } =
+      await import("./security.server");
     const db = await admin();
 
+    // Abuse protection: exponential backoff per IP for wrong/unknown codes.
+    const ip = await clientIp();
+    const ids = [`ip:${ip}`];
+    const retry_ms = await throttleRetryMs("cert_lookup", ids);
+    if (retry_ms > 0)
+      return { found: false as const, reason: "throttled" as const, message: throttleMessage(retry_ms) };
+
     const cfg = await db.from("certificate_settings").select("is_enabled").limit(1).maybeSingle();
-    if (!cfg.data?.is_enabled) throw new Error("Certificates are not available yet.");
+    if (!cfg.data?.is_enabled)
+      return { found: false as const, reason: "disabled" as const, message: "Certificates are not available yet." };
 
     const q = data.query.trim();
     let teamId: string | null = null;
     let reg: { registration_code: string; status: string } | null = null;
+
 
     const byCode = await db
       .from("registrations")
