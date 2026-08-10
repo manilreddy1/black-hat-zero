@@ -142,7 +142,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function SiteChrome() {
   const { data } = useSuspenseQuery(siteContentQuery);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isStaff = pathname.startsWith("/dashboard") || pathname.startsWith("/auth");
+  const isStaff = pathname.startsWith("/c/") || pathname.startsWith("/sys-");
   const settings = data?.settings ?? null;
   const texts = data?.texts ?? {};
 
