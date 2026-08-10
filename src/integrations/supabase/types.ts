@@ -77,6 +77,42 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_throttle: {
+        Row: {
+          attempts: number
+          created_at: string
+          first_attempt_at: string
+          id: string
+          identifier: string
+          last_attempt_at: string
+          locked_until: string | null
+          scope: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          first_attempt_at?: string
+          id?: string
+          identifier: string
+          last_attempt_at?: string
+          locked_until?: string | null
+          scope: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          first_attempt_at?: string
+          id?: string
+          identifier?: string
+          last_attempt_at?: string
+          locked_until?: string | null
+          scope?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       certificate_settings: {
         Row: {
           created_at: string
