@@ -88,11 +88,16 @@ export function SiteFooter({ settings }: { settings: EventSettings | null }) {
         </div>
       </div>
       <div className="border-t border-border px-6 py-5 text-center font-mono text-[11px] tracking-[0.2em] text-muted-foreground">
-        © {new Date().getFullYear()} {t("brand.name_prefix", "BLACK")}{" "}
-        {t("brand.name_suffix", "HAT#0")} —{" "}
-        <span className="text-primary">
-          {t("footer.bottom", "CODE. BREAK. INNOVATE. OWN THE SYSTEM.")}
-        </span>
+        <p>
+          © {new Date().getFullYear()} {t("brand.name_prefix", "BLACK")} {" "}
+          {t("brand.name_suffix", "HAT#0")} —{" "}
+          <span className="text-primary">
+            {t("footer.bottom", "CODE. BREAK. INNOVATE. OWN THE SYSTEM.")}
+          </span>
+        </p>
+        <p className="mt-2 tracking-[0.12em]">
+          Developed by <span className="text-primary">Manil Reddy Andhe</span>
+        </p>
       </div>
     </footer>
   );
