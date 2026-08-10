@@ -5,16 +5,17 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const emailInput = z.object({ email: z.string().trim().email().max(160) });
 
 /**
- * Called before a staff sign-in attempt. Throws (with a retry hint) while the
- * email or the caller's IP is locked out by exponential backoff.
+ * Called before a staff sign-in attempt. Returns (never throws) so the UI can
+ * show a friendly message instead of surfacing a runtime error.
  */
 export const preStaffLogin = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => emailInput.parse(d))
   .handler(async ({ data }) => {
-    const { assertNotThrottled, clientIp } = await import("./security.server");
+    const { throttleRetryMs, throttleMessage, clientIp } = await import("./security.server");
     const ip = await clientIp();
-    await assertNotThrottled("staff_login", [`email:${data.email}`, `ip:${ip}`]);
-    return { ok: true as const };
+    const retry_ms = await throttleRetryMs("staff_login", [`email:${data.email}`, `ip:${ip}`]);
+    if (retry_ms > 0) return { ok: false as const, retry_ms, message: throttleMessage(retry_ms) };
+    return { ok: true as const, retry_ms: 0, message: "" };
   });
 
 /** Reports the outcome of a staff sign-in so the backoff can grow or reset. */
