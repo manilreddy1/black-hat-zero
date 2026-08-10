@@ -15,6 +15,7 @@ import {
   TimelineSection,
 } from "@/components/sections/Sections";
 import { CustomSection } from "@/components/sections/CustomSection";
+import { CertificatesSection } from "@/components/sections/CertificatesSection";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(siteContentQuery),
@@ -52,6 +53,7 @@ function Home() {
     sponsors: <SponsorsSection sponsors={data.sponsors} />,
     faq: <FaqSection faqs={data.faqs} />,
     contact: <ContactSection settings={settings} />,
+    certificates: <CertificatesSection />,
   };
 
   return (

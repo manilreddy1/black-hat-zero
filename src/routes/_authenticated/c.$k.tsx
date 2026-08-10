@@ -38,6 +38,7 @@ const LINKS = [
   },
   { to: "/c/$k/messages", label: "Messages", roles: ["admin", "coordinator"] },
   { to: "/c/$k/content", label: "Content", roles: ["admin"] },
+  { to: "/c/$k/certificates", label: "Certificates", roles: ["admin"] },
   { to: "/c/$k/texts", label: "Website Text", roles: ["admin"] },
   { to: "/c/$k/settings", label: "Settings", roles: ["admin"] },
   { to: "/c/$k/users", label: "Staff", roles: ["admin"] },

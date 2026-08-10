@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as CertificateRouteImport } from './routes/certificate'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventRouteImport } from './routes/event'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -24,6 +25,7 @@ import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
 import { Route as AuthenticatedCKIndexRouteImport } from './routes/_authenticated/c.$k.index'
+import { Route as AuthenticatedCKCertificatesRouteImport } from './routes/_authenticated/c.$k.certificates'
 import { Route as AuthenticatedCKContentRouteImport } from './routes/_authenticated/c.$k.content'
 import { Route as AuthenticatedCKLogsRouteImport } from './routes/_authenticated/c.$k.logs'
 import { Route as AuthenticatedCKMessagesRouteImport } from './routes/_authenticated/c.$k.messages'
@@ -44,6 +46,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificateRoute = CertificateRouteImport.update({
+  id: '/certificate',
+  path: '/certificate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -106,6 +113,12 @@ const AuthenticatedCKIndexRoute = AuthenticatedCKIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedCKRoute,
 } as any)
+const AuthenticatedCKCertificatesRoute =
+  AuthenticatedCKCertificatesRouteImport.update({
+    id: '/certificates',
+    path: '/certificates',
+    getParentRoute: () => AuthenticatedCKRoute,
+  } as any)
 const AuthenticatedCKContentRoute = AuthenticatedCKContentRouteImport.update({
   id: '/content',
   path: '/content',
@@ -146,6 +159,7 @@ const AuthenticatedCKUsersRoute = AuthenticatedCKUsersRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/certificate': typeof CertificateRoute
   '/contact': typeof ContactRoute
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
@@ -157,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
   '/c/$k': typeof AuthenticatedCKRouteWithChildren
+  '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -169,6 +184,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/certificate': typeof CertificateRoute
   '/contact': typeof ContactRoute
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
@@ -179,6 +195,7 @@ export interface FileRoutesByTo {
   '/sys-9f4c2a': typeof Sys9f4c2aRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
+  '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -193,6 +210,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/certificate': typeof CertificateRoute
   '/contact': typeof ContactRoute
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
@@ -204,6 +222,7 @@ export interface FileRoutesById {
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
   '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
+  '/_authenticated/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/_authenticated/c/$k/content': typeof AuthenticatedCKContentRoute
   '/_authenticated/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/_authenticated/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -218,6 +237,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/certificate'
     | '/contact'
     | '/event'
     | '/faq'
@@ -229,6 +249,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/payment/$id'
     | '/c/$k'
+    | '/c/$k/certificates'
     | '/c/$k/content'
     | '/c/$k/logs'
     | '/c/$k/messages'
@@ -241,6 +262,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/certificate'
     | '/contact'
     | '/event'
     | '/faq'
@@ -251,6 +273,7 @@ export interface FileRouteTypes {
     | '/sys-9f4c2a'
     | '/timeline'
     | '/payment/$id'
+    | '/c/$k/certificates'
     | '/c/$k/content'
     | '/c/$k/logs'
     | '/c/$k/messages'
@@ -264,6 +287,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/certificate'
     | '/contact'
     | '/event'
     | '/faq'
@@ -275,6 +299,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/payment/$id'
     | '/_authenticated/c/$k'
+    | '/_authenticated/c/$k/certificates'
     | '/_authenticated/c/$k/content'
     | '/_authenticated/c/$k/logs'
     | '/_authenticated/c/$k/messages'
@@ -289,6 +314,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  CertificateRoute: typeof CertificateRoute
   ContactRoute: typeof ContactRoute
   EventRoute: typeof EventRoute
   FaqRoute: typeof FaqRoute
@@ -322,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificate': {
+      id: '/certificate'
+      path: '/certificate'
+      fullPath: '/certificate'
+      preLoaderRoute: typeof CertificateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -408,6 +441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCKIndexRouteImport
       parentRoute: typeof AuthenticatedCKRoute
     }
+    '/_authenticated/c/$k/certificates': {
+      id: '/_authenticated/c/$k/certificates'
+      path: '/certificates'
+      fullPath: '/c/$k/certificates'
+      preLoaderRoute: typeof AuthenticatedCKCertificatesRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
+    }
     '/_authenticated/c/$k/content': {
       id: '/_authenticated/c/$k/content'
       path: '/content'
@@ -461,6 +501,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedCKRouteChildren {
+  AuthenticatedCKCertificatesRoute: typeof AuthenticatedCKCertificatesRoute
   AuthenticatedCKContentRoute: typeof AuthenticatedCKContentRoute
   AuthenticatedCKLogsRoute: typeof AuthenticatedCKLogsRoute
   AuthenticatedCKMessagesRoute: typeof AuthenticatedCKMessagesRoute
@@ -472,6 +513,7 @@ interface AuthenticatedCKRouteChildren {
 }
 
 const AuthenticatedCKRouteChildren: AuthenticatedCKRouteChildren = {
+  AuthenticatedCKCertificatesRoute: AuthenticatedCKCertificatesRoute,
   AuthenticatedCKContentRoute: AuthenticatedCKContentRoute,
   AuthenticatedCKLogsRoute: AuthenticatedCKLogsRoute,
   AuthenticatedCKMessagesRoute: AuthenticatedCKMessagesRoute,
@@ -501,6 +543,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  CertificateRoute: CertificateRoute,
   ContactRoute: ContactRoute,
   EventRoute: EventRoute,
   FaqRoute: FaqRoute,
@@ -515,13 +558,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
