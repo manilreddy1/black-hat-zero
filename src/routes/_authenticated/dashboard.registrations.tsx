@@ -60,6 +60,7 @@ function RegistrationsPage() {
     mutationFn: (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
       toast.success("Team deleted.");
+      setPendingDelete(null);
       setOpenId(null);
       qc.invalidateQueries({ queryKey: ["registrations"] });
       qc.invalidateQueries({ queryKey: ["stats"] });
@@ -67,14 +68,8 @@ function RegistrationsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const confirmDelete = (id: string, label: string) => {
-    if (
-      window.confirm(
-        `Delete ${label}? This permanently removes the team, its members, payment records and proof files.`,
-      )
-    )
-      remove.mutate(id);
-  };
+  const confirmDelete = (id: string, label: string) => setPendingDelete({ id, label });
+
 
   const decide = useMutation({
     mutationFn: (decision: "APPROVE" | "REJECT") =>
