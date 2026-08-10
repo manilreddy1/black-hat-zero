@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_authenticated/c/$k/users")({
 });
 
 const ROLES = ["admin", "coordinator", "payment_verifier"] as const;
+const LOWER_ROLES = ["coordinator", "payment_verifier"] as const;
 
 function UsersPage() {
   const listFn = useServerFn(listStaffUsers);
@@ -19,6 +20,9 @@ function UsersPage() {
   const qc = useQueryClient();
 
   const { data } = useQuery({ queryKey: ["staff-users"], queryFn: () => listFn() });
+  const isSuperAdmin = data?.isSuperAdmin ?? false;
+  const users = data?.users ?? [];
+  const assignable = isSuperAdmin ? ROLES : LOWER_ROLES;
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -46,7 +50,9 @@ function UsersPage() {
         <p className="font-mono text-[11px] tracking-[0.4em] text-primary">// ACCESS CONTROL</p>
         <h1 className="mt-2 font-display text-3xl font-bold tracking-widest uppercase">Staff</h1>
         <p className="mt-2 font-mono text-xs text-muted-foreground">
-          Super admin only. Only this account can create administrators or change roles.
+          {isSuperAdmin
+            ? "Super admin: you can create any role and change existing roles."
+            : "You can create coordinator and payment verifier accounts. Only the super admin can create administrators or change roles."}
         </p>
       </div>
 
@@ -86,7 +92,7 @@ function UsersPage() {
           onChange={(e) => setForm({ ...form, role: e.target.value as (typeof ROLES)[number] })}
           className={input}
         >
-          {ROLES.map((r) => (
+          {assignable.map((r) => (
             <option key={r} value={r}>
               {r}
             </option>
@@ -114,14 +120,14 @@ function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {(data ?? []).map((u) => (
+            {users.map((u) => (
               <tr key={u.id} className="border-b border-border/60">
                 <td className="px-3 py-3">{u.full_name}</td>
                 <td className="px-3 py-3 font-mono text-xs">{u.email}</td>
                 <td className="px-3 py-3">
-                  {u.roles.includes("super_admin") ? (
-                    <span className="font-mono text-[11px] tracking-[0.2em] text-primary uppercase">
-                      Super admin
+                  {u.roles.includes("super_admin") || !isSuperAdmin ? (
+                    <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-muted-foreground">
+                      {u.roles.includes("super_admin") ? "Super admin" : (u.roles[0] ?? "—")}
                     </span>
                   ) : (
                   <select
@@ -145,7 +151,9 @@ function UsersPage() {
                 </td>
                 <td className="px-3 py-3">
                   <button
-                    disabled={u.roles.includes("super_admin")}
+                    disabled={
+                      u.roles.includes("super_admin") || (!isSuperAdmin && u.roles.includes("admin"))
+                    }
                     onClick={async () => {
                       await activeFn({ data: { user_id: u.id, is_active: !u.is_active } });
                       toast.success(u.is_active ? "Account disabled." : "Account enabled.");
