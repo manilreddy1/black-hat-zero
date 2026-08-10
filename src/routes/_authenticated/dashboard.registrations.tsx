@@ -318,6 +318,26 @@ function RegistrationsPage() {
                     ))}
                   </ul>
                 </div>
+
+                {isAdmin && (
+                  <div className="border-t border-border pt-4">
+                    <p className="font-mono text-[11px] tracking-[0.3em] text-destructive">
+                      DANGER ZONE
+                    </p>
+                    <button
+                      disabled={remove.isPending}
+                      onClick={() =>
+                        confirmDelete(
+                          detail.data!.registration.id,
+                          detail.data!.team?.team_name ?? detail.data!.registration.registration_code,
+                        )
+                      }
+                      className="clip-notch mt-3 w-full border border-destructive py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-destructive uppercase disabled:opacity-60"
+                    >
+                      [ Delete team permanently ]
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
