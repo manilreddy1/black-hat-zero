@@ -60,7 +60,8 @@ function DashboardLayout() {
   const data = Route.useLoaderData();
   const roles = data.roles;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const visibleLinks = LINKS.filter((l) => l.roles.some((r) => roles.includes(r)));
+  const isSuper = roles.includes("super_admin");
+  const visibleLinks = LINKS.filter((l) => isSuper || l.roles.some((r) => roles.includes(r)));
 
   const signOut = async () => {
     await queryClient.cancelQueries();
