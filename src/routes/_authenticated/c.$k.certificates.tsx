@@ -10,6 +10,16 @@ import {
   type CertificateField,
 } from "@/lib/certificates.functions";
 import { resolveField } from "@/components/site/CertificateCanvas";
+import {
+  ALL_GOOGLE_FONTS,
+  GOOGLE_FONT_GROUPS,
+  SYSTEM_FONTS,
+  ensureFontLoaded,
+  fontStack,
+} from "@/lib/certificate-fonts";
+
+const isCustomFont = (f: string) => !SYSTEM_FONTS.includes(f) && !ALL_GOOGLE_FONTS.includes(f);
+
 
 export const Route = createFileRoute("/_authenticated/c/$k/certificates")({
   component: CertificatesAdmin,
