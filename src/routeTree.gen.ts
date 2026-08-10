@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventRouteImport } from './routes/event'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -20,6 +19,7 @@ import { Route as PrizesRouteImport } from './routes/prizes'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as StatusRouteImport } from './routes/status'
+import { Route as Sys9f4c2aRouteImport } from './routes/sys-9f4c2a'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
@@ -44,11 +44,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -84,6 +79,11 @@ const RulesRoute = RulesRouteImport.update({
 const StatusRoute = StatusRouteImport.update({
   id: '/status',
   path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Sys9f4c2aRoute = Sys9f4c2aRouteImport.update({
+  id: '/sys-9f4c2a',
+  path: '/sys-9f4c2a',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TimelineRoute = TimelineRouteImport.update({
@@ -146,7 +146,6 @@ const AuthenticatedCKUsersRoute = AuthenticatedCKUsersRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
@@ -154,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/rules': typeof RulesRoute
   '/status': typeof StatusRoute
+  '/sys-9f4c2a': typeof Sys9f4c2aRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
   '/c/$k': typeof AuthenticatedCKRouteWithChildren
@@ -169,7 +169,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
@@ -177,6 +176,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/rules': typeof RulesRoute
   '/status': typeof StatusRoute
+  '/sys-9f4c2a': typeof Sys9f4c2aRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
@@ -193,7 +193,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/event': typeof EventRoute
   '/faq': typeof FaqRoute
@@ -201,6 +200,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/rules': typeof RulesRoute
   '/status': typeof StatusRoute
+  '/sys-9f4c2a': typeof Sys9f4c2aRoute
   '/timeline': typeof TimelineRoute
   '/payment/$id': typeof PaymentIdRoute
   '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
@@ -218,7 +218,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/auth'
     | '/contact'
     | '/event'
     | '/faq'
@@ -226,6 +225,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/rules'
     | '/status'
+    | '/sys-9f4c2a'
     | '/timeline'
     | '/payment/$id'
     | '/c/$k'
@@ -241,7 +241,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/auth'
     | '/contact'
     | '/event'
     | '/faq'
@@ -249,6 +248,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/rules'
     | '/status'
+    | '/sys-9f4c2a'
     | '/timeline'
     | '/payment/$id'
     | '/c/$k/content'
@@ -264,7 +264,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
-    | '/auth'
     | '/contact'
     | '/event'
     | '/faq'
@@ -272,6 +271,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/rules'
     | '/status'
+    | '/sys-9f4c2a'
     | '/timeline'
     | '/payment/$id'
     | '/_authenticated/c/$k'
@@ -289,7 +289,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
-  AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   EventRoute: typeof EventRoute
   FaqRoute: typeof FaqRoute
@@ -297,6 +296,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   RulesRoute: typeof RulesRoute
   StatusRoute: typeof StatusRoute
+  Sys9f4c2aRoute: typeof Sys9f4c2aRoute
   TimelineRoute: typeof TimelineRoute
   PaymentIdRoute: typeof PaymentIdRoute
 }
@@ -322,13 +322,6 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -378,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/status'
       fullPath: '/status'
       preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sys-9f4c2a': {
+      id: '/sys-9f4c2a'
+      path: '/sys-9f4c2a'
+      fullPath: '/sys-9f4c2a'
+      preLoaderRoute: typeof Sys9f4c2aRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/timeline': {
@@ -501,7 +501,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
-  AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   EventRoute: EventRoute,
   FaqRoute: FaqRoute,
@@ -509,19 +508,10 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   RulesRoute: RulesRoute,
   StatusRoute: StatusRoute,
+  Sys9f4c2aRoute: Sys9f4c2aRoute,
   TimelineRoute: TimelineRoute,
   PaymentIdRoute: PaymentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
