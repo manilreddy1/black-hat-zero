@@ -45,8 +45,8 @@ async function readRow(scope: string, identifier: string) {
   return (data ?? null) as Row | null;
 }
 
-/** Throws when the caller is currently locked out. */
-export async function assertNotThrottled(scope: string, rawIdentifiers: string[]) {
+/** Returns the remaining lockout in ms (0 when not throttled). Never throws. */
+export async function throttleRetryMs(scope: string, rawIdentifiers: string[]) {
   let retryAfter = 0;
   for (const raw of rawIdentifiers) {
     const row = await readRow(scope, await hashIdentifier(raw));
@@ -54,13 +54,18 @@ export async function assertNotThrottled(scope: string, rawIdentifiers: string[]
     const ms = new Date(row.locked_until).getTime() - Date.now();
     if (ms > retryAfter) retryAfter = ms;
   }
-  if (retryAfter > 0) {
-    const secs = Math.ceil(retryAfter / 1000);
-    const err = new Error(
-      `Too many failed attempts. Try again in ${secs >= 60 ? `${Math.ceil(secs / 60)} minute(s)` : `${secs} second(s)`}.`,
-    );
-    throw err;
-  }
+  return retryAfter > 0 ? retryAfter : 0;
+}
+
+export function throttleMessage(retryAfterMs: number) {
+  const secs = Math.ceil(retryAfterMs / 1000);
+  return `Too many failed attempts. Try again in ${secs >= 60 ? `${Math.ceil(secs / 60)} minute(s)` : `${secs} second(s)`}.`;
+}
+
+/** Throws when the caller is currently locked out (used on non-UI paths). */
+export async function assertNotThrottled(scope: string, rawIdentifiers: string[]) {
+  const ms = await throttleRetryMs(scope, rawIdentifiers);
+  if (ms > 0) throw new Error(throttleMessage(ms));
 }
 
 /** Records a failure and extends the lockout exponentially. */
