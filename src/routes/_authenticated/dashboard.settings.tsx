@@ -42,6 +42,20 @@ const BOOL_FIELDS = [
   "maintenance_mode",
 ] as const;
 
+const DATE_FIELDS = [
+  { key: "registration_deadline", label: "registration deadline" },
+  { key: "start_at", label: "event start (countdown)" },
+] as const;
+
+/** ISO string -> value for <input type="datetime-local"> in the user's local time */
+function toLocalInput(value: unknown): string {
+  if (!value) return "";
+  const d = new Date(String(value));
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function SettingsPage() {
   const { data } = useQuery(siteContentQuery);
   const save = useServerFn(updateEventSettings);
@@ -98,30 +112,26 @@ function SettingsPage() {
             />
           </label>
         ))}
-        <label className="block">
-          <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase">
-            registration deadline
-          </span>
-          <input
-            type="datetime-local"
-            value={String(form["registration_deadline"] ?? "").slice(0, 16)}
-            onChange={(e) =>
-              setForm({ ...form, registration_deadline: new Date(e.target.value).toISOString() })
-            }
-            className={`mt-2 ${input}`}
-          />
-        </label>
-        <label className="block">
-          <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase">
-            event start (countdown)
-          </span>
-          <input
-            type="datetime-local"
-            value={String(form["start_at"] ?? "").slice(0, 16)}
-            onChange={(e) => setForm({ ...form, start_at: new Date(e.target.value).toISOString() })}
-            className={`mt-2 ${input}`}
-          />
-        </label>
+        {DATE_FIELDS.map(({ key, label }) => (
+          <label key={key} className="block">
+            <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase">
+              {label}
+            </span>
+            <input
+              type="datetime-local"
+              value={toLocalInput(form[key])}
+              onChange={(e) => {
+                const v = e.target.value;
+                const d = v ? new Date(v) : null;
+                setForm({
+                  ...form,
+                  [key]: d && !Number.isNaN(d.getTime()) ? d.toISOString() : null,
+                });
+              }}
+              className={`mt-2 ${input}`}
+            />
+          </label>
+        ))}
 
         <div className="sm:col-span-2 flex flex-wrap gap-5 border-t border-border pt-4">
           {BOOL_FIELDS.map((k) => (
