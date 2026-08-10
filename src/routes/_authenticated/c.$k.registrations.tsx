@@ -36,7 +36,8 @@ function RegistrationsPage() {
   const qc = useQueryClient();
 
   const me = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
-  const isAdmin = !!me.data?.roles.includes("admin");
+  const isAdmin =
+    !!me.data?.roles.includes("admin") || !!me.data?.roles.includes("super_admin");
 
 
   const [status, setStatus] = useState("ALL");
