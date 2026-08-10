@@ -369,17 +369,30 @@ export const saveContentRow = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { requireRole } = await import("./staff.server");
+    const { requireRole, resequenceSortOrder } = await import("./staff.server");
     await requireRole(context.supabase, context.userId, ["admin"]);
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
+    let rowId = data.id ?? null;
     if (data.id) {
       const { error } = await db.from(data.table).update(data.values as never).eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await db.from(data.table).insert(data.values as never);
+      const { data: inserted, error } = await db
+        .from(data.table)
+        .insert(data.values as never)
+        .select("id")
+        .maybeSingle();
       if (error) throw new Error(error.message);
+      rowId = (inserted as { id?: string } | null)?.id ?? null;
     }
+
+    // Setting a sort order that is already taken pushes the rest down by one.
+    const target = Number((data.values as Record<string, unknown>)["sort_order"]);
+    if (rowId && Number.isFinite(target)) {
+      await resequenceSortOrder(db as never, data.table, rowId, target);
+    }
+
     await writeAudit({
       actor_id: context.userId,
       actor_role: "admin",
