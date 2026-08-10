@@ -17,11 +17,10 @@ export async function hashIdentifier(value: string) {
     .slice(0, 32);
 }
 
-export function clientIp(): string {
+export async function clientIp(): Promise<string> {
   try {
-    // Imported lazily so this module stays usable outside a request context.
-    const req = (globalThis as { __lovableRequestIp?: string }).__lovableRequestIp;
-    return req ?? "unknown";
+    const { getRequestIP } = await import("@tanstack/react-start/server");
+    return getRequestIP({ xForwardedFor: true }) ?? "unknown";
   } catch {
     return "unknown";
   }
