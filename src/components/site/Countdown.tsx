@@ -13,9 +13,11 @@ function diff(target: number) {
 
 export function Countdown({ target }: { target: string }) {
   const targetMs = new Date(target).getTime();
-  const [t, setT] = useState(() => diff(targetMs));
+  // Start from a stable value so SSR and hydration match, then tick on the client.
+  const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, done: false });
 
   useEffect(() => {
+    setT(diff(targetMs));
     const id = setInterval(() => setT(diff(targetMs)), 1000);
     return () => clearInterval(id);
   }, [targetMs]);
