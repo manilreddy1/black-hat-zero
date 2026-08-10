@@ -176,14 +176,14 @@ function CertificatePage() {
                 <button
                   onClick={() =>
                     canvasRef.current &&
-                    downloadCanvas(
+                    void downloadCanvasPdf(
                       canvasRef.current,
-                      `certificate-${result.registration_code}-${member}.png`,
+                      `certificate-${result.registration_code}-${member}`,
                     )
                   }
                   className="clip-notch mt-4 bg-primary px-6 py-3 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase"
                 >
-                  [ Download certificate ]
+                  [ Download certificate (PDF) ]
                 </button>
               </div>
             ) : (
