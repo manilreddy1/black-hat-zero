@@ -50,16 +50,24 @@ export function AboutSection({ settings }: { settings: EventSettings | null }) {
 export function EventSection({ settings }: { settings: EventSettings | null }) {
   const t = useT();
   if (!settings) return null;
+  const fmt = (iso: string, withTime: boolean) =>
+    new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      ...(withTime ? { hour: "2-digit" as const, minute: "2-digit" as const, hour12: true } : {}),
+    }).format(new Date(iso));
   const rows: [string, string][] = [
     ["EVENT", settings.event_name],
-    ["DATE", new Date(settings.event_date).toDateString()],
+    ["DATE", fmt(settings.event_date, false)],
     ["START", settings.start_time],
     ["END", settings.end_time],
     ["VENUE", settings.venue],
     ["COLLEGE", settings.college],
     ["TEAM SIZE", `${settings.min_team_size} – ${settings.max_team_size} members`],
     ["FEE", `${formatMoney(settings.registration_fee, settings.currency)} / participant`],
-    ["DEADLINE", new Date(settings.registration_deadline).toLocaleString()],
+    ["DEADLINE", fmt(settings.registration_deadline, true)],
     ["ELIGIBILITY", settings.eligibility],
     ["MODE", settings.mode],
   ];
