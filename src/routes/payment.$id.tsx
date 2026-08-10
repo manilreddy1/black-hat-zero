@@ -49,6 +49,24 @@ function PaymentPage() {
     refetchOnReconnect: true,
   });
 
+  // Instant refresh when an admin edits UPI/fee settings or this registration
+  useEffect(() => {
+    const channel = supabase
+      .channel(`payment-ctx-${id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "event_settings" }, () =>
+        qc.invalidateQueries({ queryKey: ["payment-context", id] }),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "registrations", filter: `id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["payment-context", id] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, qc]);
+
 
   const [utr, setUtr] = useState("");
   const [paidOn, setPaidOn] = useState(() => new Date().toISOString().slice(0, 10));
