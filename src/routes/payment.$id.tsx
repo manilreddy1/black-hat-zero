@@ -178,11 +178,11 @@ function PaymentPage() {
 
               {upiUri ? (
                 <>
-                  <div className="relative mt-6 inline-block bg-white p-4">
-                    <QRCode value={upiUri} size={200} level="H" />
-                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                      <span className="flex h-10 w-[76px] items-center justify-center bg-white px-2 py-1">
-                        <img src={upiLogo.url} alt="UPI" className="h-8 w-[68px] object-contain" />
+                  <div className="relative mt-6 inline-block w-[min(70vw,232px)] bg-white p-4">
+                    <QRCode value={upiUri} size={200} level="H" className="block h-auto w-full" />
+                    <span className="pointer-events-none absolute inset-4 flex items-center justify-center">
+                      <span className="flex aspect-[1.9] w-[38%] min-w-14 max-w-[76px] items-center justify-center bg-white px-[3%] py-[2%]">
+                        <img src={upiLogo.url} alt="UPI" className="block h-auto w-full object-contain" />
                       </span>
                     </span>
                   </div>
