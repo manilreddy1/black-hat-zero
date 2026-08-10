@@ -83,3 +83,17 @@ export function downloadCanvas(canvas: HTMLCanvasElement, filename: string) {
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
+
+/** Exports the rendered certificate canvas as a single-page PDF sized to the artwork. */
+export async function downloadCanvasPdf(canvas: HTMLCanvasElement, filename: string) {
+  const { jsPDF } = await import("jspdf");
+  const orientation = canvas.width >= canvas.height ? "landscape" : "portrait";
+  const pdf = new jsPDF({
+    orientation,
+    unit: "px",
+    format: [canvas.width, canvas.height],
+    compress: true,
+  });
+  pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, canvas.width, canvas.height);
+  pdf.save(filename.replace(/\.(png|jpe?g)$/i, "") + ".pdf");
+}
