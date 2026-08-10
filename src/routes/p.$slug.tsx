@@ -58,7 +58,7 @@ function CustomPage() {
         {page.body ? (
           <Reveal>
             <div className="panel clip-notch space-y-4 p-6">
-              {page.body.split(/\n{2,}/).map((para, i) => (
+              {page.body.split(/\n{2,}/).map((para: string, i: number) => (
                 <p key={i} className="text-sm whitespace-pre-line text-muted-foreground">
                   {para}
                 </p>
