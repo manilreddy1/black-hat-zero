@@ -371,13 +371,49 @@ function CertificatesAdmin() {
                   <span className="font-mono text-[10px] text-muted-foreground uppercase">
                     Colour
                   </span>
-                  <input
-                    type="color"
-                    value={sel.color}
-                    onChange={(e) => update(sel.id, { color: e.target.value })}
-                    className="mt-1 h-9 w-full border border-input bg-surface"
-                  />
+                  <div className="mt-1 flex gap-2">
+                    <input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(sel.color) ? sel.color : "#111111"}
+                      onChange={(e) => update(sel.id, { color: e.target.value })}
+                      className="h-9 w-12 shrink-0 border border-input bg-surface"
+                    />
+                    <input
+                      type="text"
+                      value={sel.color}
+                      spellCheck={false}
+                      onChange={(e) => update(sel.id, { color: e.target.value })}
+                      placeholder="#111111"
+                      className={`${input} font-mono uppercase`}
+                    />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {[
+                      "#000000",
+                      "#111111",
+                      "#3f3f46",
+                      "#ffffff",
+                      "#b91c1c",
+                      "#e11d48",
+                      "#c2892a",
+                      "#b8860b",
+                      "#1e3a8a",
+                      "#0f766e",
+                    ].map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => update(sel.id, { color: c })}
+                        title={c}
+                        style={{ background: c }}
+                        className={`h-6 w-6 rounded-sm border ${
+                          sel.color.toLowerCase() === c ? "border-primary" : "border-input"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </label>
+
                 <label className="block">
                   <span className="font-mono text-[10px] text-muted-foreground uppercase">
                     Weight
