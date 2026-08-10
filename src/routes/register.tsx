@@ -379,9 +379,10 @@ function RegisterPage() {
                     ))}
                   </div>
                   <ul className="space-y-2 font-mono text-xs text-muted-foreground">
-                    {members.slice(0, teamSize).map((m, i) => (
+                    {[leaderMember, ...members.slice(0, coMemberCount)].map((m, i) => (
                       <li key={i}>
                         {String(i + 1).padStart(2, "0")} · {m.full_name} · {m.email} · {m.phone}
+                        {i === 0 && " · LEADER"}
                       </li>
                     ))}
                   </ul>
