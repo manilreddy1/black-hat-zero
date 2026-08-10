@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { siteContentQuery } from "@/hooks/useSiteContent";
 import { updateEventSettings } from "@/lib/staff.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/settings")({
+export const Route = createFileRoute("/_authenticated/c/$k/settings")({
   component: SettingsPage,
 });
 

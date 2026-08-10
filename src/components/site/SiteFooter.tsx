@@ -40,7 +40,6 @@ export function SiteFooter({ settings }: { settings: EventSettings | null }) {
                 { to: "/register", label: "Register" },
                 { to: "/status", label: "Track Status" },
                 { to: "/contact", label: "Contact" },
-                { to: "/auth", label: "Staff Login" },
               ] as const
             ).map((l) => (
               <li key={l.to}>

@@ -18,7 +18,7 @@ import {
 import { getDashboardStats } from "@/lib/staff.functions";
 import { formatMoney } from "@/lib/constants";
 
-export const Route = createFileRoute("/_authenticated/dashboard/")({
+export const Route = createFileRoute("/_authenticated/c/$k/")({
   component: Overview,
 });
 

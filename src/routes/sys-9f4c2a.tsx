@@ -2,10 +2,11 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getConsoleKey } from "@/lib/console.functions";
 import { Logo } from "@/components/site/Logo";
 import { CyberBackground } from "@/components/site/CyberBackground";
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute("/sys-9f4c2a")({
   ssr: false,
   head: () => ({
     meta: [
@@ -32,14 +33,17 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast.error(error.message);
       return;
     }
+    const { key } = await getConsoleKey();
+    setBusy(false);
     toast.success("Access granted.");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/c/$k", params: { k: key } });
   };
+
 
   const field =
     "w-full border border-input bg-surface px-3 py-3 font-mono text-sm outline-none transition-shadow focus:border-primary focus:shadow-[var(--glow-red)]";
