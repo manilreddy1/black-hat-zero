@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { CertificateField } from "@/lib/certificates.functions";
+import { fontStack, waitForFonts } from "@/lib/certificate-fonts";
+
 
 export type CertificateValues = Record<string, string>;
 
