@@ -34,12 +34,14 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     const addr = email.trim().toLowerCase();
-    try {
-      // Server-side brute-force gate (exponential backoff per email + IP).
-      await preStaffLogin({ data: { email: addr } });
-    } catch (err) {
+    // Server-side brute-force gate (exponential backoff per email + IP).
+    const gate = await preStaffLogin({ data: { email: addr } }).catch(() => ({
+      ok: true as const,
+      message: "",
+    }));
+    if (!gate.ok) {
       setBusy(false);
-      toast.error((err as Error).message);
+      toast.error(gate.message);
       return;
     }
 
