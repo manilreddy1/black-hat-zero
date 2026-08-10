@@ -144,6 +144,11 @@ function CertificatesAdmin() {
   const input = "w-full border border-input bg-surface px-3 py-2 font-mono text-xs";
   const sel = fields.find((f) => f.id === selected) ?? null;
 
+  useEffect(() => {
+    for (const f of fields) ensureFontLoaded(f.font, f.fontUrl);
+  }, [fields]);
+
+
   return (
     <div className="space-y-6">
       <div>
