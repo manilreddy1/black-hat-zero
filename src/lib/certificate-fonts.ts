@@ -133,7 +133,7 @@ const MULTI_WEIGHT = new Set(
   [
     ...GOOGLE_FONT_GROUPS["Classic serif"]!,
     ...GOOGLE_FONT_GROUPS["Modern sans"]!,
-    ...GOOGLE_FONT_GROUPS.Monospace!,
+    ...GOOGLE_FONT_GROUPS['Monospace']!,
     "Dancing Script",
     "Caveat",
     "Kalam",
