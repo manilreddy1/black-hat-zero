@@ -38,6 +38,8 @@ function PaymentPage() {
   const { id } = Route.useParams();
   const ctxFn = useServerFn(getPaymentContext);
   const payFn = useServerFn(submitPayment);
+  const qc = useQueryClient();
+
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["payment-context", id],
