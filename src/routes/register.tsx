@@ -11,9 +11,10 @@ import {
   clean,
   cleanEmail,
   cleanPhone,
+  localPhone,
+  yearFromDepartment,
   FIELD_LIMITS,
   DEPARTMENT_OPTIONS,
-  YEAR_OPTIONS,
 } from "@/lib/schemas";
 
 import { GlitchText } from "@/components/site/GlitchText";
