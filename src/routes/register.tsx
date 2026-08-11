@@ -576,13 +576,12 @@ function RegisterPage() {
                             value={m.phone}
                             onChange={(v) => setMember(i, { phone: v })}
                           />
-                          <Field
-                            label="STUDENT ID (OPTIONAL)"
-                            maxLength={FIELD_LIMITS.student_id}
-                            required={false}
+                          <RollField
+                            label="ROLL NO"
                             value={m.student_id}
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
+
                           <SelectField
                             label="DEPARTMENT & YEAR (OPTIONAL)"
                             value={m.department}
