@@ -217,8 +217,6 @@ function RegisterPage() {
           DEPARTMENT_OPTIONS.includes(clean(team.department)) &&
           (YEAR_OPTIONS as readonly string[]).includes(clean(team.year)),
       );
-          clean(team.city),
-      );
     if (step === 1) {
       const list = members.slice(0, coMemberCount);
       const emails = [cleanEmail(team.leader_email), ...list.map((m) => cleanEmail(m.email))];
