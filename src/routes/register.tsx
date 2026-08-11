@@ -266,6 +266,7 @@ function RegisterPage() {
                   <div className="grid gap-5 sm:grid-cols-2">
                     <Field
                       label="TEAM NAME"
+                      maxLength={FIELD_LIMITS.team_name}
                       value={team.team_name}
                       onChange={(v) => setTeam({ ...team, team_name: v })}
                     />
@@ -285,37 +286,49 @@ function RegisterPage() {
                     </label>
                     <Field
                       label="LEADER NAME"
+                      maxLength={FIELD_LIMITS.name}
+                      autoComplete="name"
                       value={team.leader_name}
                       onChange={(v) => setTeam({ ...team, leader_name: v })}
                     />
                     <Field
                       label="LEADER EMAIL"
                       type="email"
+                      maxLength={FIELD_LIMITS.email}
+                      inputMode="email"
+                      autoComplete="email"
                       value={team.leader_email}
                       onChange={(v) => setTeam({ ...team, leader_email: v })}
                     />
                     <Field
                       label="LEADER PHONE"
+                      maxLength={FIELD_LIMITS.phone}
+                      inputMode="tel"
+                      autoComplete="tel"
                       value={team.leader_phone}
                       onChange={(v) => setTeam({ ...team, leader_phone: v })}
                     />
                     <Field
                       label="COLLEGE"
+                      maxLength={FIELD_LIMITS.college}
                       value={team.college}
                       onChange={(v) => setTeam({ ...team, college: v })}
                     />
                     <Field
                       label="DEPARTMENT"
+                      maxLength={FIELD_LIMITS.department}
                       value={team.department}
                       onChange={(v) => setTeam({ ...team, department: v })}
                     />
                     <Field
                       label="YEAR"
+                      maxLength={FIELD_LIMITS.year}
                       value={team.year}
                       onChange={(v) => setTeam({ ...team, year: v })}
                     />
                     <Field
                       label="CITY"
+                      maxLength={FIELD_LIMITS.city}
                       value={team.city}
                       onChange={(v) => setTeam({ ...team, city: v })}
                     />
@@ -349,34 +362,42 @@ function RegisterPage() {
                         <div className="mt-4 grid gap-4 sm:grid-cols-2">
                           <Field
                             label="FULL NAME"
+                            maxLength={FIELD_LIMITS.name}
                             value={m.full_name}
                             onChange={(v) => setMember(i, { full_name: v })}
                           />
                           <Field
                             label="EMAIL"
                             type="email"
+                            maxLength={FIELD_LIMITS.email}
+                            inputMode="email"
                             value={m.email}
                             onChange={(v) => setMember(i, { email: v })}
                           />
                           <Field
                             label="PHONE"
+                            maxLength={FIELD_LIMITS.phone}
+                            inputMode="tel"
                             value={m.phone}
                             onChange={(v) => setMember(i, { phone: v })}
                           />
                           <Field
                             label="STUDENT ID (OPTIONAL)"
+                            maxLength={FIELD_LIMITS.student_id}
                             required={false}
                             value={m.student_id}
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
                           <Field
                             label="DEPARTMENT (OPTIONAL)"
+                            maxLength={FIELD_LIMITS.department}
                             required={false}
                             value={m.department}
                             onChange={(v) => setMember(i, { department: v })}
                           />
                           <Field
                             label="YEAR (OPTIONAL)"
+                            maxLength={FIELD_LIMITS.year}
                             required={false}
                             value={m.year}
                             onChange={(v) => setMember(i, { year: v })}
