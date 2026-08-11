@@ -97,7 +97,11 @@ export const memberSchema = z.object({
   full_name: str(2, FIELD_LIMITS.name, NAME_RE, "Name contains invalid characters"),
   email: emailField,
   phone: phoneField,
-  student_id: optStr(FIELD_LIMITS.student_id),
+  student_id: z
+    .preprocess(cleanRoll, z.string().length(10, "Roll number must be 10 characters"))
+    .refine((v) => ROLL_RE.test(v as string), {
+      message: "Roll number must match 2_X0_A62__",
+    }) as unknown as z.ZodType<string>,
   department: z
     .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.department))
     .refine((v) => v === "" || DEPARTMENT_OPTIONS.includes(v as string), {
