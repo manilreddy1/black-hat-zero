@@ -105,6 +105,39 @@ function Field({
   );
 }
 
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+  optional = false,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+  optional?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className={labelCls}>{label}</span>
+      <select
+        value={value}
+        required={!optional}
+        onChange={(e) => onChange(e.target.value)}
+        className={`mt-2 ${field}`}
+      >
+        <option value="">{optional ? "— none —" : "— select —"}</option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 
 function RegisterPage() {
   const t = useT();
