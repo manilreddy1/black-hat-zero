@@ -61,8 +61,10 @@ export async function issueLeadPassword(email: string, fullName: string) {
  */
 export async function sendLeadPasswordEmail(email: string, fullName: string, temp: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
-  const senderDomain = process.env["LOVABLE_EMAIL_SENDER_DOMAIN"];
+  // Verified sender subdomain for this project (not a secret).
+  const senderDomain = process.env["LOVABLE_EMAIL_SENDER_DOMAIN"] ?? "notify.blackhatzeronrcm.linkpc.net";
   if (!apiKey || !senderDomain) return false;
+
 
   const { leadPasswordEmailHtml } = await import("./lead-email");
 
