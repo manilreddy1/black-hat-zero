@@ -59,6 +59,9 @@ function Field({
   type = "text",
   required = true,
   placeholder,
+  maxLength = 120,
+  inputMode,
+  autoComplete = "off",
 }: {
   label: string;
   value: string;
@@ -66,21 +69,33 @@ function Field({
   type?: string;
   required?: boolean;
   placeholder?: string;
+  maxLength?: number;
+  inputMode?: "text" | "email" | "tel" | "numeric";
+  autoComplete?: string;
 }) {
   return (
     <label className="block">
-      <span className={labelCls}>{label}</span>
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">{value.length}/{maxLength}</span>
+      </span>
       <input
         type={type}
         required={required}
         value={value}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
+        spellCheck={false}
         placeholder={placeholder ?? ""}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value.slice(0, maxLength))}
+        onBlur={(e) => onChange(clean(e.target.value).slice(0, maxLength))}
         className={`mt-2 ${field}`}
       />
     </label>
   );
 }
+
 
 function RegisterPage() {
   const t = useT();
