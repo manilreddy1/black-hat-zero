@@ -245,6 +245,22 @@ function RegisterPage() {
   const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(cleanEmail(v));
   const validPhone = (v: string) => /^\+91[6-9]\d{9}$/.test(cleanPhone(v));
 
+  const memberIssues = (m: Member, i: number): string[] => {
+    const out: string[] = [];
+    if (clean(m.full_name).length < 2) out.push("Enter the member's full name");
+    if (!validEmail(m.email)) out.push("Enter a valid email address");
+    if (!validPhone(m.phone)) out.push("Enter a valid 10-digit mobile number (starts 6-9)");
+    const others = [
+      { email: cleanEmail(team.leader_email), phone: cleanPhone(team.leader_phone) },
+      ...members.slice(0, coMemberCount).filter((_, idx) => idx !== i),
+    ];
+    if (validEmail(m.email) && others.some((o) => cleanEmail(o.email) === cleanEmail(m.email)))
+      out.push("This email is already used by another member");
+    if (validPhone(m.phone) && others.some((o) => cleanPhone(o.phone) === cleanPhone(m.phone)))
+      out.push("This phone number is already used by another member");
+    return out;
+  };
+
   const stepValid = () => {
     if (step === 0)
       return Boolean(
@@ -408,7 +424,7 @@ function RegisterPage() {
                       MEMBER 01 — TEAM LEADER
                     </p>
                     <p className="mt-2 font-mono text-xs text-muted-foreground">
-                      {team.leader_name} · {team.leader_email} · {team.leader_phone}
+                      {team.leader_name} · {team.leader_email} · {localPhone(team.leader_phone)}
                     </p>
                     <p className="mt-1 font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
                       ALREADY CAPTURED IN STEP 01
@@ -419,7 +435,9 @@ function RegisterPage() {
                       SOLO ENTRY — NO ADDITIONAL MEMBERS REQUIRED.
                     </p>
                   ) : (
-                    members.slice(0, coMemberCount).map((m, i) => (
+                    members.slice(0, coMemberCount).map((m, i) => {
+                      const issues = memberIssues(m, i);
+                      return (
                       <div key={i} className="border-l-2 border-l-primary/70 pl-5">
                         <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
                           MEMBER {String(i + 2).padStart(2, "0")}
@@ -462,9 +480,18 @@ function RegisterPage() {
                           />
 
                         </div>
+                        {issues.length > 0 && (
+                          <ul className="mt-3 space-y-1 font-mono text-[11px] text-primary">
+                            {issues.map((msg) => (
+                              <li key={msg}>! {msg}</li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
-                    ))
+                      );
+                    })
                   )}
+
                 </div>
               )}
 
