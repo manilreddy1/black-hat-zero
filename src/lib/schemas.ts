@@ -53,6 +53,11 @@ export const DEPARTMENT_OPTIONS = BRANCH_OPTIONS.flatMap((b) =>
 export const yearFromDepartment = (dept: string) =>
   (dept.match(/\s(II|III|IV)-[AB]$/)?.[1] ?? "") as string;
 
+/** Roll number mask: 2_X0_A62__ — only the underscore slots are user-entered. */
+export const ROLL_RE = /^2[0-9]X0[0-9]A62[A-Z0-9]{2}$/;
+export const cleanRoll = (v: unknown): string =>
+  typeof v === "string" ? clean(v).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) : (v as string);
+
 const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M}\s.'-]*$/u;
 const TEXT_RE = /^[\p{L}\p{M}\p{N}\s.,'&()\/+-]+$/u;
 const PHONE_RE = /^\+91[6-9]\d{9}$/;
