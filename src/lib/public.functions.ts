@@ -122,6 +122,7 @@ export const createRegistration = createServerFn({ method: "POST" })
         student_id: m.student_id || null,
         department: m.department || null,
         year: m.year || null,
+        food_pref: m.food_pref,
         is_leader: i === 0,
       })),
     );

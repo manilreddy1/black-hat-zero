@@ -109,6 +109,35 @@ function Overview() {
         </div>
 
         <div className="panel p-5">
+          <p className="font-mono text-[11px] tracking-[0.3em] text-primary">FOOD PREFERENCE</p>
+          <div className="mt-4 h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data.foodDist}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={80}
+                  label={{ fill: "#e6e8ea", fontSize: 11 }}
+                >
+                  {data.foodDist.map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ background: "#111316", border: "1px solid #22262b", fontSize: 12, color: "#e6e8ea" }}
+                  labelStyle={{ color: "#e6e8ea" }}
+                  itemStyle={{ color: "#e6e8ea" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-2 font-mono text-[11px] text-muted-foreground">
+            VEG {data.veg} · NON-VEG {data.nonVeg}
+          </p>
+        </div>
+
+        <div className="panel p-5">
           <p className="font-mono text-[11px] tracking-[0.3em] text-primary">TEAM SIZES</p>
           <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">

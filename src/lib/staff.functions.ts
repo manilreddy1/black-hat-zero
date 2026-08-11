@@ -38,6 +38,12 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const list = regs ?? [];
     const { data: teams } = await db.from("teams").select("id, college");
     const collegeById = new Map((teams ?? []).map((t) => [t.id, t.college]));
+    const activeTeamIds = new Set(list.filter((r) => r.status !== "CANCELLED").map((r) => r.team_id));
+    const { data: allMembers } = await db.from("team_members").select("team_id, food_pref");
+    const foodMembers = (allMembers ?? []).filter((m) => activeTeamIds.has(m.team_id));
+    const veg = foodMembers.filter((m) => (m.food_pref ?? "VEG") !== "NON_VEG").length;
+    const nonVeg = foodMembers.length - veg;
+
 
     const by = (s: string) => list.filter((r) => r.status === s).length;
     const today = new Date();
@@ -74,7 +80,14 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         .sort()
         .slice(-14)
         .map(([date, count]) => ({ date: date.slice(5), count })),
+      foodDist: [
+        { name: "Veg", value: veg },
+        { name: "Non-veg", value: nonVeg },
+      ],
+      veg,
+      nonVeg,
       statusDist: [
+
         { name: "Pending", value: by("PAYMENT_PENDING") },
         { name: "Review", value: by("PAYMENT_REVIEW") },
         { name: "Registered", value: by("REGISTERED") },
@@ -212,9 +225,21 @@ export const getRegistrationDetail = createServerFn({ method: "POST" })
         .createSignedUrl(receiptPath.receipt_path, 600);
       receipt_url = signed.data?.signedUrl ?? null;
     }
+    const { data: attendance } = await db
+      .from("attendance")
+      .select("marked_at, marked_by_email")
+      .eq("registration_id", reg.id)
+      .maybeSingle();
+    const { data: foodTokens } = await db
+      .from("food_tokens")
+      .select("member_id, released, released_at, redeemed_at, redeemed_by_email")
+      .eq("registration_id", reg.id);
+
     return {
       registration: reg,
       team,
+      attendance,
+      foodTokens: foodTokens ?? [],
       members: members ?? [],
       payment,
       screenshot_url,
@@ -330,6 +355,42 @@ export const verifyPayment = createServerFn({ method: "POST" })
           changed_by: context.userId,
         },
       ]);
+
+      // Provision the team-lead portal: one food token per participant (held
+      // back until an admin releases them) and a login account for the leader.
+      const { data: fullReg } = await db
+        .from("registrations")
+        .select("team_id")
+        .eq("id", reg.id)
+        .maybeSingle();
+      if (fullReg) {
+        const { data: team } = await db
+          .from("teams")
+          .select("id, leader_email, leader_name, lead_user_id")
+          .eq("id", fullReg.team_id)
+          .maybeSingle();
+        const { data: members } = await db
+          .from("team_members")
+          .select("id")
+          .eq("team_id", fullReg.team_id);
+        for (const m of members ?? []) {
+          await db
+            .from("food_tokens")
+            .upsert({ registration_id: reg.id, member_id: m.id }, { onConflict: "member_id" });
+        }
+        if (team && !team.lead_user_id) {
+          try {
+            const { getRequestHeader } = await import("@tanstack/react-start/server");
+            const origin = getRequestHeader("origin") ?? "";
+            const { ensureLeadAccount } = await import("./lead.server");
+            const uid = await ensureLeadAccount(team.leader_email, team.leader_name, origin);
+            if (uid) await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
+          } catch {
+            /* never block verification on email/account provisioning */
+          }
+        }
+      }
+
     } else {
       await db.from("registrations").update({ status: "PAYMENT_REJECTED" }).eq("id", reg.id);
       await db.from("registration_status_history").insert({
@@ -930,6 +991,124 @@ export const updateRegistrationTeam = createServerFn({ method: "POST" })
       entity: "registrations",
       entity_id: reg.id,
       metadata: { registration_code: reg.registration_code, team_size: data.members.length, locked },
+    });
+    return { ok: true };
+  });
+
+/**
+ * Releases food tokens to participants. Admin/super-admin only, and only for
+ * confirmed teams — tokens stay hidden in the lead portal until this runs.
+ */
+export const releaseFoodTokens = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        registration_id: z.string().uuid().nullable().optional(),
+        all: z.boolean().optional().default(false),
+        release: z.boolean().optional().default(true),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    const role = await requireRole(context.supabase, context.userId, ["admin"]);
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+
+    let ids: string[] = [];
+    if (data.all) {
+      const { data: regs } = await db
+        .from("registrations")
+        .select("id")
+        .in("status", ["REGISTERED", "PAYMENT_APPROVED"]);
+      ids = (regs ?? []).map((r) => r.id);
+    } else if (data.registration_id) {
+      const { data: reg } = await db
+        .from("registrations")
+        .select("id, status")
+        .eq("id", data.registration_id)
+        .maybeSingle();
+      if (!reg) throw new Error("Registration not found.");
+      if (!["REGISTERED", "PAYMENT_APPROVED"].includes(reg.status))
+        throw new Error("Only confirmed teams can receive food tokens.");
+      ids = [reg.id];
+    } else {
+      throw new Error("Nothing selected.");
+    }
+
+    // Make sure a token row exists for every participant before releasing.
+    for (const id of ids) {
+      const { data: reg } = await db
+        .from("registrations")
+        .select("team_id")
+        .eq("id", id)
+        .maybeSingle();
+      if (!reg) continue;
+      const { data: members } = await db.from("team_members").select("id").eq("team_id", reg.team_id);
+      for (const m of members ?? []) {
+        await db
+          .from("food_tokens")
+          .upsert({ registration_id: id, member_id: m.id }, { onConflict: "member_id" });
+      }
+    }
+
+    const { data: touched } = await db
+      .from("food_tokens")
+      .update({ released: data.release, released_at: data.release ? new Date().toISOString() : null })
+      .in("registration_id", ids)
+      .is("redeemed_at", null)
+      .select("id");
+
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: role,
+      action: data.release ? "FOOD_TOKENS_RELEASED" : "FOOD_TOKENS_WITHDRAWN",
+      entity: "registrations",
+      ...(ids.length === 1 ? { entity_id: ids[0]! } : {}),
+      metadata: { teams: ids.length, tokens: touched?.length ?? 0 },
+    });
+    return { ok: true, teams: ids.length, tokens: touched?.length ?? 0 };
+  });
+
+/** Resends the portal password email to a team lead (admin only). */
+export const resendLeadInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ registration_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    const role = await requireRole(context.supabase, context.userId, ["admin"]);
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+    const { data: reg } = await db
+      .from("registrations")
+      .select("team_id, status")
+      .eq("id", data.registration_id)
+      .maybeSingle();
+    if (!reg) throw new Error("Registration not found.");
+    if (!["REGISTERED", "PAYMENT_APPROVED"].includes(reg.status))
+      throw new Error("Only confirmed teams have portal access.");
+    const { data: team } = await db
+      .from("teams")
+      .select("id, leader_email, leader_name, lead_user_id")
+      .eq("id", reg.team_id)
+      .maybeSingle();
+    if (!team) throw new Error("Team not found.");
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
+    const origin = getRequestHeader("origin") ?? "";
+    const { ensureLeadAccount, sendLeadPasswordEmail } = await import("./lead.server");
+    if (team.lead_user_id) await sendLeadPasswordEmail(team.leader_email, origin);
+    else {
+      const uid = await ensureLeadAccount(team.leader_email, team.leader_name, origin);
+      if (uid) await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
+    }
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: role,
+      action: "LEAD_INVITE_SENT",
+      entity: "teams",
+      entity_id: team.id,
+      metadata: { email: team.leader_email },
     });
     return { ok: true };
   });

@@ -15,6 +15,7 @@ const FALLBACK_NAV = [
   { id: "prizes", label: "Prizes", href: "/prizes", is_button: false, new_tab: false },
   { id: "faq", label: "FAQ", href: "/faq", is_button: false, new_tab: false },
   { id: "status", label: "Status", href: "/status", is_button: false, new_tab: false },
+  { id: "team", label: "Team Login", href: "/team", is_button: false, new_tab: false },
   { id: "register", label: "Register Now", href: "/register", is_button: true, new_tab: false },
 ];
 

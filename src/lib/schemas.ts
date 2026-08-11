@@ -95,6 +95,9 @@ const yearField = z
     message: "Invalid year",
   }) as unknown as z.ZodType<string>;
 
+export const FOOD_OPTIONS = ["VEG", "NON_VEG"] as const;
+export const foodLabel = (v: string) => (v === "NON_VEG" ? "Non-veg" : "Veg");
+
 export const memberSchema = z.object({
   full_name: str(2, FIELD_LIMITS.name, NAME_RE, "Name contains invalid characters"),
   email: emailField,
@@ -110,7 +113,9 @@ export const memberSchema = z.object({
       message: "Select a valid department",
     }) as unknown as z.ZodType<string>,
   year: yearField,
+  food_pref: z.enum(FOOD_OPTIONS, { required_error: "Select a food preference" }),
 });
+
 
 export const registrationSchema = z
   .object({

@@ -24,9 +24,13 @@ import { Route as Sys9f4c2aRouteImport } from './routes/sys-9f4c2a'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
+import { Route as TeamIndexRouteImport } from './routes/team.index'
+import { Route as TeamPortalRouteImport } from './routes/team.portal'
+import { Route as TeamSetPasswordRouteImport } from './routes/team.set-password'
 import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
 import { Route as AuthenticatedCKIndexRouteImport } from './routes/_authenticated/c.$k.index'
 import { Route as AuthenticatedCKCertificatesRouteImport } from './routes/_authenticated/c.$k.certificates'
+import { Route as AuthenticatedCKCheckinRouteImport } from './routes/_authenticated/c.$k.checkin'
 import { Route as AuthenticatedCKContentRouteImport } from './routes/_authenticated/c.$k.content'
 import { Route as AuthenticatedCKLogsRouteImport } from './routes/_authenticated/c.$k.logs'
 import { Route as AuthenticatedCKMessagesRouteImport } from './routes/_authenticated/c.$k.messages'
@@ -109,6 +113,21 @@ const PaymentIdRoute = PaymentIdRouteImport.update({
   path: '/payment/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamIndexRoute = TeamIndexRouteImport.update({
+  id: '/team/',
+  path: '/team/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamPortalRoute = TeamPortalRouteImport.update({
+  id: '/team/portal',
+  path: '/team/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamSetPasswordRoute = TeamSetPasswordRouteImport.update({
+  id: '/team/set-password',
+  path: '/team/set-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCKRoute = AuthenticatedCKRouteImport.update({
   id: '/c/$k',
   path: '/c/$k',
@@ -125,6 +144,11 @@ const AuthenticatedCKCertificatesRoute =
     path: '/certificates',
     getParentRoute: () => AuthenticatedCKRoute,
   } as any)
+const AuthenticatedCKCheckinRoute = AuthenticatedCKCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
 const AuthenticatedCKContentRoute = AuthenticatedCKContentRouteImport.update({
   id: '/content',
   path: '/content',
@@ -177,8 +201,12 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof TimelineRoute
   '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
+  '/team/portal': typeof TeamPortalRoute
+  '/team/set-password': typeof TeamSetPasswordRoute
+  '/team/': typeof TeamIndexRoute
   '/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
+  '/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -203,7 +231,11 @@ export interface FileRoutesByTo {
   '/timeline': typeof TimelineRoute
   '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
+  '/team/portal': typeof TeamPortalRoute
+  '/team/set-password': typeof TeamSetPasswordRoute
+  '/team': typeof TeamIndexRoute
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
+  '/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -230,8 +262,12 @@ export interface FileRoutesById {
   '/timeline': typeof TimelineRoute
   '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
+  '/team/portal': typeof TeamPortalRoute
+  '/team/set-password': typeof TeamSetPasswordRoute
+  '/team/': typeof TeamIndexRoute
   '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/_authenticated/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
+  '/_authenticated/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/_authenticated/c/$k/content': typeof AuthenticatedCKContentRoute
   '/_authenticated/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/_authenticated/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -258,8 +294,12 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/p/$slug'
     | '/payment/$id'
+    | '/team/portal'
+    | '/team/set-password'
+    | '/team/'
     | '/c/$k'
     | '/c/$k/certificates'
+    | '/c/$k/checkin'
     | '/c/$k/content'
     | '/c/$k/logs'
     | '/c/$k/messages'
@@ -284,7 +324,11 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/p/$slug'
     | '/payment/$id'
+    | '/team/portal'
+    | '/team/set-password'
+    | '/team'
     | '/c/$k/certificates'
+    | '/c/$k/checkin'
     | '/c/$k/content'
     | '/c/$k/logs'
     | '/c/$k/messages'
@@ -310,8 +354,12 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/p/$slug'
     | '/payment/$id'
+    | '/team/portal'
+    | '/team/set-password'
+    | '/team/'
     | '/_authenticated/c/$k'
     | '/_authenticated/c/$k/certificates'
+    | '/_authenticated/c/$k/checkin'
     | '/_authenticated/c/$k/content'
     | '/_authenticated/c/$k/logs'
     | '/_authenticated/c/$k/messages'
@@ -338,6 +386,9 @@ export interface RootRouteChildren {
   TimelineRoute: typeof TimelineRoute
   PSlugRoute: typeof PSlugRoute
   PaymentIdRoute: typeof PaymentIdRoute
+  TeamPortalRoute: typeof TeamPortalRoute
+  TeamSetPasswordRoute: typeof TeamSetPasswordRoute
+  TeamIndexRoute: typeof TeamIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -447,6 +498,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/team/': {
+      id: '/team/'
+      path: '/team'
+      fullPath: '/team/'
+      preLoaderRoute: typeof TeamIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team/portal': {
+      id: '/team/portal'
+      path: '/team/portal'
+      fullPath: '/team/portal'
+      preLoaderRoute: typeof TeamPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team/set-password': {
+      id: '/team/set-password'
+      path: '/team/set-password'
+      fullPath: '/team/set-password'
+      preLoaderRoute: typeof TeamSetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/c/$k': {
       id: '/_authenticated/c/$k'
       path: '/c/$k'
@@ -466,6 +538,13 @@ declare module '@tanstack/react-router' {
       path: '/certificates'
       fullPath: '/c/$k/certificates'
       preLoaderRoute: typeof AuthenticatedCKCertificatesRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
+    }
+    '/_authenticated/c/$k/checkin': {
+      id: '/_authenticated/c/$k/checkin'
+      path: '/checkin'
+      fullPath: '/c/$k/checkin'
+      preLoaderRoute: typeof AuthenticatedCKCheckinRouteImport
       parentRoute: typeof AuthenticatedCKRoute
     }
     '/_authenticated/c/$k/content': {
@@ -522,6 +601,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedCKRouteChildren {
   AuthenticatedCKCertificatesRoute: typeof AuthenticatedCKCertificatesRoute
+  AuthenticatedCKCheckinRoute: typeof AuthenticatedCKCheckinRoute
   AuthenticatedCKContentRoute: typeof AuthenticatedCKContentRoute
   AuthenticatedCKLogsRoute: typeof AuthenticatedCKLogsRoute
   AuthenticatedCKMessagesRoute: typeof AuthenticatedCKMessagesRoute
@@ -534,6 +614,7 @@ interface AuthenticatedCKRouteChildren {
 
 const AuthenticatedCKRouteChildren: AuthenticatedCKRouteChildren = {
   AuthenticatedCKCertificatesRoute: AuthenticatedCKCertificatesRoute,
+  AuthenticatedCKCheckinRoute: AuthenticatedCKCheckinRoute,
   AuthenticatedCKContentRoute: AuthenticatedCKContentRoute,
   AuthenticatedCKLogsRoute: AuthenticatedCKLogsRoute,
   AuthenticatedCKMessagesRoute: AuthenticatedCKMessagesRoute,
@@ -575,17 +656,10 @@ const rootRouteChildren: RootRouteChildren = {
   TimelineRoute: TimelineRoute,
   PSlugRoute: PSlugRoute,
   PaymentIdRoute: PaymentIdRoute,
+  TeamPortalRoute: TeamPortalRoute,
+  TeamSetPasswordRoute: TeamSetPasswordRoute,
+  TeamIndexRoute: TeamIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
