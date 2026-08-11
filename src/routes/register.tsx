@@ -243,7 +243,7 @@ function RegisterPage() {
   const steps = ["TEAM", "MEMBERS", "CONFIRM"];
 
   const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(cleanEmail(v));
-  const validPhone = (v: string) => /^\+?\d{7,15}$/.test(cleanPhone(v));
+  const validPhone = (v: string) => /^\+91[6-9]\d{9}$/.test(cleanPhone(v));
 
   const stepValid = () => {
     if (step === 0)
@@ -253,8 +253,7 @@ function RegisterPage() {
           validEmail(team.leader_email) &&
           validPhone(team.leader_phone) &&
           clean(team.college).length >= 2 &&
-          DEPARTMENT_OPTIONS.includes(clean(team.department)) &&
-          (YEAR_OPTIONS as readonly string[]).includes(clean(team.year)),
+          DEPARTMENT_OPTIONS.includes(clean(team.department)),
       );
     if (step === 1) {
       const list = members.slice(0, coMemberCount);
