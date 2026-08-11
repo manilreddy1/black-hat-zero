@@ -14,7 +14,7 @@ function beep() {
     const ctx = new Ctx();
     void ctx.resume();
     const t0 = ctx.currentTime;
-    const dur = 1;
+    const dur = 0.6;
 
     const master = ctx.createGain();
     master.gain.setValueAtTime(0.0001, t0);
@@ -49,7 +49,7 @@ function beep() {
 
     shaper.connect(master).connect(ctx.destination);
     window.setTimeout(() => void ctx.close(), (dur + 0.2) * 1000);
-    navigator.vibrate?.(200);
+    navigator.vibrate?.(120);
   } catch {
     /* audio unavailable — silent */
   }
