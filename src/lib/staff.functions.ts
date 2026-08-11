@@ -1046,7 +1046,7 @@ export const releaseFoodTokens = createServerFn({ method: "POST" })
       actor_role: role,
       action: data.release ? "FOOD_TOKENS_RELEASED" : "FOOD_TOKENS_WITHDRAWN",
       entity: "registrations",
-      entity_id: ids.length === 1 ? ids[0] : undefined,
+      ...(ids.length === 1 ? { entity_id: ids[0]! } : {}),
       metadata: { teams: ids.length, tokens: touched?.length ?? 0 },
     });
     return { ok: true, teams: ids.length, tokens: touched?.length ?? 0 };
