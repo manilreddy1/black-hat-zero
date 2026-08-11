@@ -511,12 +511,13 @@ function RegisterPage() {
                       value={team.leader_phone}
                       onChange={(v) => setTeam({ ...team, leader_phone: v })}
                     />
-                    <Field
-                      label="COLLEGE"
-                      maxLength={FIELD_LIMITS.college}
-                      value={team.college}
-                      onChange={(v) => setTeam({ ...team, college: v })}
+                    <RollField
+                      label="LEADER ROLL NO"
+                      value={team.leader_roll}
+                      onChange={(v) => setTeam({ ...team, leader_roll: v })}
                     />
+                    <ReadOnlyField label="COLLEGE" value={collegeName} />
+
                     <SelectField
                       label="DEPARTMENT & YEAR"
                       value={team.department}
