@@ -798,3 +798,137 @@ export const getPreviewContent = createServerFn({ method: "GET" })
       texts: textMap,
     };
   });
+
+/**
+ * Admins (and super admins) may edit team + member details while the payment is
+ * not yet approved. Super admins keep full control even after approval.
+ */
+export const updateRegistrationTeam = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => {
+    const { clean, cleanEmail, cleanPhone, cleanRoll, DEPARTMENT_OPTIONS, FIELD_LIMITS, ROLL_RE, yearFromDepartment } =
+      SCHEMAS;
+    const dept = z
+      .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.department))
+      .refine((v) => v === "" || DEPARTMENT_OPTIONS.includes(v as string), "Select a valid department");
+    return z
+      .object({
+        id: z.string().uuid(),
+        team_name: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.team_name)),
+        college: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.college)),
+        department: dept,
+        members: z
+          .array(
+            z.object({
+              id: z.string().uuid().nullable().optional(),
+              full_name: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.name)),
+              email: z.preprocess(cleanEmail, z.string().email().max(FIELD_LIMITS.email)),
+              phone: z
+                .preprocess(cleanPhone, z.string())
+                .refine((v) => /^\+91[6-9]\d{9}$/.test(v as string), "Enter a valid 10-digit mobile number"),
+              student_id: z
+                .preprocess(cleanRoll, z.string().length(10))
+                .refine((v) => ROLL_RE.test(v as string), "Roll number must match 2_X0_A62__"),
+              department: dept,
+            }),
+          )
+          .min(1)
+          .max(10),
+      })
+      .refine((v) => new Set(v.members.map((m) => m.email)).size === v.members.length, {
+        message: "Each member must have a unique email address",
+      })
+      .refine((v) => new Set(v.members.map((m) => m.phone)).size === v.members.length, {
+        message: "Each member must have a unique phone number",
+      })
+      .transform((v) => ({
+        ...v,
+        members: v.members.map((m) => ({ ...m, year: yearFromDepartment(m.department || v.department) })),
+      }))
+      .parse(d);
+  })
+  .handler(async ({ data, context }) => {
+    const { getRoles } = await import("./staff.server");
+    const roles = await getRoles(context.supabase, context.userId);
+    const isSuper = roles.includes("super_admin");
+    const isAdmin = isSuper || roles.includes("admin");
+    if (!isAdmin) throw new Error("Unauthorized: admin access required.");
+
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+
+    const { data: reg } = await db
+      .from("registrations")
+      .select("id, registration_code, team_id, status, fee_at_registration")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!reg) throw new Error("Registration not found.");
+
+    const locked = reg.status === "PAYMENT_APPROVED" || reg.status === "REGISTERED";
+    if (locked && !isSuper)
+      throw new Error("Payment already approved — only a super admin can edit this team.");
+
+    const { data: settings } = await db
+      .from("event_settings")
+      .select("min_team_size, max_team_size")
+      .limit(1)
+      .maybeSingle();
+    const min = settings?.min_team_size ?? 1;
+    const max = settings?.max_team_size ?? 10;
+    if (data.members.length < min || data.members.length > max)
+      throw new Error(`Team size must be between ${min} and ${max} members.`);
+
+    const leader = data.members[0]!;
+    await db
+      .from("teams")
+      .update({
+        team_name: data.team_name,
+        college: data.college,
+        department: data.department,
+        year: SCHEMAS.yearFromDepartment(data.department),
+        leader_name: leader.full_name,
+        leader_email: leader.email,
+        leader_phone: leader.phone,
+        team_size: data.members.length,
+      })
+      .eq("id", reg.team_id);
+
+    const { data: existing } = await db.from("team_members").select("id").eq("team_id", reg.team_id);
+    const keep = new Set(data.members.map((m) => m.id).filter(Boolean) as string[]);
+    const removals = (existing ?? []).filter((e) => !keep.has(e.id)).map((e) => e.id);
+    if (removals.length) await db.from("team_members").delete().in("id", removals);
+
+    for (const [i, m] of data.members.entries()) {
+      const row = {
+        team_id: reg.team_id,
+        member_index: i + 1,
+        full_name: m.full_name,
+        email: m.email,
+        phone: m.phone,
+        student_id: m.student_id,
+        department: m.department || data.department,
+        year: m.year,
+        is_leader: i === 0,
+      };
+      if (m.id) await db.from("team_members").update(row).eq("id", m.id);
+      else await db.from("team_members").insert(row);
+    }
+
+    await db
+      .from("registrations")
+      .update({
+        team_size: data.members.length,
+        expected_amount: data.members.length * (reg.fee_at_registration ?? 0),
+      })
+      .eq("id", reg.id);
+
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: isSuper ? "super_admin" : "admin",
+      action: "REGISTRATION_EDITED",
+      entity: "registrations",
+      entity_id: reg.id,
+      metadata: { registration_code: reg.registration_code, team_size: data.members.length, locked },
+    });
+    return { ok: true };
+  });
