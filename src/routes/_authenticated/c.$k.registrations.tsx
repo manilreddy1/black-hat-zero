@@ -81,6 +81,61 @@ function RegistrationsPage() {
     enabled: !!openId,
   });
 
+  const updateFn = useServerFn(updateRegistrationTeam);
+  const d = detail.data;
+  const regStatus = d?.registration.status ?? "";
+  const paymentLocked = regStatus === "PAYMENT_APPROVED" || regStatus === "REGISTERED";
+  const canEdit = isAdmin && (!paymentLocked || isSuper);
+
+  useEffect(() => {
+    setEditing(false);
+    setEdit(null);
+  }, [openId]);
+
+  const startEdit = () => {
+    if (!d) return;
+    setEdit({
+      team_name: d.team?.team_name ?? "",
+      college: d.team?.college ?? "",
+      department: d.team?.department ?? "",
+      members: d.members.map((m) => ({
+        id: m.id,
+        full_name: m.full_name ?? "",
+        email: m.email ?? "",
+        phone: localPhone(m.phone ?? ""),
+        student_id: m.student_id ?? "",
+        department: m.department ?? d.team?.department ?? "",
+      })),
+    });
+    setEditing(true);
+  };
+
+  const save = useMutation({
+    mutationFn: () =>
+      updateFn({
+        data: {
+          id: openId!,
+          team_name: edit!.team_name,
+          college: edit!.college,
+          department: edit!.department,
+          members: edit!.members.map((m) => ({ ...m, phone: `+91${m.phone}` })),
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Team updated.");
+      setEditing(false);
+      qc.invalidateQueries({ queryKey: ["registrations"] });
+      qc.invalidateQueries({ queryKey: ["registration", openId] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const setMember = (i: number, patch: Partial<EditMember>) =>
+    setEdit((s) =>
+      s ? { ...s, members: s.members.map((m, j) => (j === i ? { ...m, ...patch } : m)) } : s,
+    );
+
+
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
