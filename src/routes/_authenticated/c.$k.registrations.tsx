@@ -324,16 +324,177 @@ function RegistrationsPage() {
                 </div>
 
                 <div>
-                  <p className="font-mono text-[11px] tracking-[0.3em] text-primary">MEMBERS</p>
-                  <ul className="mt-2 space-y-1 font-mono text-xs text-muted-foreground">
-                    {detail.data.members.map((m) => (
-                      <li key={m.id}>
-                        {String(m.member_index).padStart(2, "0")} · {m.full_name} · {m.email} ·{" "}
-                        {m.phone}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-mono text-[11px] tracking-[0.3em] text-primary">MEMBERS</p>
+                    {isAdmin && !editing && (
+                      <button
+                        onClick={startEdit}
+                        disabled={!canEdit}
+                        title={
+                          canEdit
+                            ? "Edit team details"
+                            : "Payment approved — only a super admin can edit"
+                        }
+                        className="font-mono text-[11px] tracking-[0.2em] text-primary uppercase disabled:opacity-40"
+                      >
+                        [ Edit team ]
+                      </button>
+                    )}
+                  </div>
+
+                  {!editing && (
+                    <ul className="mt-2 space-y-1 font-mono text-xs text-muted-foreground">
+                      {detail.data.members.map((m) => (
+                        <li key={m.id}>
+                          {String(m.member_index).padStart(2, "0")} · {m.full_name} · {m.email} ·{" "}
+                          {m.phone} · {m.student_id ?? "—"} · {m.department ?? "—"}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {editing && edit && (
+                    <div className="mt-3 space-y-4">
+                      {paymentLocked && (
+                        <p className="font-mono text-[10px] tracking-[0.2em] text-destructive uppercase">
+                          Payment already approved — super admin override
+                        </p>
+                      )}
+                      <div className="grid gap-2">
+                        <input
+                          value={edit.team_name}
+                          onChange={(e) => setEdit({ ...edit, team_name: e.target.value })}
+                          placeholder="Team name"
+                          className="border border-input bg-background px-3 py-2 font-mono text-xs"
+                        />
+                        <input
+                          value={edit.college}
+                          onChange={(e) => setEdit({ ...edit, college: e.target.value })}
+                          placeholder="College"
+                          className="border border-input bg-background px-3 py-2 font-mono text-xs"
+                        />
+                        <select
+                          value={edit.department}
+                          onChange={(e) => setEdit({ ...edit, department: e.target.value })}
+                          className="border border-input bg-background px-3 py-2 font-mono text-xs"
+                        >
+                          <option value="">Department…</option>
+                          {DEPARTMENT_OPTIONS.map((o) => (
+                            <option key={o}>{o}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {edit.members.map((m, i) => (
+                        <div key={m.id ?? `new-${i}`} className="space-y-2 border border-border p-3">
+                          <div className="flex items-center justify-between">
+                            <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                              {i === 0 ? "Leader" : `Member ${i + 1}`}
+                            </p>
+                            {i > 0 && (
+                              <button
+                                onClick={() =>
+                                  setEdit({
+                                    ...edit,
+                                    members: edit.members.filter((_, j) => j !== i),
+                                  })
+                                }
+                                className="font-mono text-[10px] tracking-[0.2em] text-destructive uppercase"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                          <input
+                            value={m.full_name}
+                            onChange={(e) => setMember(i, { full_name: e.target.value })}
+                            placeholder="Full name"
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          />
+                          <input
+                            value={m.email}
+                            onChange={(e) => setMember(i, { email: e.target.value })}
+                            placeholder="Email"
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          />
+                          <div className="flex">
+                            <span className="border border-r-0 border-input bg-surface px-3 py-2 font-mono text-xs text-muted-foreground">
+                              +91
+                            </span>
+                            <input
+                              value={m.phone}
+                              inputMode="numeric"
+                              maxLength={10}
+                              onChange={(e) =>
+                                setMember(i, { phone: e.target.value.replace(/\D/g, "").slice(0, 10) })
+                              }
+                              placeholder="10-digit mobile"
+                              className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                            />
+                          </div>
+                          <input
+                            value={m.student_id}
+                            onChange={(e) =>
+                              setMember(i, { student_id: e.target.value.toUpperCase().slice(0, 10) })
+                            }
+                            placeholder="Roll number (2_X0_A62__)"
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          />
+                          <select
+                            value={m.department}
+                            onChange={(e) => setMember(i, { department: e.target.value })}
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          >
+                            <option value="">Department…</option>
+                            {DEPARTMENT_OPTIONS.map((o) => (
+                              <option key={o}>{o}</option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
+
+                      <button
+                        onClick={() =>
+                          setEdit({
+                            ...edit,
+                            members: [
+                              ...edit.members,
+                              {
+                                id: null,
+                                full_name: "",
+                                email: "",
+                                phone: "",
+                                student_id: "",
+                                department: edit.department,
+                              },
+                            ],
+                          })
+                        }
+                        className="w-full border border-dashed border-border py-2 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+                      >
+                        + Add member
+                      </button>
+
+                      <div className="flex gap-3">
+                        <button
+                          disabled={save.isPending}
+                          onClick={() => setEditing(false)}
+                          className="clip-notch flex-1 border border-border py-3 font-mono text-[11px] font-bold tracking-[0.2em] uppercase disabled:opacity-60"
+                        >
+                          [ Cancel ]
+                        </button>
+                        <button
+                          disabled={save.isPending}
+                          onClick={() => save.mutate()}
+                          className="clip-notch flex-1 bg-primary py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+                        >
+                          {save.isPending ? "[ Saving… ]" : "[ Save changes ]"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
 
                 <div>
                   <p className="font-mono text-[11px] tracking-[0.3em] text-primary">PAYMENT</p>
