@@ -4,6 +4,31 @@ import jsQR from "jsqr";
 /** Only our own signed tokens are accepted from the camera. */
 const CODE_RE = /^BH0-[AF]-[A-Za-z0-9._~-]{8,512}$/;
 
+/** Short confirmation beep via WebAudio (no asset needed). */
+function beep() {
+  try {
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+    osc.onended = () => void ctx.close();
+    navigator.vibrate?.(60);
+  } catch {
+    /* audio unavailable — silent */
+  }
+}
+
 /**
  * Live camera QR scanner for staff check-in. Decodes frames locally in the
  * browser — nothing is uploaded — and fires onResult once, then the parent
@@ -63,6 +88,7 @@ export function QrScanner({
             if (value && CODE_RE.test(value)) {
               doneRef.current = true;
               stop();
+              beep();
               onResult(value);
               return;
             }
