@@ -99,9 +99,17 @@ function RegistrationsPage() {
 
   const invite = useMutation({
     mutationFn: () => inviteFn({ data: { registration_id: openId! } }),
-    onSuccess: () => toast.success("Portal email sent to the team lead."),
+    onSuccess: (r: { email: string; tempPassword: string; emailed: boolean }) => {
+      setTempPass({ email: r.email, password: r.tempPassword, emailed: r.emailed });
+      toast.success(
+        r.emailed
+          ? "Temporary password emailed to the team lead."
+          : "Temporary password issued — share it with the lead.",
+      );
+    },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const d = detail.data;
   const regStatus = d?.registration.status ?? "";
