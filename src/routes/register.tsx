@@ -408,7 +408,7 @@ function RegisterPage() {
                       MEMBER 01 — TEAM LEADER
                     </p>
                     <p className="mt-2 font-mono text-xs text-muted-foreground">
-                      {team.leader_name} · {team.leader_email} · {team.leader_phone}
+                      {team.leader_name} · {team.leader_email} · {localPhone(team.leader_phone)}
                     </p>
                     <p className="mt-1 font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
                       ALREADY CAPTURED IN STEP 01
@@ -419,7 +419,9 @@ function RegisterPage() {
                       SOLO ENTRY — NO ADDITIONAL MEMBERS REQUIRED.
                     </p>
                   ) : (
-                    members.slice(0, coMemberCount).map((m, i) => (
+                    members.slice(0, coMemberCount).map((m, i) => {
+                      const issues = memberIssues(m, i);
+                      return (
                       <div key={i} className="border-l-2 border-l-primary/70 pl-5">
                         <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
                           MEMBER {String(i + 2).padStart(2, "0")}
@@ -462,9 +464,18 @@ function RegisterPage() {
                           />
 
                         </div>
+                        {issues.length > 0 && (
+                          <ul className="mt-3 space-y-1 font-mono text-[11px] text-primary">
+                            {issues.map((msg) => (
+                              <li key={msg}>! {msg}</li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
-                    ))
+                      );
+                    })
                   )}
+
                 </div>
               )}
 
