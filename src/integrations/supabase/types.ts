@@ -38,6 +38,41 @@ export type Database = {
         }
         Relationships: []
       }
+      attendance: {
+        Row: {
+          created_at: string
+          id: string
+          marked_at: string
+          marked_by: string | null
+          marked_by_email: string | null
+          registration_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          marked_at?: string
+          marked_by?: string | null
+          marked_by_email?: string | null
+          registration_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          marked_at?: string
+          marked_by?: string | null
+          marked_by_email?: string | null
+          registration_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: true
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -385,6 +420,57 @@ export type Database = {
           sort_order?: number
         }
         Relationships: []
+      }
+      food_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          member_id: string
+          redeemed_at: string | null
+          redeemed_by: string | null
+          redeemed_by_email: string | null
+          registration_id: string
+          released: boolean
+          released_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member_id: string
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          redeemed_by_email?: string | null
+          registration_id: string
+          released?: boolean
+          released_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member_id?: string
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          redeemed_by_email?: string | null
+          registration_id?: string
+          released?: boolean
+          released_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_tokens_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_tokens_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       nav_items: {
         Row: {
@@ -823,6 +909,7 @@ export type Database = {
           created_at: string
           department: string | null
           email: string
+          food_pref: string
           full_name: string
           id: string
           is_leader: boolean
@@ -836,6 +923,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           email: string
+          food_pref?: string
           full_name: string
           id?: string
           is_leader?: boolean
@@ -849,6 +937,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           email?: string
+          food_pref?: string
           full_name?: string
           id?: string
           is_leader?: boolean
@@ -875,6 +964,7 @@ export type Database = {
           created_at: string
           department: string
           id: string
+          lead_user_id: string | null
           leader_email: string
           leader_name: string
           leader_phone: string
@@ -890,6 +980,7 @@ export type Database = {
           created_at?: string
           department: string
           id?: string
+          lead_user_id?: string | null
           leader_email: string
           leader_name: string
           leader_phone: string
@@ -905,6 +996,7 @@ export type Database = {
           created_at?: string
           department?: string
           id?: string
+          lead_user_id?: string | null
           leader_email?: string
           leader_name?: string
           leader_phone?: string
