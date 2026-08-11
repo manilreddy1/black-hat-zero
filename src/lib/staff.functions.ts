@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { CONTENT_TABLES } from "./schemas";
+import * as SCHEMAS from "./schemas";
 
 export const getMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
