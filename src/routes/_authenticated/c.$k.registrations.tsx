@@ -75,9 +75,18 @@ function RegistrationsPage() {
 
   const decide = useMutation({
     mutationFn: (decision: "APPROVE" | "REJECT") =>
-      verifyFn({ data: { registration_id: openId!, decision, reason, notes } }),
+      verifyFn({
+        data: {
+          registration_id: openId!,
+          decision,
+          reason,
+          notes,
+          receipt: decision === "APPROVE" ? receipt : null,
+        },
+      }),
     onSuccess: () => {
       toast.success("Verification recorded.");
+      setReceipt(null);
       qc.invalidateQueries({ queryKey: ["registrations"] });
       qc.invalidateQueries({ queryKey: ["registration", openId] });
       qc.invalidateQueries({ queryKey: ["stats"] });
