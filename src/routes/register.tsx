@@ -283,12 +283,14 @@ function RegisterPage() {
 
   const [step, setStep] = useState(0);
   const [teamSize, setTeamSize] = useState(min);
+  const collegeName = settings?.college ?? "";
   const [team, setTeam] = useState({
     team_name: "",
     leader_name: "",
     leader_email: "",
     leader_phone: "",
-    college: settings?.college ?? "",
+    leader_roll: "",
+    college: collegeName,
     department: "",
     year: "",
   });
@@ -304,9 +306,11 @@ function RegisterPage() {
     full_name: team.leader_name,
     email: team.leader_email,
     phone: team.leader_phone,
+    student_id: team.leader_roll,
     department: team.department,
     year: team.year,
   };
+
   const deadlinePassed =
     !!settings && new Date(settings.registration_deadline).getTime() < Date.now();
   const closed = !settings?.registration_open || deadlinePassed;
