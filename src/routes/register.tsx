@@ -139,6 +139,44 @@ function SelectField({
   );
 }
 
+function PhoneField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const digits = localPhone(value);
+  return (
+    <label className="block">
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">{digits.length}/10</span>
+      </span>
+      <div className="mt-2 flex">
+        <span className="flex items-center border border-r-0 border-input bg-muted/30 px-3 font-mono text-sm text-muted-foreground">
+          +91
+        </span>
+        <input
+          type="tel"
+          required
+          value={digits}
+          maxLength={10}
+          inputMode="numeric"
+          autoComplete="tel-national"
+          spellCheck={false}
+          placeholder="9876543210"
+          onChange={(e) => onChange("+91" + e.target.value.replace(/\D/g, "").slice(0, 10))}
+          className={field}
+        />
+      </div>
+    </label>
+  );
+}
+
+
 
 function RegisterPage() {
   const t = useT();
