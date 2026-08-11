@@ -64,6 +64,8 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
   const senderDomain = process.env["LOVABLE_EMAIL_SENDER_DOMAIN"];
   if (!apiKey || !senderDomain) return false;
 
+  const { leadPasswordEmailHtml } = await import("./lead-email");
+
   const res = await fetch("https://email.lovable.dev/v1/send", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
@@ -72,7 +74,7 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
       from: `BLACK HAT ZERO <noreply@${senderDomain}>`,
       to: email,
       subject: "Your BLACK HAT ZERO '26 team portal password",
-      html: `<p>Hi ${fullName || "there"},</p><p>Your team is confirmed. Sign in to the team portal with this temporary password:</p><p style="font-family:monospace;font-size:18px"><strong>${temp}</strong></p><p>You will be asked to set your own password immediately after signing in.</p>`,
+      html: leadPasswordEmailHtml(fullName, temp),
     }),
   });
   return res.ok;
