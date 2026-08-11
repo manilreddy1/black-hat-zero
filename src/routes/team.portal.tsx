@@ -46,6 +46,8 @@ function TeamPortal() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data, error }) => {
       if (error || !data.user) navigate({ to: "/team", replace: true });
+      else if (data.user.user_metadata?.["must_change_password"])
+        navigate({ to: "/team/set-password", replace: true });
       else setReady(true);
     });
   }, [navigate]);

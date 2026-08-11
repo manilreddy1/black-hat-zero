@@ -48,7 +48,10 @@ function SetPassword() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await supabase.auth.updateUser({
+      password,
+      data: { must_change_password: false },
+    });
     setBusy(false);
     if (error) {
       toast.error(error.message);
@@ -71,14 +74,14 @@ function SetPassword() {
           <div>
             <p className="font-mono text-[10px] tracking-[0.4em] text-primary">// TEAM LEAD</p>
             <h1 className="font-display text-xl font-bold tracking-widest uppercase">
-              Set password
+              Set your password
             </h1>
           </div>
         </div>
 
         {!hasSession ? (
           <p className="mt-6 text-sm text-muted-foreground">
-            This link is invalid or has expired. Request a fresh one from the team login page.
+            Your session has expired. Sign in with your temporary password again to continue.
           </p>
         ) : (
           <form onSubmit={submit} className="mt-6 space-y-4">
