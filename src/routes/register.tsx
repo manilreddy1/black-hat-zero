@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { siteContentQuery, useT } from "@/hooks/useSiteContent";
 import { createRegistration } from "@/lib/public.functions";
 import { formatMoney } from "@/lib/constants";
+import { clean, cleanEmail, cleanPhone, FIELD_LIMITS } from "@/lib/schemas";
+
 import { GlitchText } from "@/components/site/GlitchText";
 import { CyberBackground } from "@/components/site/CyberBackground";
 
@@ -59,6 +61,9 @@ function Field({
   type = "text",
   required = true,
   placeholder,
+  maxLength = 120,
+  inputMode,
+  autoComplete = "off",
 }: {
   label: string;
   value: string;
@@ -66,21 +71,33 @@ function Field({
   type?: string;
   required?: boolean;
   placeholder?: string;
+  maxLength?: number;
+  inputMode?: "text" | "email" | "tel" | "numeric";
+  autoComplete?: string;
 }) {
   return (
     <label className="block">
-      <span className={labelCls}>{label}</span>
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">{value.length}/{maxLength}</span>
+      </span>
       <input
         type={type}
         required={required}
         value={value}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
+        spellCheck={false}
         placeholder={placeholder ?? ""}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value.slice(0, maxLength))}
+        onBlur={(e) => onChange(clean(e.target.value).slice(0, maxLength))}
         className={`mt-2 ${field}`}
       />
     </label>
   );
 }
+
 
 function RegisterPage() {
   const t = useT();
@@ -146,26 +163,36 @@ function RegisterPage() {
 
   const steps = ["TEAM", "MEMBERS", "CONFIRM"];
 
+  const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(cleanEmail(v));
+  const validPhone = (v: string) => /^\+?\d{7,15}$/.test(cleanPhone(v));
+
   const stepValid = () => {
     if (step === 0)
-      return (
-        team.team_name.trim().length >= 2 &&
-        team.leader_name.trim().length >= 2 &&
-        /.+@.+\..+/.test(team.leader_email) &&
-        team.leader_phone.trim().length >= 7 &&
-        team.college.trim().length >= 2 &&
-        team.department.trim() &&
-        team.year.trim() &&
-        team.city.trim()
+      return Boolean(
+        clean(team.team_name).length >= 2 &&
+          clean(team.leader_name).length >= 2 &&
+          validEmail(team.leader_email) &&
+          validPhone(team.leader_phone) &&
+          clean(team.college).length >= 2 &&
+          clean(team.department) &&
+          clean(team.year) &&
+          clean(team.city),
       );
-    if (step === 1)
-      return members
-        .slice(0, coMemberCount)
-        .every(
-          (m) => m.full_name.trim().length >= 2 && /.+@.+\..+/.test(m.email) && m.phone.trim().length >= 7,
-        );
+    if (step === 1) {
+      const list = members.slice(0, coMemberCount);
+      const emails = [cleanEmail(team.leader_email), ...list.map((m) => cleanEmail(m.email))];
+      const phones = [cleanPhone(team.leader_phone), ...list.map((m) => cleanPhone(m.phone))];
+      return (
+        list.every(
+          (m) => clean(m.full_name).length >= 2 && validEmail(m.email) && validPhone(m.phone),
+        ) &&
+        new Set(emails).size === emails.length &&
+        new Set(phones).size === phones.length
+      );
+    }
     return true;
   };
+
 
   if (closed) {
     return (
@@ -239,6 +266,7 @@ function RegisterPage() {
                   <div className="grid gap-5 sm:grid-cols-2">
                     <Field
                       label="TEAM NAME"
+                      maxLength={FIELD_LIMITS.team_name}
                       value={team.team_name}
                       onChange={(v) => setTeam({ ...team, team_name: v })}
                     />
@@ -258,37 +286,49 @@ function RegisterPage() {
                     </label>
                     <Field
                       label="LEADER NAME"
+                      maxLength={FIELD_LIMITS.name}
+                      autoComplete="name"
                       value={team.leader_name}
                       onChange={(v) => setTeam({ ...team, leader_name: v })}
                     />
                     <Field
                       label="LEADER EMAIL"
                       type="email"
+                      maxLength={FIELD_LIMITS.email}
+                      inputMode="email"
+                      autoComplete="email"
                       value={team.leader_email}
                       onChange={(v) => setTeam({ ...team, leader_email: v })}
                     />
                     <Field
                       label="LEADER PHONE"
+                      maxLength={FIELD_LIMITS.phone}
+                      inputMode="tel"
+                      autoComplete="tel"
                       value={team.leader_phone}
                       onChange={(v) => setTeam({ ...team, leader_phone: v })}
                     />
                     <Field
                       label="COLLEGE"
+                      maxLength={FIELD_LIMITS.college}
                       value={team.college}
                       onChange={(v) => setTeam({ ...team, college: v })}
                     />
                     <Field
                       label="DEPARTMENT"
+                      maxLength={FIELD_LIMITS.department}
                       value={team.department}
                       onChange={(v) => setTeam({ ...team, department: v })}
                     />
                     <Field
                       label="YEAR"
+                      maxLength={FIELD_LIMITS.year}
                       value={team.year}
                       onChange={(v) => setTeam({ ...team, year: v })}
                     />
                     <Field
                       label="CITY"
+                      maxLength={FIELD_LIMITS.city}
                       value={team.city}
                       onChange={(v) => setTeam({ ...team, city: v })}
                     />
@@ -322,34 +362,42 @@ function RegisterPage() {
                         <div className="mt-4 grid gap-4 sm:grid-cols-2">
                           <Field
                             label="FULL NAME"
+                            maxLength={FIELD_LIMITS.name}
                             value={m.full_name}
                             onChange={(v) => setMember(i, { full_name: v })}
                           />
                           <Field
                             label="EMAIL"
                             type="email"
+                            maxLength={FIELD_LIMITS.email}
+                            inputMode="email"
                             value={m.email}
                             onChange={(v) => setMember(i, { email: v })}
                           />
                           <Field
                             label="PHONE"
+                            maxLength={FIELD_LIMITS.phone}
+                            inputMode="tel"
                             value={m.phone}
                             onChange={(v) => setMember(i, { phone: v })}
                           />
                           <Field
                             label="STUDENT ID (OPTIONAL)"
+                            maxLength={FIELD_LIMITS.student_id}
                             required={false}
                             value={m.student_id}
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
                           <Field
                             label="DEPARTMENT (OPTIONAL)"
+                            maxLength={FIELD_LIMITS.department}
                             required={false}
                             value={m.department}
                             onChange={(v) => setMember(i, { department: v })}
                           />
                           <Field
                             label="YEAR (OPTIONAL)"
+                            maxLength={FIELD_LIMITS.year}
                             required={false}
                             value={m.year}
                             onChange={(v) => setMember(i, { year: v })}
