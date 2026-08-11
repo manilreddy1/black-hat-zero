@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { siteContentQuery, useT } from "@/hooks/useSiteContent";
 import { createRegistration } from "@/lib/public.functions";
 import { formatMoney } from "@/lib/constants";
+import { clean, cleanEmail, cleanPhone, FIELD_LIMITS } from "@/lib/schemas";
+
 import { GlitchText } from "@/components/site/GlitchText";
 import { CyberBackground } from "@/components/site/CyberBackground";
 
