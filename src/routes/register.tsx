@@ -11,8 +11,10 @@ import {
   clean,
   cleanEmail,
   cleanPhone,
+  cleanRoll,
   localPhone,
   yearFromDepartment,
+  ROLL_RE,
   FIELD_LIMITS,
   DEPARTMENT_OPTIONS,
 } from "@/lib/schemas";
@@ -176,6 +178,95 @@ function PhoneField({
   );
 }
 
+/** Fixed value shown as read-only (no user edits). */
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <label className="block">
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">FIXED</span>
+      </span>
+      <div
+        className={`mt-2 ${field} cursor-not-allowed bg-muted/30 text-muted-foreground`}
+        aria-readonly="true"
+      >
+        {value || "—"}
+      </div>
+    </label>
+  );
+}
+
+/** Roll number mask 2_X0_A62__ — only the underscore slots accept input. */
+function RollField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const v = cleanRoll(value);
+  const full = v.length === 10 ? v : "";
+  const a = full ? full[1]! : "";
+  const b = full ? full[4]! : "";
+  const c = full ? full.slice(8) : "";
+  const [parts, setParts] = useState<[string, string, string]>([a, b, c]);
+  const push = (next: [string, string, string]) => {
+    setParts(next);
+    const composed = `2${next[0]}X0${next[1]}A62${next[2]}`;
+    onChange(next[0] && next[1] && next[2].length === 2 ? composed : "");
+  };
+  const slot =
+    "w-10 border border-input bg-surface px-0 py-3 text-center font-mono text-sm uppercase outline-none focus:border-primary focus:shadow-[var(--glow-red)]";
+  const fixed = "px-1 font-mono text-sm text-muted-foreground";
+  return (
+    <label className="block">
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">2_X0_A62__</span>
+      </span>
+      <div className="mt-2 flex items-center gap-1">
+        <span className={fixed}>2</span>
+        <input
+          className={slot}
+          value={parts[0]}
+          inputMode="numeric"
+          maxLength={1}
+          placeholder="_"
+          onChange={(e) =>
+            push([e.target.value.replace(/\D/g, "").slice(0, 1), parts[1], parts[2]])
+          }
+        />
+        <span className={fixed}>X0</span>
+        <input
+          className={slot}
+          value={parts[1]}
+          inputMode="numeric"
+          maxLength={1}
+          placeholder="_"
+          onChange={(e) =>
+            push([parts[0], e.target.value.replace(/\D/g, "").slice(0, 1), parts[2]])
+          }
+        />
+        <span className={fixed}>A62</span>
+        <input
+          className={`${slot} w-14`}
+          value={parts[2]}
+          maxLength={2}
+          placeholder="__"
+          onChange={(e) =>
+            push([
+              parts[0],
+              parts[1],
+              e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 2),
+            ])
+          }
+        />
+      </div>
+    </label>
+  );
+}
 
 
 function RegisterPage() {
@@ -192,12 +283,14 @@ function RegisterPage() {
 
   const [step, setStep] = useState(0);
   const [teamSize, setTeamSize] = useState(min);
+  const collegeName = settings?.college ?? "";
   const [team, setTeam] = useState({
     team_name: "",
     leader_name: "",
     leader_email: "",
     leader_phone: "",
-    college: settings?.college ?? "",
+    leader_roll: "",
+    college: collegeName,
     department: "",
     year: "",
   });
@@ -213,9 +306,11 @@ function RegisterPage() {
     full_name: team.leader_name,
     email: team.leader_email,
     phone: team.leader_phone,
+    student_id: team.leader_roll,
     department: team.department,
     year: team.year,
   };
+
   const deadlinePassed =
     !!settings && new Date(settings.registration_deadline).getTime() < Date.now();
   const closed = !settings?.registration_open || deadlinePassed;
@@ -244,20 +339,31 @@ function RegisterPage() {
 
   const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(cleanEmail(v));
   const validPhone = (v: string) => /^\+91[6-9]\d{9}$/.test(cleanPhone(v));
+  const validRoll = (v: string) => ROLL_RE.test(cleanRoll(v));
 
   const memberIssues = (m: Member, i: number): string[] => {
     const out: string[] = [];
     if (clean(m.full_name).length < 2) out.push("Enter the member's full name");
     if (!validEmail(m.email)) out.push("Enter a valid email address");
     if (!validPhone(m.phone)) out.push("Enter a valid 10-digit mobile number (starts 6-9)");
+    if (!validRoll(m.student_id)) out.push("Complete the roll number (2_X0_A62__)");
     const others = [
-      { email: cleanEmail(team.leader_email), phone: cleanPhone(team.leader_phone) },
+      {
+        email: cleanEmail(team.leader_email),
+        phone: cleanPhone(team.leader_phone),
+        student_id: cleanRoll(team.leader_roll),
+      },
       ...members.slice(0, coMemberCount).filter((_, idx) => idx !== i),
     ];
     if (validEmail(m.email) && others.some((o) => cleanEmail(o.email) === cleanEmail(m.email)))
       out.push("This email is already used by another member");
     if (validPhone(m.phone) && others.some((o) => cleanPhone(o.phone) === cleanPhone(m.phone)))
       out.push("This phone number is already used by another member");
+    if (
+      validRoll(m.student_id) &&
+      others.some((o) => cleanRoll(o.student_id) === cleanRoll(m.student_id))
+    )
+      out.push("This roll number is already used by another member");
     return out;
   };
 
@@ -268,21 +374,28 @@ function RegisterPage() {
           clean(team.leader_name).length >= 2 &&
           validEmail(team.leader_email) &&
           validPhone(team.leader_phone) &&
-          clean(team.college).length >= 2 &&
+          validRoll(team.leader_roll) &&
           DEPARTMENT_OPTIONS.includes(clean(team.department)),
       );
     if (step === 1) {
       const list = members.slice(0, coMemberCount);
       const emails = [cleanEmail(team.leader_email), ...list.map((m) => cleanEmail(m.email))];
       const phones = [cleanPhone(team.leader_phone), ...list.map((m) => cleanPhone(m.phone))];
+      const rolls = [cleanRoll(team.leader_roll), ...list.map((m) => cleanRoll(m.student_id))];
       return (
         list.every(
-          (m) => clean(m.full_name).length >= 2 && validEmail(m.email) && validPhone(m.phone),
+          (m) =>
+            clean(m.full_name).length >= 2 &&
+            validEmail(m.email) &&
+            validPhone(m.phone) &&
+            validRoll(m.student_id),
         ) &&
         new Set(emails).size === emails.length &&
-        new Set(phones).size === phones.length
+        new Set(phones).size === phones.length &&
+        new Set(rolls).size === rolls.length
       );
     }
+
     return true;
   };
 
@@ -398,12 +511,13 @@ function RegisterPage() {
                       value={team.leader_phone}
                       onChange={(v) => setTeam({ ...team, leader_phone: v })}
                     />
-                    <Field
-                      label="COLLEGE"
-                      maxLength={FIELD_LIMITS.college}
-                      value={team.college}
-                      onChange={(v) => setTeam({ ...team, college: v })}
+                    <RollField
+                      label="LEADER ROLL NO"
+                      value={team.leader_roll}
+                      onChange={(v) => setTeam({ ...team, leader_roll: v })}
                     />
+                    <ReadOnlyField label="COLLEGE" value={collegeName} />
+
                     <SelectField
                       label="DEPARTMENT & YEAR"
                       value={team.department}
@@ -462,13 +576,12 @@ function RegisterPage() {
                             value={m.phone}
                             onChange={(v) => setMember(i, { phone: v })}
                           />
-                          <Field
-                            label="STUDENT ID (OPTIONAL)"
-                            maxLength={FIELD_LIMITS.student_id}
-                            required={false}
+                          <RollField
+                            label="ROLL NO"
                             value={m.student_id}
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
+
                           <SelectField
                             label="DEPARTMENT & YEAR (OPTIONAL)"
                             value={m.department}
