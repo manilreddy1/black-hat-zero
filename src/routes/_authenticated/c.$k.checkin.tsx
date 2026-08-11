@@ -36,6 +36,7 @@ function CheckinPage() {
 
   const [code, setCode] = useState("");
   const [scan, setScan] = useState<Scan | null>(null);
+  const [camera, setCamera] = useState(false);
 
   const stats = useQuery({ queryKey: ["checkin-stats"], queryFn: () => statsFn() });
 
