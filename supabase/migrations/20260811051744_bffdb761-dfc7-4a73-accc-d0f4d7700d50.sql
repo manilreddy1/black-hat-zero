@@ -1,0 +1,1 @@
+ALTER TABLE public.teams ALTER COLUMN city DROP NOT NULL;

@@ -27,10 +27,17 @@ export const FIELD_LIMITS = {
   college: 120,
   department: 80,
   year: 20,
-  city: 80,
   student_id: 60,
   utr: 40,
 } as const;
+
+/** Fixed academic options (year + section) offered in the registration form. */
+export const YEAR_OPTIONS = ["2nd Year", "3rd Year", "4th Year"] as const;
+export const SECTION_OPTIONS = ["A", "B"] as const;
+export const DEPARTMENT_OPTIONS = YEAR_OPTIONS.flatMap((y) =>
+  SECTION_OPTIONS.map((s) => `${y} - ${s}`),
+);
+
 
 const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M}\s.'-]*$/u;
 const TEXT_RE = /^[\p{L}\p{M}\p{N}\s.,'&()\/+-]+$/u;
@@ -65,8 +72,17 @@ export const memberSchema = z.object({
   email: emailField,
   phone: phoneField,
   student_id: optStr(FIELD_LIMITS.student_id),
-  department: optStr(FIELD_LIMITS.department),
-  year: optStr(FIELD_LIMITS.year),
+  department: z
+    .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.department))
+    .refine((v) => v === "" || DEPARTMENT_OPTIONS.includes(v as string), {
+      message: "Select a valid department",
+    }) as unknown as z.ZodType<string>,
+  year: z
+    .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.year))
+    .refine((v) => v === "" || (YEAR_OPTIONS as readonly string[]).includes(v as string), {
+      message: "Select a valid year",
+    }) as unknown as z.ZodType<string>,
+
 });
 
 export const registrationSchema = z
@@ -76,9 +92,17 @@ export const registrationSchema = z
     leader_email: emailField,
     leader_phone: phoneField,
     college: str(2, FIELD_LIMITS.college, TEXT_RE, "College contains invalid characters"),
-    department: str(1, FIELD_LIMITS.department, TEXT_RE, "Department contains invalid characters"),
-    year: str(1, FIELD_LIMITS.year, TEXT_RE, "Year contains invalid characters"),
-    city: str(1, FIELD_LIMITS.city, TEXT_RE, "City contains invalid characters"),
+    department: z
+      .preprocess(clean, z.string().max(FIELD_LIMITS.department))
+      .refine((v) => DEPARTMENT_OPTIONS.includes(v as string), {
+        message: "Select a valid department",
+      }) as unknown as z.ZodType<string>,
+    year: z
+      .preprocess(clean, z.string().max(FIELD_LIMITS.year))
+      .refine((v) => (YEAR_OPTIONS as readonly string[]).includes(v as string), {
+        message: "Select a valid year",
+      }) as unknown as z.ZodType<string>,
+
     team_size: z.number().int().min(1).max(10),
     members: z.array(memberSchema).min(1).max(10),
   })

@@ -7,7 +7,14 @@ import { toast } from "sonner";
 import { siteContentQuery, useT } from "@/hooks/useSiteContent";
 import { createRegistration } from "@/lib/public.functions";
 import { formatMoney } from "@/lib/constants";
-import { clean, cleanEmail, cleanPhone, FIELD_LIMITS } from "@/lib/schemas";
+import {
+  clean,
+  cleanEmail,
+  cleanPhone,
+  FIELD_LIMITS,
+  DEPARTMENT_OPTIONS,
+  YEAR_OPTIONS,
+} from "@/lib/schemas";
 
 import { GlitchText } from "@/components/site/GlitchText";
 import { CyberBackground } from "@/components/site/CyberBackground";
@@ -98,6 +105,39 @@ function Field({
   );
 }
 
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+  optional = false,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+  optional?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className={labelCls}>{label}</span>
+      <select
+        value={value}
+        required={!optional}
+        onChange={(e) => onChange(e.target.value)}
+        className={`mt-2 ${field}`}
+      >
+        <option value="">{optional ? "— none —" : "— select —"}</option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 
 function RegisterPage() {
   const t = useT();
@@ -121,8 +161,8 @@ function RegisterPage() {
     college: settings?.college ?? "",
     department: "",
     year: "",
-    city: "",
   });
+
   const [members, setMembers] = useState<Member[]>(() =>
     Array.from({ length: max }, () => emptyMember()),
   );
@@ -174,9 +214,8 @@ function RegisterPage() {
           validEmail(team.leader_email) &&
           validPhone(team.leader_phone) &&
           clean(team.college).length >= 2 &&
-          clean(team.department) &&
-          clean(team.year) &&
-          clean(team.city),
+          DEPARTMENT_OPTIONS.includes(clean(team.department)) &&
+          (YEAR_OPTIONS as readonly string[]).includes(clean(team.year)),
       );
     if (step === 1) {
       const list = members.slice(0, coMemberCount);
@@ -314,24 +353,19 @@ function RegisterPage() {
                       value={team.college}
                       onChange={(v) => setTeam({ ...team, college: v })}
                     />
-                    <Field
+                    <SelectField
                       label="DEPARTMENT"
-                      maxLength={FIELD_LIMITS.department}
                       value={team.department}
+                      options={DEPARTMENT_OPTIONS}
                       onChange={(v) => setTeam({ ...team, department: v })}
                     />
-                    <Field
+                    <SelectField
                       label="YEAR"
-                      maxLength={FIELD_LIMITS.year}
                       value={team.year}
+                      options={YEAR_OPTIONS as unknown as string[]}
                       onChange={(v) => setTeam({ ...team, year: v })}
                     />
-                    <Field
-                      label="CITY"
-                      maxLength={FIELD_LIMITS.city}
-                      value={team.city}
-                      onChange={(v) => setTeam({ ...team, city: v })}
-                    />
+
                   </div>
                 </div>
               )}
@@ -388,20 +422,21 @@ function RegisterPage() {
                             value={m.student_id}
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
-                          <Field
+                          <SelectField
                             label="DEPARTMENT (OPTIONAL)"
-                            maxLength={FIELD_LIMITS.department}
-                            required={false}
                             value={m.department}
+                            options={DEPARTMENT_OPTIONS}
+                            optional
                             onChange={(v) => setMember(i, { department: v })}
                           />
-                          <Field
+                          <SelectField
                             label="YEAR (OPTIONAL)"
-                            maxLength={FIELD_LIMITS.year}
-                            required={false}
                             value={m.year}
+                            options={YEAR_OPTIONS as unknown as string[]}
+                            optional
                             onChange={(v) => setMember(i, { year: v })}
                           />
+
                         </div>
                       </div>
                     ))
