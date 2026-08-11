@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -6,7 +6,6 @@ import QRCode from "react-qr-code";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyTeam } from "@/lib/lead.functions";
 import { foodLabel } from "@/lib/schemas";
-import { Logo } from "@/components/site/Logo";
 import { StatusBadge } from "@/components/site/StatusBadge";
 
 export const Route = createFileRoute("/team/portal")({
