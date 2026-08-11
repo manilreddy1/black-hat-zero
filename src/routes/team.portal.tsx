@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -6,7 +6,6 @@ import QRCode from "react-qr-code";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyTeam } from "@/lib/lead.functions";
 import { foodLabel } from "@/lib/schemas";
-import { Logo } from "@/components/site/Logo";
 import { StatusBadge } from "@/components/site/StatusBadge";
 
 export const Route = createFileRoute("/team/portal")({
@@ -70,13 +69,7 @@ function TeamPortal() {
 
   return (
     <div className="min-h-screen px-5 py-10 sm:px-8">
-      <header className="mx-auto flex max-w-5xl items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <Logo className="h-9 w-9" />
-          <span className="font-display text-sm font-bold tracking-widest">
-            BLACK<span className="text-primary">HAT#0</span>
-          </span>
-        </Link>
+      <header className="mx-auto flex max-w-5xl items-center justify-end">
         <button
           onClick={signOut}
           className="border border-border px-4 py-2 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
