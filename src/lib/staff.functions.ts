@@ -38,6 +38,12 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const list = regs ?? [];
     const { data: teams } = await db.from("teams").select("id, college");
     const collegeById = new Map((teams ?? []).map((t) => [t.id, t.college]));
+    const activeTeamIds = new Set(list.filter((r) => r.status !== "CANCELLED").map((r) => r.team_id));
+    const { data: allMembers } = await db.from("team_members").select("team_id, food_pref");
+    const foodMembers = (allMembers ?? []).filter((m) => activeTeamIds.has(m.team_id));
+    const veg = foodMembers.filter((m) => (m.food_pref ?? "VEG") !== "NON_VEG").length;
+    const nonVeg = foodMembers.length - veg;
+
 
     const by = (s: string) => list.filter((r) => r.status === s).length;
     const today = new Date();
