@@ -8,6 +8,8 @@ import {
   getMe,
   getRegistrationDetail,
   listRegistrations,
+  releaseFoodTokens,
+  resendLeadInvite,
   updateRegistrationTeam,
   verifyPayment,
 } from "@/lib/staff.functions";
@@ -82,6 +84,25 @@ function RegistrationsPage() {
   });
 
   const updateFn = useServerFn(updateRegistrationTeam);
+  const releaseFn = useServerFn(releaseFoodTokens);
+  const inviteFn = useServerFn(resendLeadInvite);
+
+  const release = useMutation({
+    mutationFn: (v: boolean) =>
+      releaseFn({ data: { registration_id: openId!, all: false, release: v } }),
+    onSuccess: (r) => {
+      toast.success(`${r.tokens} food token(s) updated.`);
+      qc.invalidateQueries({ queryKey: ["registration", openId] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const invite = useMutation({
+    mutationFn: () => inviteFn({ data: { registration_id: openId! } }),
+    onSuccess: () => toast.success("Portal email sent to the team lead."),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const d = detail.data;
   const regStatus = d?.registration.status ?? "";
   const paymentLocked = regStatus === "PAYMENT_APPROVED" || regStatus === "REGISTERED";
@@ -527,6 +548,52 @@ function RegistrationsPage() {
                     </>
                   )}
                 </div>
+
+                {["REGISTERED", "PAYMENT_APPROVED"].includes(
+                  detail.data.registration.status,
+                ) && (
+                  <div className="border-t border-border pt-4">
+                    <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
+                      EVENT ACCESS
+                    </p>
+                    <p className="mt-2 font-mono text-xs text-muted-foreground">
+                      Attendance:{" "}
+                      {detail.data.attendance
+                        ? `PRESENT · ${new Date(detail.data.attendance.marked_at).toLocaleString()}`
+                        : "NOT MARKED"}
+                    </p>
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">
+                      Food tokens: {detail.data.foodTokens.filter((t) => t.released).length}/
+                      {detail.data.foodTokens.length} released ·{" "}
+                      {detail.data.foodTokens.filter((t) => t.redeemed_at).length} redeemed
+                    </p>
+                    {isAdmin && (
+                      <div className="mt-3 flex flex-wrap gap-3">
+                        <button
+                          disabled={release.isPending}
+                          onClick={() => release.mutate(true)}
+                          className="clip-notch bg-primary px-4 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+                        >
+                          [ Send food tokens ]
+                        </button>
+                        <button
+                          disabled={release.isPending}
+                          onClick={() => release.mutate(false)}
+                          className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] uppercase disabled:opacity-60"
+                        >
+                          [ Withdraw ]
+                        </button>
+                        <button
+                          disabled={invite.isPending}
+                          onClick={() => invite.mutate()}
+                          className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] uppercase disabled:opacity-60"
+                        >
+                          [ Resend lead login ]
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {detail.data.registration.status === "PAYMENT_REVIEW" && (
                   <div className="space-y-3 border-t border-border pt-4">
