@@ -4,7 +4,7 @@ import jsQR from "jsqr";
 /** Only our own signed tokens are accepted from the camera. */
 const CODE_RE = /^BH0-[AF]-[A-Za-z0-9._~-]{8,512}$/;
 
-/** Short confirmation beep via WebAudio (no asset needed). */
+/** Loud 1s checkout-scanner style beep via WebAudio (no asset needed). */
 function beep() {
   try {
     const Ctx =
@@ -12,18 +12,44 @@ function beep() {
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) return;
     const ctx = new Ctx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "square";
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
-    osc.onended = () => void ctx.close();
-    navigator.vibrate?.(60);
+    void ctx.resume();
+    const t0 = ctx.currentTime;
+    const dur = 1;
+
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, t0);
+    master.gain.exponentialRampToValueAtTime(1, t0 + 0.008);
+    master.gain.setValueAtTime(1, t0 + dur - 0.05);
+    master.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+    // Slight clipping/compression keeps it punchy and loud on phone speakers.
+    const shaper = ctx.createWaveShaper();
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < curve.length; i++) {
+      const x = (i / (curve.length - 1)) * 2 - 1;
+      curve[i] = Math.tanh(x * 3);
+    }
+    shaper.curve = curve;
+
+    // 2.7 kHz fundamental (classic barcode-scanner pitch) + harmonic for bite.
+    const tones: Array<[number, number]> = [
+      [2700, 0.85],
+      [5400, 0.25],
+    ];
+    tones.forEach(([freq, level]) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(level, t0);
+      osc.connect(g).connect(shaper);
+      osc.start(t0);
+      osc.stop(t0 + dur);
+    });
+
+    shaper.connect(master).connect(ctx.destination);
+    window.setTimeout(() => void ctx.close(), (dur + 0.2) * 1000);
+    navigator.vibrate?.(200);
   } catch {
     /* audio unavailable — silent */
   }
