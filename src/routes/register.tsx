@@ -214,8 +214,9 @@ function RegisterPage() {
           validEmail(team.leader_email) &&
           validPhone(team.leader_phone) &&
           clean(team.college).length >= 2 &&
-          clean(team.department) &&
-          clean(team.year) &&
+          DEPARTMENT_OPTIONS.includes(clean(team.department)) &&
+          (YEAR_OPTIONS as readonly string[]).includes(clean(team.year)),
+      );
           clean(team.city),
       );
     if (step === 1) {
