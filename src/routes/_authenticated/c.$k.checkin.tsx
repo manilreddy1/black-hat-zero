@@ -49,6 +49,14 @@ function CheckinPage() {
     },
   });
 
+  const onCameraResult = useCallback(
+    (value: string) => {
+      setCode(value);
+      lookup.mutate(value);
+    },
+    [lookup],
+  );
+
   const confirm = useMutation({
     mutationFn: async () => {
       if (!scan) throw new Error("Scan a code first.");
