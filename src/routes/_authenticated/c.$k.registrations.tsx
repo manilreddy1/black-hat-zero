@@ -312,7 +312,7 @@ function RegistrationsPage() {
                       className="w-full border border-input bg-background px-3 py-2.5 font-mono text-xs"
                     />
                     <div className="space-y-2">
-                      <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                      <p className="font-mono text-[10px] tracking-[0.2em] text-destructive uppercase">
                         Payment received proof (required to approve) · PNG/JPG/WEBP · max 5 MB
                       </p>
                       <input
@@ -335,7 +335,7 @@ function RegistrationsPage() {
                             });
                           fr.readAsDataURL(f);
                         }}
-                        className="w-full border border-input bg-background px-3 py-2.5 font-mono text-xs"
+                        className="w-full border-2 border-destructive bg-destructive/10 px-3 py-2.5 font-mono text-xs text-destructive file:mr-3 file:rounded-sm file:border-0 file:bg-destructive file:px-3 file:py-1 file:font-mono file:text-[11px] file:font-bold file:text-destructive-foreground hover:bg-destructive/15"
                       />
                       {receipt && (
                         <img
