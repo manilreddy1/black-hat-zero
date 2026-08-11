@@ -1,17 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   deleteRegistration,
   getMe,
   getRegistrationDetail,
   listRegistrations,
+  updateRegistrationTeam,
   verifyPayment,
 } from "@/lib/staff.functions";
 import { formatMoney, REJECTION_REASONS } from "@/lib/constants";
+import { DEPARTMENT_OPTIONS, localPhone } from "@/lib/schemas";
 import { StatusBadge } from "@/components/site/StatusBadge";
+
+type EditMember = {
+  id: string | null;
+  full_name: string;
+  email: string;
+  phone: string;
+  student_id: string;
+  department: string;
+};
+
 
 export const Route = createFileRoute("/_authenticated/c/$k/registrations")({
   component: RegistrationsPage,
