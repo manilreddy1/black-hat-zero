@@ -380,15 +380,14 @@ export const verifyPayment = createServerFn({ method: "POST" })
         }
         if (team && !team.lead_user_id) {
           try {
-            const { getRequestHeader } = await import("@tanstack/react-start/server");
-            const origin = getRequestHeader("origin") ?? "";
-            const { ensureLeadAccount } = await import("./lead.server");
-            const uid = await ensureLeadAccount(team.leader_email, team.leader_name, origin);
+            const { issueLeadPassword } = await import("./lead.server");
+            const { userId: uid } = await issueLeadPassword(team.leader_email, team.leader_name);
             if (uid) await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
           } catch {
             /* never block verification on email/account provisioning */
           }
         }
+
       }
 
     } else {
