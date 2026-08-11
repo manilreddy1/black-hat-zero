@@ -43,13 +43,19 @@ function TeamLogin() {
     const addr = email.trim().toLowerCase();
     const { error } = await supabase.auth.signInWithPassword({ email: addr, password });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     navigate({ to: "/team/portal" });
   };
 
   const forgot = async () => {
     const addr = email.trim().toLowerCase();
-    if (!addr) return toast.error("Enter your leader email first.");
+    if (!addr) {
+      toast.error("Enter your leader email first.");
+      return;
+    }
     setBusy(true);
     await requestLeadPassword({ data: { email: addr, origin: window.location.origin } }).catch(
       (err: Error) => toast.error(err.message),
