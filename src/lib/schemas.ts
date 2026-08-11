@@ -83,9 +83,17 @@ export const registrationSchema = z
     leader_email: emailField,
     leader_phone: phoneField,
     college: str(2, FIELD_LIMITS.college, TEXT_RE, "College contains invalid characters"),
-    department: str(1, FIELD_LIMITS.department, TEXT_RE, "Department contains invalid characters"),
-    year: str(1, FIELD_LIMITS.year, TEXT_RE, "Year contains invalid characters"),
-    city: str(1, FIELD_LIMITS.city, TEXT_RE, "City contains invalid characters"),
+    department: z
+      .preprocess(clean, z.string().max(FIELD_LIMITS.department))
+      .refine((v) => DEPARTMENT_OPTIONS.includes(v as string), {
+        message: "Select a valid department",
+      }) as unknown as z.ZodType<string>,
+    year: z
+      .preprocess(clean, z.string().max(FIELD_LIMITS.year))
+      .refine((v) => (YEAR_OPTIONS as readonly string[]).includes(v as string), {
+        message: "Select a valid year",
+      }) as unknown as z.ZodType<string>,
+
     team_size: z.number().int().min(1).max(10),
     members: z.array(memberSchema).min(1).max(10),
   })
