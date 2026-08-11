@@ -330,6 +330,42 @@ export const verifyPayment = createServerFn({ method: "POST" })
           changed_by: context.userId,
         },
       ]);
+
+      // Provision the team-lead portal: one food token per participant (held
+      // back until an admin releases them) and a login account for the leader.
+      const { data: fullReg } = await db
+        .from("registrations")
+        .select("team_id")
+        .eq("id", reg.id)
+        .maybeSingle();
+      if (fullReg) {
+        const { data: team } = await db
+          .from("teams")
+          .select("id, leader_email, leader_name, lead_user_id")
+          .eq("id", fullReg.team_id)
+          .maybeSingle();
+        const { data: members } = await db
+          .from("team_members")
+          .select("id")
+          .eq("team_id", fullReg.team_id);
+        for (const m of members ?? []) {
+          await db
+            .from("food_tokens")
+            .upsert({ registration_id: reg.id, member_id: m.id }, { onConflict: "member_id" });
+        }
+        if (team && !team.lead_user_id) {
+          try {
+            const { getRequestHeader } = await import("@tanstack/react-start/server");
+            const origin = getRequestHeader("origin") ?? "";
+            const { ensureLeadAccount } = await import("./lead.server");
+            const uid = await ensureLeadAccount(team.leader_email, team.leader_name, origin);
+            if (uid) await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
+          } catch {
+            /* never block verification on email/account provisioning */
+          }
+        }
+      }
+
     } else {
       await db.from("registrations").update({ status: "PAYMENT_REJECTED" }).eq("id", reg.id);
       await db.from("registration_status_history").insert({
