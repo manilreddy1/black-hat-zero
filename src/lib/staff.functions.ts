@@ -225,9 +225,21 @@ export const getRegistrationDetail = createServerFn({ method: "POST" })
         .createSignedUrl(receiptPath.receipt_path, 600);
       receipt_url = signed.data?.signedUrl ?? null;
     }
+    const { data: attendance } = await db
+      .from("attendance")
+      .select("marked_at, marked_by_email")
+      .eq("registration_id", reg.id)
+      .maybeSingle();
+    const { data: foodTokens } = await db
+      .from("food_tokens")
+      .select("member_id, released, released_at, redeemed_at, redeemed_by_email")
+      .eq("registration_id", reg.id);
+
     return {
       registration: reg,
       team,
+      attendance,
+      foodTokens: foodTokens ?? [],
       members: members ?? [],
       payment,
       screenshot_url,
