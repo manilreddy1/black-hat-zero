@@ -383,20 +383,21 @@ function RegisterPage() {
                             value={m.student_id}
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
-                          <Field
+                          <SelectField
                             label="DEPARTMENT (OPTIONAL)"
-                            maxLength={FIELD_LIMITS.department}
-                            required={false}
                             value={m.department}
+                            options={DEPARTMENT_OPTIONS}
+                            optional
                             onChange={(v) => setMember(i, { department: v })}
                           />
-                          <Field
+                          <SelectField
                             label="YEAR (OPTIONAL)"
-                            maxLength={FIELD_LIMITS.year}
-                            required={false}
                             value={m.year}
+                            options={YEAR_OPTIONS as unknown as string[]}
+                            optional
                             onChange={(v) => setMember(i, { year: v })}
                           />
+
                         </div>
                       </div>
                     ))
