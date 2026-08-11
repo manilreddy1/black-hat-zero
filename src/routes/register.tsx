@@ -377,11 +377,8 @@ function RegisterPage() {
                       value={team.leader_email}
                       onChange={(v) => setTeam({ ...team, leader_email: v })}
                     />
-                    <Field
+                    <PhoneField
                       label="LEADER PHONE"
-                      maxLength={FIELD_LIMITS.phone}
-                      inputMode="tel"
-                      autoComplete="tel"
                       value={team.leader_phone}
                       onChange={(v) => setTeam({ ...team, leader_phone: v })}
                     />
@@ -392,16 +389,12 @@ function RegisterPage() {
                       onChange={(v) => setTeam({ ...team, college: v })}
                     />
                     <SelectField
-                      label="DEPARTMENT"
+                      label="DEPARTMENT & YEAR"
                       value={team.department}
                       options={DEPARTMENT_OPTIONS}
-                      onChange={(v) => setTeam({ ...team, department: v })}
-                    />
-                    <SelectField
-                      label="YEAR"
-                      value={team.year}
-                      options={YEAR_OPTIONS as unknown as string[]}
-                      onChange={(v) => setTeam({ ...team, year: v })}
+                      onChange={(v) =>
+                        setTeam({ ...team, department: v, year: yearFromDepartment(v) })
+                      }
                     />
 
                   </div>
