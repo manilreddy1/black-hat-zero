@@ -163,26 +163,36 @@ function RegisterPage() {
 
   const steps = ["TEAM", "MEMBERS", "CONFIRM"];
 
+  const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(cleanEmail(v));
+  const validPhone = (v: string) => /^\+?\d{7,15}$/.test(cleanPhone(v));
+
   const stepValid = () => {
     if (step === 0)
-      return (
-        team.team_name.trim().length >= 2 &&
-        team.leader_name.trim().length >= 2 &&
-        /.+@.+\..+/.test(team.leader_email) &&
-        team.leader_phone.trim().length >= 7 &&
-        team.college.trim().length >= 2 &&
-        team.department.trim() &&
-        team.year.trim() &&
-        team.city.trim()
+      return Boolean(
+        clean(team.team_name).length >= 2 &&
+          clean(team.leader_name).length >= 2 &&
+          validEmail(team.leader_email) &&
+          validPhone(team.leader_phone) &&
+          clean(team.college).length >= 2 &&
+          clean(team.department) &&
+          clean(team.year) &&
+          clean(team.city),
       );
-    if (step === 1)
-      return members
-        .slice(0, coMemberCount)
-        .every(
-          (m) => m.full_name.trim().length >= 2 && /.+@.+\..+/.test(m.email) && m.phone.trim().length >= 7,
-        );
+    if (step === 1) {
+      const list = members.slice(0, coMemberCount);
+      const emails = [cleanEmail(team.leader_email), ...list.map((m) => cleanEmail(m.email))];
+      const phones = [cleanPhone(team.leader_phone), ...list.map((m) => cleanPhone(m.phone))];
+      return (
+        list.every(
+          (m) => clean(m.full_name).length >= 2 && validEmail(m.email) && validPhone(m.phone),
+        ) &&
+        new Set(emails).size === emails.length &&
+        new Set(phones).size === phones.length
+      );
+    }
     return true;
   };
+
 
   if (closed) {
     return (
