@@ -41,6 +41,8 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(async ()
 export const createRegistration = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => registrationSchema.parse(d))
   .handler(async ({ data }) => {
+    const { assertSameOrigin } = await import("./security.server");
+    await assertSameOrigin();
     const { admin, writeAudit, padCode } = await import("./db.server");
     const db = await admin();
 
@@ -161,6 +163,8 @@ export const createRegistration = createServerFn({ method: "POST" })
 export const submitPayment = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => paymentSchema.parse(d))
   .handler(async ({ data }) => {
+    const { assertSameOrigin } = await import("./security.server");
+    await assertSameOrigin();
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
 
@@ -337,6 +341,8 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const { assertSameOrigin } = await import("./security.server");
+    await assertSameOrigin();
     const { admin } = await import("./db.server");
     const db = await admin();
     await db.from("contact_messages").insert({
@@ -361,6 +367,8 @@ export const joinWaitlist = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const { assertSameOrigin } = await import("./security.server");
+    await assertSameOrigin();
     const { admin } = await import("./db.server");
     const db = await admin();
     const { data: settings } = await db

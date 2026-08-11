@@ -26,6 +26,33 @@ export async function clientIp(): Promise<string> {
   }
 }
 
+/**
+ * Defence-in-depth CSRF check for state-changing public endpoints.
+ * The framework CSRF middleware already guards server functions; this makes the
+ * origin requirement explicit per mutation so a middleware regression can't
+ * silently open the registration/payment flow to cross-site posts.
+ */
+export async function assertSameOrigin() {
+  const { getRequestHeader, getRequestHost } = await import("@tanstack/react-start/server");
+  const host = getRequestHost();
+  const origin = getRequestHeader("origin");
+  const referer = getRequestHeader("referer");
+  const source = origin ?? referer;
+
+  // No Origin/Referer at all: not a browser form post we can trust.
+  if (!source || !host) throw new Error("Request blocked: invalid request origin.");
+
+  let sourceHost: string;
+  try {
+    sourceHost = new URL(source).host;
+  } catch {
+    throw new Error("Request blocked: invalid request origin.");
+  }
+  if (sourceHost.toLowerCase() !== host.toLowerCase())
+    throw new Error("Request blocked: invalid request origin.");
+}
+
+
 export function backoffMs(attempts: number) {
   if (attempts <= FREE_ATTEMPTS) return 0;
   return Math.min(BASE_DELAY_MS * 2 ** (attempts - FREE_ATTEMPTS - 1), MAX_DELAY_MS);
