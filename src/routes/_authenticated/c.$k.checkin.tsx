@@ -120,7 +120,16 @@ function CheckinPage() {
         >
           [ Look up ]
         </button>
+        <button
+          type="button"
+          onClick={() => setCamera((v) => !v)}
+          className="clip-notch border border-border px-6 py-3 font-mono text-[11px] font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+        >
+          {camera ? "[ Close camera ]" : "[ Scan with camera ]"}
+        </button>
       </form>
+
+      <QrScanner active={camera} onResult={onCameraResult} onClose={() => setCamera(false)} />
 
       {scan && (
         <div className="panel space-y-3 p-5">
