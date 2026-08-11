@@ -72,8 +72,17 @@ export const memberSchema = z.object({
   email: emailField,
   phone: phoneField,
   student_id: optStr(FIELD_LIMITS.student_id),
-  department: optStr(FIELD_LIMITS.department),
-  year: optStr(FIELD_LIMITS.year),
+  department: z
+    .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.department))
+    .refine((v) => v === "" || DEPARTMENT_OPTIONS.includes(v as string), {
+      message: "Select a valid department",
+    }) as unknown as z.ZodType<string>,
+  year: z
+    .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.year))
+    .refine((v) => v === "" || (YEAR_OPTIONS as readonly string[]).includes(v as string), {
+      message: "Select a valid year",
+    }) as unknown as z.ZodType<string>,
+
 });
 
 export const registrationSchema = z
