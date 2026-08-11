@@ -88,9 +88,15 @@ const emailField = z.preprocess(
 ) as unknown as z.ZodType<string>;
 
 const phoneField = z
-  .preprocess(cleanPhone, z.string().min(7).max(FIELD_LIMITS.phone))
+  .preprocess(cleanPhone, z.string().max(FIELD_LIMITS.phone))
   .refine((v) => PHONE_RE.test(v as string), {
-    message: "Enter a valid phone number (7-15 digits)",
+    message: "Enter a valid 10-digit Indian mobile number",
+  }) as unknown as z.ZodType<string>;
+
+const yearField = z
+  .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.year))
+  .refine((v) => v === "" || (YEAR_OPTIONS as readonly string[]).includes(v as string), {
+    message: "Invalid year",
   }) as unknown as z.ZodType<string>;
 
 export const memberSchema = z.object({
@@ -103,12 +109,7 @@ export const memberSchema = z.object({
     .refine((v) => v === "" || DEPARTMENT_OPTIONS.includes(v as string), {
       message: "Select a valid department",
     }) as unknown as z.ZodType<string>,
-  year: z
-    .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.year))
-    .refine((v) => v === "" || (YEAR_OPTIONS as readonly string[]).includes(v as string), {
-      message: "Select a valid year",
-    }) as unknown as z.ZodType<string>,
-
+  year: yearField,
 });
 
 export const registrationSchema = z
@@ -123,11 +124,8 @@ export const registrationSchema = z
       .refine((v) => DEPARTMENT_OPTIONS.includes(v as string), {
         message: "Select a valid department",
       }) as unknown as z.ZodType<string>,
-    year: z
-      .preprocess(clean, z.string().max(FIELD_LIMITS.year))
-      .refine((v) => (YEAR_OPTIONS as readonly string[]).includes(v as string), {
-        message: "Select a valid year",
-      }) as unknown as z.ZodType<string>,
+    year: yearField,
+
 
     team_size: z.number().int().min(1).max(10),
     members: z.array(memberSchema).min(1).max(10),
