@@ -32,10 +32,11 @@ function beep() {
     shaper.curve = curve;
 
     // 2.7 kHz fundamental (classic barcode-scanner pitch) + harmonic for bite.
-    [
+    const tones: Array<[number, number]> = [
       [2700, 0.85],
       [5400, 0.25],
-    ].forEach(([freq, level]) => {
+    ];
+    tones.forEach(([freq, level]) => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
       osc.type = "square";
