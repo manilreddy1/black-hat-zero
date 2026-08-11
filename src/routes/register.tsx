@@ -161,8 +161,8 @@ function RegisterPage() {
     college: settings?.college ?? "",
     department: "",
     year: "",
-    });
   });
+
   const [members, setMembers] = useState<Member[]>(() =>
     Array.from({ length: max }, () => emptyMember()),
   );
