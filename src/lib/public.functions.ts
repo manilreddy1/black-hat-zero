@@ -205,21 +205,19 @@ export const submitPayment = createServerFn({ method: "POST" })
       throw new Error("This transaction reference has already been submitted.");
     }
 
-    let screenshot_path: string | null = null;
-    if (data.screenshot?.base64) {
-      const raw = data.screenshot.base64.split(",").pop() ?? "";
-      const bytes = Buffer.from(raw, "base64");
-      if (bytes.length > 5 * 1024 * 1024) throw new Error("Screenshot must be under 5 MB.");
-      if (!/^image\/(png|jpe?g|webp)$/.test(data.screenshot.type))
-        throw new Error("Screenshot must be a PNG, JPG or WEBP image.");
-      const ext = data.screenshot.type.split("/")[1]!.replace("jpeg", "jpg");
-      const path = `${reg.registration_code}/${Date.now()}.${ext}`;
-      const up = await db.storage
-        .from("payment-proofs")
-        .upload(path, bytes, { contentType: data.screenshot.type, upsert: false });
-      if (up.error) throw new Error("Screenshot upload failed. Try again or submit without it.");
-      screenshot_path = path;
-    }
+    if (!data.screenshot?.base64) throw new Error("Payment screenshot is required.");
+    const raw = data.screenshot.base64.split(",").pop() ?? "";
+    const bytes = Buffer.from(raw, "base64");
+    if (bytes.length > 5 * 1024 * 1024) throw new Error("Screenshot must be under 5 MB.");
+    if (!/^image\/(png|jpe?g|webp)$/.test(data.screenshot.type))
+      throw new Error("Screenshot must be a PNG, JPG or WEBP image.");
+    const ext = data.screenshot.type.split("/")[1]!.replace("jpeg", "jpg");
+    const path = `${reg.registration_code}/${Date.now()}.${ext}`;
+    const up = await db.storage
+      .from("payment-proofs")
+      .upload(path, bytes, { contentType: data.screenshot.type, upsert: false });
+    if (up.error) throw new Error("Screenshot upload failed. Try again.");
+    const screenshot_path = path;
 
     const { data: payment, error: payErr } = await db
       .from("payments")
