@@ -314,24 +314,19 @@ function RegisterPage() {
                       value={team.college}
                       onChange={(v) => setTeam({ ...team, college: v })}
                     />
-                    <Field
+                    <SelectField
                       label="DEPARTMENT"
-                      maxLength={FIELD_LIMITS.department}
                       value={team.department}
+                      options={DEPARTMENT_OPTIONS}
                       onChange={(v) => setTeam({ ...team, department: v })}
                     />
-                    <Field
+                    <SelectField
                       label="YEAR"
-                      maxLength={FIELD_LIMITS.year}
                       value={team.year}
+                      options={YEAR_OPTIONS as unknown as string[]}
                       onChange={(v) => setTeam({ ...team, year: v })}
                     />
-                    <Field
-                      label="CITY"
-                      maxLength={FIELD_LIMITS.city}
-                      value={team.city}
-                      onChange={(v) => setTeam({ ...team, city: v })}
-                    />
+
                   </div>
                 </div>
               )}
