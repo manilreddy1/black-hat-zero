@@ -27,6 +27,7 @@ import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
 import { Route as AuthenticatedCKIndexRouteImport } from './routes/_authenticated/c.$k.index'
 import { Route as AuthenticatedCKCertificatesRouteImport } from './routes/_authenticated/c.$k.certificates'
+import { Route as AuthenticatedCKCheckinRouteImport } from './routes/_authenticated/c.$k.checkin'
 import { Route as AuthenticatedCKContentRouteImport } from './routes/_authenticated/c.$k.content'
 import { Route as AuthenticatedCKLogsRouteImport } from './routes/_authenticated/c.$k.logs'
 import { Route as AuthenticatedCKMessagesRouteImport } from './routes/_authenticated/c.$k.messages'
@@ -125,6 +126,11 @@ const AuthenticatedCKCertificatesRoute =
     path: '/certificates',
     getParentRoute: () => AuthenticatedCKRoute,
   } as any)
+const AuthenticatedCKCheckinRoute = AuthenticatedCKCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
 const AuthenticatedCKContentRoute = AuthenticatedCKContentRouteImport.update({
   id: '/content',
   path: '/content',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/payment/$id': typeof PaymentIdRoute
   '/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
+  '/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
+  '/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/payment/$id': typeof PaymentIdRoute
   '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/_authenticated/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
+  '/_authenticated/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/_authenticated/c/$k/content': typeof AuthenticatedCKContentRoute
   '/_authenticated/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/_authenticated/c/$k/messages': typeof AuthenticatedCKMessagesRoute
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/payment/$id'
     | '/c/$k'
     | '/c/$k/certificates'
+    | '/c/$k/checkin'
     | '/c/$k/content'
     | '/c/$k/logs'
     | '/c/$k/messages'
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/payment/$id'
     | '/c/$k/certificates'
+    | '/c/$k/checkin'
     | '/c/$k/content'
     | '/c/$k/logs'
     | '/c/$k/messages'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/payment/$id'
     | '/_authenticated/c/$k'
     | '/_authenticated/c/$k/certificates'
+    | '/_authenticated/c/$k/checkin'
     | '/_authenticated/c/$k/content'
     | '/_authenticated/c/$k/logs'
     | '/_authenticated/c/$k/messages'
@@ -468,6 +480,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCKCertificatesRouteImport
       parentRoute: typeof AuthenticatedCKRoute
     }
+    '/_authenticated/c/$k/checkin': {
+      id: '/_authenticated/c/$k/checkin'
+      path: '/checkin'
+      fullPath: '/c/$k/checkin'
+      preLoaderRoute: typeof AuthenticatedCKCheckinRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
+    }
     '/_authenticated/c/$k/content': {
       id: '/_authenticated/c/$k/content'
       path: '/content'
@@ -522,6 +541,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedCKRouteChildren {
   AuthenticatedCKCertificatesRoute: typeof AuthenticatedCKCertificatesRoute
+  AuthenticatedCKCheckinRoute: typeof AuthenticatedCKCheckinRoute
   AuthenticatedCKContentRoute: typeof AuthenticatedCKContentRoute
   AuthenticatedCKLogsRoute: typeof AuthenticatedCKLogsRoute
   AuthenticatedCKMessagesRoute: typeof AuthenticatedCKMessagesRoute
@@ -534,6 +554,7 @@ interface AuthenticatedCKRouteChildren {
 
 const AuthenticatedCKRouteChildren: AuthenticatedCKRouteChildren = {
   AuthenticatedCKCertificatesRoute: AuthenticatedCKCertificatesRoute,
+  AuthenticatedCKCheckinRoute: AuthenticatedCKCheckinRoute,
   AuthenticatedCKContentRoute: AuthenticatedCKContentRoute,
   AuthenticatedCKLogsRoute: AuthenticatedCKLogsRoute,
   AuthenticatedCKMessagesRoute: AuthenticatedCKMessagesRoute,

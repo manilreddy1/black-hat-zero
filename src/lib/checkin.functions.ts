@@ -119,7 +119,12 @@ export const markAttendance = createServerFn({ method: "POST" })
         .select("marked_at, marked_by_email")
         .eq("registration_id", reg.id)
         .maybeSingle();
-      return { ok: false as const, already: existing ?? null };
+      return {
+        ok: false as const,
+        already: existing
+          ? { at: existing.marked_at as string | null, by: existing.marked_by_email }
+          : null,
+      };
     }
     await writeAudit({
       actor_id: context.userId,
