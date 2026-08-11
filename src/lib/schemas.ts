@@ -27,10 +27,17 @@ export const FIELD_LIMITS = {
   college: 120,
   department: 80,
   year: 20,
-  city: 80,
   student_id: 60,
   utr: 40,
 } as const;
+
+/** Fixed academic options (year + section) offered in the registration form. */
+export const YEAR_OPTIONS = ["2nd Year", "3rd Year", "4th Year"] as const;
+export const SECTION_OPTIONS = ["A", "B"] as const;
+export const DEPARTMENT_OPTIONS = YEAR_OPTIONS.flatMap((y) =>
+  SECTION_OPTIONS.map((s) => `${y} - ${s}`),
+);
+
 
 const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M}\s.'-]*$/u;
 const TEXT_RE = /^[\p{L}\p{M}\p{N}\s.,'&()\/+-]+$/u;
