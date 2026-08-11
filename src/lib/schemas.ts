@@ -42,18 +42,7 @@ export const FIELD_LIMITS = {
 } as const;
 
 /** Fixed academic options: branch + year + section, e.g. "CSE-CS II-A". */
-export const BRANCH_OPTIONS = [
-  "CSE",
-  "CSE-CS",
-  "CSE-AIML",
-  "CSE-DS",
-  "CSE-IOT",
-  "IT",
-  "ECE",
-  "EEE",
-  "MECH",
-  "CIVIL",
-] as const;
+export const BRANCH_OPTIONS = ["CSE-CS"] as const;
 export const YEAR_OPTIONS = ["II", "III", "IV"] as const;
 export const SECTION_OPTIONS = ["A", "B"] as const;
 export const DEPARTMENT_OPTIONS = BRANCH_OPTIONS.flatMap((b) =>
