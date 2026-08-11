@@ -104,6 +104,15 @@ function RegistrationsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const releaseAll = useMutation({
+    mutationFn: () => releaseFn({ data: { registration_id: null, all: true, release: true } }),
+    onSuccess: (r) => {
+      toast.success(`${r.tokens} food token(s) released across ${r.teams} team(s).`);
+      qc.invalidateQueries({ queryKey: ["registration"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const invite = useMutation({
     mutationFn: () => inviteFn({ data: { registration_id: openId! } }),
     onSuccess: (r: { email: string; tempPassword: string; emailed: boolean }) => {
@@ -243,12 +252,30 @@ function RegistrationsPage() {
           <p className="font-mono text-[11px] tracking-[0.4em] text-primary">// REGISTRATIONS</p>
           <h1 className="mt-2 font-display text-3xl font-bold tracking-widest uppercase">Teams</h1>
         </div>
-        <button
-          onClick={exportCsv}
-          className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
-        >
-          [ Export CSV ]
-        </button>
+        <div className="flex flex-wrap gap-3">
+          {isAdmin && (
+            <button
+              disabled={releaseAll.isPending}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "Send food tokens to every confirmed team? Participants will see their QR in the team portal.",
+                  )
+                )
+                  releaseAll.mutate();
+              }}
+              className="clip-notch bg-primary px-4 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+            >
+              [ Send tokens to all teams ]
+            </button>
+          )}
+          <button
+            onClick={exportCsv}
+            className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+          >
+            [ Export CSV ]
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3">

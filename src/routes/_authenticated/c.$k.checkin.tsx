@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { QrScanner } from "@/components/staff/QrScanner";
 import { toast } from "sonner";
 import {
   getCheckinStats,
@@ -35,6 +36,7 @@ function CheckinPage() {
 
   const [code, setCode] = useState("");
   const [scan, setScan] = useState<Scan | null>(null);
+  const [camera, setCamera] = useState(false);
 
   const stats = useQuery({ queryKey: ["checkin-stats"], queryFn: () => statsFn() });
 
@@ -46,6 +48,14 @@ function CheckinPage() {
       toast.error(e.message);
     },
   });
+
+  const onCameraResult = useCallback(
+    (value: string) => {
+      setCode(value);
+      lookup.mutate(value);
+    },
+    [lookup],
+  );
 
   const confirm = useMutation({
     mutationFn: async () => {
@@ -110,7 +120,16 @@ function CheckinPage() {
         >
           [ Look up ]
         </button>
+        <button
+          type="button"
+          onClick={() => setCamera((v) => !v)}
+          className="clip-notch border border-border px-6 py-3 font-mono text-[11px] font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+        >
+          {camera ? "[ Close camera ]" : "[ Scan with camera ]"}
+        </button>
       </form>
+
+      <QrScanner active={camera} onResult={onCameraResult} onClose={() => setCamera(false)} />
 
       {scan && (
         <div className="panel space-y-3 p-5">
