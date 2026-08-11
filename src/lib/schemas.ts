@@ -68,6 +68,7 @@ const str = (min: number, max: number, re: RegExp, msg: string) =>
     .preprocess(clean, z.string().min(min, `Must be at least ${min} characters`).max(max))
     .refine((v) => re.test(v as string), { message: msg }) as unknown as z.ZodType<string>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const optStr = (max: number) =>
   z.preprocess(
     (v) => clean(v ?? ""),
@@ -75,6 +76,7 @@ const optStr = (max: number) =>
       message: "Contains invalid characters",
     }),
   ) as unknown as z.ZodType<string>;
+void optStr;
 
 const emailField = z.preprocess(
   cleanEmail,
