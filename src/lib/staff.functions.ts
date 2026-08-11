@@ -221,6 +221,10 @@ export const verifyPayment = createServerFn({ method: "POST" })
         decision: z.enum(["APPROVE", "REJECT"]),
         reason: z.string().trim().max(300).optional().default(""),
         notes: z.string().trim().max(500).optional().default(""),
+        receipt: z
+          .object({ base64: z.string().min(1), type: z.string().min(1) })
+          .nullable()
+          .optional(),
       })
       .parse(d),
   )
