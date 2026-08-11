@@ -102,7 +102,7 @@ export const getMyTeam = createServerFn({ method: "GET" })
     };
   });
 
-/** Lets a lead who lost access request a fresh password email. */
+/** Lets a lead who lost access request a fresh temporary password by email. */
 export const requestLeadPassword = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
     z.object({ email: z.string().email().max(120), origin: z.string().url().max(300) }).parse(d),
@@ -117,8 +117,24 @@ export const requestLeadPassword = createServerFn({ method: "POST" })
     if (retry > 0) throw new Error(throttleMessage(retry));
     await recordFailure("lead_reset", ids);
 
-    const { sendLeadPasswordEmail } = await import("./lead.server");
     // Always returns ok: never reveals whether an account exists.
-    await sendLeadPasswordEmail(data.email.toLowerCase(), data.origin).catch(() => null);
+    try {
+      const addr = data.email.toLowerCase();
+      const { admin } = await import("./db.server");
+      const db = await admin();
+      const { data: team } = await db
+        .from("teams")
+        .select("id, leader_email, leader_name, lead_user_id")
+        .ilike("leader_email", addr)
+        .limit(1)
+        .maybeSingle();
+      if (team?.lead_user_id) {
+        const { issueLeadPassword } = await import("./lead.server");
+        await issueLeadPassword(team.leader_email, team.leader_name);
+      }
+    } catch {
+      /* swallow: response must not leak account existence */
+    }
     return { ok: true };
   });
+
