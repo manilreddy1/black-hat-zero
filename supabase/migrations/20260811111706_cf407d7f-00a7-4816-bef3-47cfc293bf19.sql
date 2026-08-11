@@ -1,0 +1,1 @@
+ALTER TABLE public.payment_verifications ADD COLUMN IF NOT EXISTS receipt_path text;

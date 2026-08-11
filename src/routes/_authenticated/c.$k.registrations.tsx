@@ -45,6 +45,9 @@ function RegistrationsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [reason, setReason] = useState(REJECTION_REASONS[0] ?? "");
   const [notes, setNotes] = useState("");
+  const [receipt, setReceipt] = useState<{ base64: string; type: string; name: string } | null>(
+    null,
+  );
   const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
 
   const list = useQuery({
@@ -75,9 +78,18 @@ function RegistrationsPage() {
 
   const decide = useMutation({
     mutationFn: (decision: "APPROVE" | "REJECT") =>
-      verifyFn({ data: { registration_id: openId!, decision, reason, notes } }),
+      verifyFn({
+        data: {
+          registration_id: openId!,
+          decision,
+          reason,
+          notes,
+          receipt: decision === "APPROVE" ? receipt : null,
+        },
+      }),
     onSuccess: () => {
       toast.success("Verification recorded.");
+      setReceipt(null);
       qc.invalidateQueries({ queryKey: ["registrations"] });
       qc.invalidateQueries({ queryKey: ["registration", openId] });
       qc.invalidateQueries({ queryKey: ["stats"] });
@@ -264,6 +276,20 @@ function RegistrationsPage() {
                       />
                     </a>
                   )}
+                  {detail.data.receipt_url && (
+                    <>
+                      <p className="mt-4 font-mono text-[11px] tracking-[0.3em] text-primary">
+                        PAYMENT RECEIVED PROOF
+                      </p>
+                      <a href={detail.data.receipt_url} target="_blank" rel="noreferrer">
+                        <img
+                          src={detail.data.receipt_url}
+                          alt="Payment received proof"
+                          className="mt-2 max-h-72 border border-border"
+                        />
+                      </a>
+                    </>
+                  )}
                 </div>
 
                 {detail.data.registration.status === "PAYMENT_REVIEW" && (
@@ -285,9 +311,43 @@ function RegistrationsPage() {
                       rows={3}
                       className="w-full border border-input bg-background px-3 py-2.5 font-mono text-xs"
                     />
+                    <div className="space-y-2">
+                      <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                        Payment received proof (required to approve) · PNG/JPG/WEBP · max 5 MB
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (!f) return setReceipt(null);
+                          if (f.size > 5 * 1024 * 1024) {
+                            toast.error("Proof must be under 5 MB.");
+                            e.target.value = "";
+                            return setReceipt(null);
+                          }
+                          const fr = new FileReader();
+                          fr.onload = () =>
+                            setReceipt({
+                              base64: String(fr.result),
+                              type: f.type,
+                              name: f.name,
+                            });
+                          fr.readAsDataURL(f);
+                        }}
+                        className="w-full border border-input bg-background px-3 py-2.5 font-mono text-xs"
+                      />
+                      {receipt && (
+                        <img
+                          src={receipt.base64}
+                          alt="Selected payment received proof"
+                          className="max-h-40 border border-border"
+                        />
+                      )}
+                    </div>
                     <div className="flex gap-3">
                       <button
-                        disabled={decide.isPending}
+                        disabled={decide.isPending || !receipt}
                         onClick={() => decide.mutate("APPROVE")}
                         className="clip-notch flex-1 bg-primary py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
                       >
