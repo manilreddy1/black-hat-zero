@@ -603,10 +603,24 @@ function RegistrationsPage() {
                           onClick={() => invite.mutate()}
                           className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] uppercase disabled:opacity-60"
                         >
-                          [ Resend lead login ]
+                          [ Issue new lead password ]
                         </button>
                       </div>
                     )}
+                    {isAdmin && tempPass && (
+                      <div className="mt-3 border border-primary/50 bg-primary/10 p-3">
+                        <p className="font-mono text-[10px] tracking-[0.3em] text-primary">
+                          TEMPORARY PASSWORD — {tempPass.email}
+                        </p>
+                        <p className="mt-2 font-mono text-lg break-all">{tempPass.password}</p>
+                        <p className="mt-2 font-mono text-[10px] text-muted-foreground">
+                          {tempPass.emailed
+                            ? "Emailed to the lead. They must set their own password on first sign-in."
+                            : "Email sending is not configured yet — share this password with the lead directly. They must set their own password on first sign-in."}
+                        </p>
+                      </div>
+                    )}
+
                   </div>
                 )}
 
