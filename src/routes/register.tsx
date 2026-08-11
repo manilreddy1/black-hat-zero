@@ -181,6 +181,38 @@ function PhoneField({
 }
 
 /** Fixed value shown as read-only (no user edits). */
+function FoodField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: "VEG" | "NON_VEG";
+  onChange: (v: "VEG" | "NON_VEG") => void;
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">{label}</span>
+      <div className="mt-2 flex gap-2">
+        {FOOD_OPTIONS.map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => onChange(opt)}
+            className={`flex-1 border px-3 py-2 font-mono text-xs tracking-[0.2em] transition ${
+              value === opt
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/50"
+            }`}
+          >
+            {foodLabel(opt).toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </label>
+  );
+}
+
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <label className="block">
@@ -292,6 +324,7 @@ function RegisterPage() {
     leader_email: "",
     leader_phone: "",
     leader_roll: "",
+    leader_food: "VEG" as "VEG" | "NON_VEG",
     college: collegeName,
     department: "",
     year: "",
@@ -309,6 +342,7 @@ function RegisterPage() {
     email: team.leader_email,
     phone: team.leader_phone,
     student_id: team.leader_roll,
+    food_pref: team.leader_food,
     department: team.department,
     year: team.year,
   };
@@ -519,6 +553,11 @@ function RegisterPage() {
                       onChange={(v) => setTeam({ ...team, leader_roll: v })}
                     />
                     <ReadOnlyField label="COLLEGE" value={collegeName} />
+                    <FoodField
+                      label="FOOD PREFERENCE"
+                      value={team.leader_food}
+                      onChange={(v) => setTeam({ ...team, leader_food: v })}
+                    />
 
                     <SelectField
                       label="DEPARTMENT & YEAR"
@@ -583,6 +622,11 @@ function RegisterPage() {
                             value={m.student_id}
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
+                          <FoodField
+                            label="FOOD PREFERENCE"
+                            value={m.food_pref}
+                            onChange={(v) => setMember(i, { food_pref: v })}
+                          />
 
                           <SelectField
                             label="DEPARTMENT & YEAR (OPTIONAL)"
@@ -631,6 +675,8 @@ function RegisterPage() {
                     {[leaderMember, ...members.slice(0, coMemberCount)].map((m, i) => (
                       <li key={i}>
                         {String(i + 1).padStart(2, "0")} · {m.full_name} · {m.email} · {m.phone}
+                        {" · "}
+                        {foodLabel(m.food_pref)}
                         {i === 0 && " · LEADER"}
                       </li>
                     ))}
