@@ -159,10 +159,10 @@ export const paymentSchema = z.object({
     ) as unknown as z.ZodType<string>,
   paid_on: z.preprocess(clean, z.string().min(4).max(20)) as unknown as z.ZodType<string>,
   paid_time: z.preprocess(clean, z.string().min(3).max(20)) as unknown as z.ZodType<string>,
-  screenshot: z
-    .object({ name: z.string().max(140), type: z.string().max(60), base64: z.string().max(9_000_000) })
-    .nullable()
-    .optional(),
+  screenshot: z.object(
+    { name: z.string().max(140), type: z.string().max(60), base64: z.string().max(9_000_000) },
+    { required_error: "Payment screenshot is required" },
+  ),
 });
 
 

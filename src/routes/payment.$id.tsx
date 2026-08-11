@@ -291,17 +291,21 @@ function PaymentPage() {
                     </label>
                   </div>
                   <label className="block">
-                    <span className={labelCls}>PAYMENT SCREENSHOT (OPTIONAL)</span>
+                    <span className={labelCls}>PAYMENT SCREENSHOT *</span>
                     <input
+                      required
                       type="file"
                       accept="image/png,image/jpeg,image/webp"
                       onChange={(e) => onFile(e.target.files?.[0])}
                       className={`mt-2 ${field} file:mr-3 file:border-0 file:bg-primary file:px-3 file:py-1 file:font-mono file:text-[11px] file:text-primary-foreground`}
                     />
+                    <span className="mt-1 block font-mono text-[10px] tracking-[0.15em] text-muted-foreground">
+                      PNG, JPG or WEBP under 5 MB. Submission without a screenshot is rejected.
+                    </span>
                   </label>
                   <button
                     type="submit"
-                    disabled={mutation.isPending}
+                    disabled={mutation.isPending || !shot}
                     className="clip-notch w-full bg-primary py-3.5 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase transition-shadow hover:shadow-[var(--glow-red)] disabled:opacity-60"
                   >
                     {mutation.isPending ? "SUBMITTING..." : "[ Submit for verification ]"}
