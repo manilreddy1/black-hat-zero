@@ -11,9 +11,10 @@ import {
   clean,
   cleanEmail,
   cleanPhone,
+  localPhone,
+  yearFromDepartment,
   FIELD_LIMITS,
   DEPARTMENT_OPTIONS,
-  YEAR_OPTIONS,
 } from "@/lib/schemas";
 
 import { GlitchText } from "@/components/site/GlitchText";
@@ -138,6 +139,44 @@ function SelectField({
   );
 }
 
+function PhoneField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const digits = localPhone(value);
+  return (
+    <label className="block">
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">{digits.length}/10</span>
+      </span>
+      <div className="mt-2 flex">
+        <span className="flex items-center border border-r-0 border-input bg-muted/30 px-3 font-mono text-sm text-muted-foreground">
+          +91
+        </span>
+        <input
+          type="tel"
+          required
+          value={digits}
+          maxLength={10}
+          inputMode="numeric"
+          autoComplete="tel-national"
+          spellCheck={false}
+          placeholder="9876543210"
+          onChange={(e) => onChange("+91" + e.target.value.replace(/\D/g, "").slice(0, 10))}
+          className={field}
+        />
+      </div>
+    </label>
+  );
+}
+
+
 
 function RegisterPage() {
   const t = useT();
@@ -204,7 +243,7 @@ function RegisterPage() {
   const steps = ["TEAM", "MEMBERS", "CONFIRM"];
 
   const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(cleanEmail(v));
-  const validPhone = (v: string) => /^\+?\d{7,15}$/.test(cleanPhone(v));
+  const validPhone = (v: string) => /^\+91[6-9]\d{9}$/.test(cleanPhone(v));
 
   const stepValid = () => {
     if (step === 0)
@@ -214,8 +253,7 @@ function RegisterPage() {
           validEmail(team.leader_email) &&
           validPhone(team.leader_phone) &&
           clean(team.college).length >= 2 &&
-          DEPARTMENT_OPTIONS.includes(clean(team.department)) &&
-          (YEAR_OPTIONS as readonly string[]).includes(clean(team.year)),
+          DEPARTMENT_OPTIONS.includes(clean(team.department)),
       );
     if (step === 1) {
       const list = members.slice(0, coMemberCount);
@@ -339,11 +377,8 @@ function RegisterPage() {
                       value={team.leader_email}
                       onChange={(v) => setTeam({ ...team, leader_email: v })}
                     />
-                    <Field
+                    <PhoneField
                       label="LEADER PHONE"
-                      maxLength={FIELD_LIMITS.phone}
-                      inputMode="tel"
-                      autoComplete="tel"
                       value={team.leader_phone}
                       onChange={(v) => setTeam({ ...team, leader_phone: v })}
                     />
@@ -354,16 +389,12 @@ function RegisterPage() {
                       onChange={(v) => setTeam({ ...team, college: v })}
                     />
                     <SelectField
-                      label="DEPARTMENT"
+                      label="DEPARTMENT & YEAR"
                       value={team.department}
                       options={DEPARTMENT_OPTIONS}
-                      onChange={(v) => setTeam({ ...team, department: v })}
-                    />
-                    <SelectField
-                      label="YEAR"
-                      value={team.year}
-                      options={YEAR_OPTIONS as unknown as string[]}
-                      onChange={(v) => setTeam({ ...team, year: v })}
+                      onChange={(v) =>
+                        setTeam({ ...team, department: v, year: yearFromDepartment(v) })
+                      }
                     />
 
                   </div>
@@ -408,10 +439,8 @@ function RegisterPage() {
                             value={m.email}
                             onChange={(v) => setMember(i, { email: v })}
                           />
-                          <Field
+                          <PhoneField
                             label="PHONE"
-                            maxLength={FIELD_LIMITS.phone}
-                            inputMode="tel"
                             value={m.phone}
                             onChange={(v) => setMember(i, { phone: v })}
                           />
@@ -423,18 +452,13 @@ function RegisterPage() {
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
                           <SelectField
-                            label="DEPARTMENT (OPTIONAL)"
+                            label="DEPARTMENT & YEAR (OPTIONAL)"
                             value={m.department}
                             options={DEPARTMENT_OPTIONS}
                             optional
-                            onChange={(v) => setMember(i, { department: v })}
-                          />
-                          <SelectField
-                            label="YEAR (OPTIONAL)"
-                            value={m.year}
-                            options={YEAR_OPTIONS as unknown as string[]}
-                            optional
-                            onChange={(v) => setMember(i, { year: v })}
+                            onChange={(v) =>
+                              setMember(i, { department: v, year: yearFromDepartment(v) })
+                            }
                           />
 
                         </div>
