@@ -49,6 +49,7 @@ type Member = {
   student_id: string;
   department: string;
   year: string;
+  food_pref: "VEG" | "NON_VEG";
 };
 
 const emptyMember = (): Member => ({
@@ -58,6 +59,7 @@ const emptyMember = (): Member => ({
   student_id: "",
   department: "",
   year: "",
+  food_pref: "VEG",
 });
 
 const field =
