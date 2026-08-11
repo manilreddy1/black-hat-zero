@@ -26,6 +26,7 @@ import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as PaymentIdRouteImport } from './routes/payment.$id'
 import { Route as TeamIndexRouteImport } from './routes/team.index'
 import { Route as TeamPortalRouteImport } from './routes/team.portal'
+import { Route as TeamSetPasswordRouteImport } from './routes/team.set-password'
 import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
 import { Route as AuthenticatedCKIndexRouteImport } from './routes/_authenticated/c.$k.index'
 import { Route as AuthenticatedCKCertificatesRouteImport } from './routes/_authenticated/c.$k.certificates'
@@ -122,6 +123,11 @@ const TeamPortalRoute = TeamPortalRouteImport.update({
   path: '/team/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamSetPasswordRoute = TeamSetPasswordRouteImport.update({
+  id: '/team/set-password',
+  path: '/team/set-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCKRoute = AuthenticatedCKRouteImport.update({
   id: '/c/$k',
   path: '/c/$k',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
   '/team/portal': typeof TeamPortalRoute
+  '/team/set-password': typeof TeamSetPasswordRoute
   '/team/': typeof TeamIndexRoute
   '/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
   '/team/portal': typeof TeamPortalRoute
+  '/team/set-password': typeof TeamSetPasswordRoute
   '/team': typeof TeamIndexRoute
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
@@ -255,6 +263,7 @@ export interface FileRoutesById {
   '/p/$slug': typeof PSlugRoute
   '/payment/$id': typeof PaymentIdRoute
   '/team/portal': typeof TeamPortalRoute
+  '/team/set-password': typeof TeamSetPasswordRoute
   '/team/': typeof TeamIndexRoute
   '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
   '/_authenticated/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/payment/$id'
     | '/team/portal'
+    | '/team/set-password'
     | '/team/'
     | '/c/$k'
     | '/c/$k/certificates'
@@ -315,6 +325,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/payment/$id'
     | '/team/portal'
+    | '/team/set-password'
     | '/team'
     | '/c/$k/certificates'
     | '/c/$k/checkin'
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/payment/$id'
     | '/team/portal'
+    | '/team/set-password'
     | '/team/'
     | '/_authenticated/c/$k'
     | '/_authenticated/c/$k/certificates'
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   PSlugRoute: typeof PSlugRoute
   PaymentIdRoute: typeof PaymentIdRoute
   TeamPortalRoute: typeof TeamPortalRoute
+  TeamSetPasswordRoute: typeof TeamSetPasswordRoute
   TeamIndexRoute: typeof TeamIndexRoute
 }
 
@@ -497,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/team/portal'
       fullPath: '/team/portal'
       preLoaderRoute: typeof TeamPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team/set-password': {
+      id: '/team/set-password'
+      path: '/team/set-password'
+      fullPath: '/team/set-password'
+      preLoaderRoute: typeof TeamSetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/c/$k': {
@@ -637,6 +657,7 @@ const rootRouteChildren: RootRouteChildren = {
   PSlugRoute: PSlugRoute,
   PaymentIdRoute: PaymentIdRoute,
   TeamPortalRoute: TeamPortalRoute,
+  TeamSetPasswordRoute: TeamSetPasswordRoute,
   TeamIndexRoute: TeamIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -43,6 +43,11 @@ const LINKS = [
     label: "Registrations",
     roles: ["admin", "coordinator", "payment_verifier"],
   },
+  {
+    to: "/c/$k/checkin",
+    label: "Check-in",
+    roles: ["admin", "coordinator", "payment_verifier"],
+  },
   { to: "/c/$k/messages", label: "Messages", roles: ["admin", "coordinator"] },
   { to: "/c/$k/content", label: "Content", roles: ["admin"] },
   { to: "/c/$k/certificates", label: "Certificates", roles: ["admin"] },
