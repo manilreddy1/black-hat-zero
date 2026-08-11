@@ -70,13 +70,7 @@ function TeamPortal() {
 
   return (
     <div className="min-h-screen px-5 py-10 sm:px-8">
-      <header className="mx-auto flex max-w-5xl items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <Logo className="h-9 w-9" />
-          <span className="font-display text-sm font-bold tracking-widest">
-            BLACK<span className="text-primary">HAT#0</span>
-          </span>
-        </Link>
+      <header className="mx-auto flex max-w-5xl items-center justify-end">
         <button
           onClick={signOut}
           className="border border-border px-4 py-2 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
