@@ -80,7 +80,14 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         .sort()
         .slice(-14)
         .map(([date, count]) => ({ date: date.slice(5), count })),
+      foodDist: [
+        { name: "Veg", value: veg },
+        { name: "Non-veg", value: nonVeg },
+      ],
+      veg,
+      nonVeg,
       statusDist: [
+
         { name: "Pending", value: by("PAYMENT_PENDING") },
         { name: "Review", value: by("PAYMENT_REVIEW") },
         { name: "Registered", value: by("REGISTERED") },
