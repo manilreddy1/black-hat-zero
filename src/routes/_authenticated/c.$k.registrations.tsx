@@ -70,6 +70,13 @@ function RegistrationsPage() {
     department: string;
     members: EditMember[];
   } | null>(null);
+  const [tempPass, setTempPass] = useState<{
+    email: string;
+    password: string;
+    emailed: boolean;
+  } | null>(null);
+
+
 
 
   const list = useQuery({
