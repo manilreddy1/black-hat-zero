@@ -472,6 +472,7 @@ export type Database = {
           notes: string | null
           payment_id: string
           reason: string | null
+          receipt_path: string | null
           registration_id: string
           verified_by: string
         }
@@ -482,6 +483,7 @@ export type Database = {
           notes?: string | null
           payment_id: string
           reason?: string | null
+          receipt_path?: string | null
           registration_id: string
           verified_by: string
         }
@@ -492,6 +494,7 @@ export type Database = {
           notes?: string | null
           payment_id?: string
           reason?: string | null
+          receipt_path?: string | null
           registration_id?: string
           verified_by?: string
         }
