@@ -45,6 +45,9 @@ function RegistrationsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [reason, setReason] = useState(REJECTION_REASONS[0] ?? "");
   const [notes, setNotes] = useState("");
+  const [receipt, setReceipt] = useState<{ base64: string; type: string; name: string } | null>(
+    null,
+  );
   const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
 
   const list = useQuery({
