@@ -11,8 +11,10 @@ import {
   clean,
   cleanEmail,
   cleanPhone,
+  cleanRoll,
   localPhone,
   yearFromDepartment,
+  ROLL_RE,
   FIELD_LIMITS,
   DEPARTMENT_OPTIONS,
 } from "@/lib/schemas";
