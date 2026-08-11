@@ -41,13 +41,14 @@ function TeamLogin() {
     e.preventDefault();
     setBusy(true);
     const addr = email.trim().toLowerCase();
-    const { error } = await supabase.auth.signInWithPassword({ email: addr, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email: addr, password });
     setBusy(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    navigate({ to: "/team/portal" });
+    const mustChange = Boolean(data.user?.user_metadata?.["must_change_password"]);
+    navigate({ to: mustChange ? "/team/set-password" : "/team/portal" });
   };
 
   const forgot = async () => {
@@ -61,7 +62,9 @@ function TeamLogin() {
       (err: Error) => toast.error(err.message),
     );
     setBusy(false);
-    toast.success("If that email belongs to a registered team lead, a link is on its way.");
+    toast.success(
+      "If that email belongs to a registered team lead, a new temporary password is on its way.",
+    );
   };
 
   return (
@@ -79,8 +82,8 @@ function TeamLogin() {
           </div>
         </div>
         <p className="mt-4 text-xs text-muted-foreground">
-          Your login is created automatically once your team is marked registered — check the
-          leader's inbox for the password link.
+          Your login is created automatically once your team is marked registered — a temporary
+          password is sent to the leader's inbox. You'll set your own password on first sign-in.
         </p>
 
         <form onSubmit={signIn} className="mt-6 space-y-4">
@@ -121,7 +124,7 @@ function TeamLogin() {
 
         <div className="mt-5 flex items-center justify-between font-mono text-[11px]">
           <button onClick={forgot} disabled={busy} className="text-primary hover:underline">
-            Forgot / set password
+            Email me a new password
           </button>
           <Link to="/" className="text-muted-foreground hover:text-foreground">
             ← Back to site
