@@ -178,6 +178,95 @@ function PhoneField({
   );
 }
 
+/** Fixed value shown as read-only (no user edits). */
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <label className="block">
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">FIXED</span>
+      </span>
+      <div
+        className={`mt-2 ${field} cursor-not-allowed bg-muted/30 text-muted-foreground`}
+        aria-readonly="true"
+      >
+        {value || "—"}
+      </div>
+    </label>
+  );
+}
+
+/** Roll number mask 2_X0_A62__ — only the underscore slots accept input. */
+function RollField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const v = cleanRoll(value);
+  const full = v.length === 10 ? v : "";
+  const a = full ? full[1]! : "";
+  const b = full ? full[4]! : "";
+  const c = full ? full.slice(8) : "";
+  const [parts, setParts] = useState<[string, string, string]>([a, b, c]);
+  const push = (next: [string, string, string]) => {
+    setParts(next);
+    const composed = `2${next[0]}X0${next[1]}A62${next[2]}`;
+    onChange(next[0] && next[1] && next[2].length === 2 ? composed : "");
+  };
+  const slot =
+    "w-10 border border-input bg-surface px-0 py-3 text-center font-mono text-sm uppercase outline-none focus:border-primary focus:shadow-[var(--glow-red)]";
+  const fixed = "px-1 font-mono text-sm text-muted-foreground";
+  return (
+    <label className="block">
+      <span className={labelCls}>
+        {label}
+        <span className="ml-2 opacity-50">2_X0_A62__</span>
+      </span>
+      <div className="mt-2 flex items-center gap-1">
+        <span className={fixed}>2</span>
+        <input
+          className={slot}
+          value={parts[0]}
+          inputMode="numeric"
+          maxLength={1}
+          placeholder="_"
+          onChange={(e) =>
+            push([e.target.value.replace(/\D/g, "").slice(0, 1), parts[1], parts[2]])
+          }
+        />
+        <span className={fixed}>X0</span>
+        <input
+          className={slot}
+          value={parts[1]}
+          inputMode="numeric"
+          maxLength={1}
+          placeholder="_"
+          onChange={(e) =>
+            push([parts[0], e.target.value.replace(/\D/g, "").slice(0, 1), parts[2]])
+          }
+        />
+        <span className={fixed}>A62</span>
+        <input
+          className={`${slot} w-14`}
+          value={parts[2]}
+          maxLength={2}
+          placeholder="__"
+          onChange={(e) =>
+            push([
+              parts[0],
+              parts[1],
+              e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 2),
+            ])
+          }
+        />
+      </div>
+    </label>
+  );
+}
 
 
 function RegisterPage() {
