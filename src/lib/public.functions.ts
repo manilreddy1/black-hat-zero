@@ -41,9 +41,19 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(async ()
 export const createRegistration = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => registrationSchema.parse(d))
   .handler(async ({ data }) => {
-    const { assertSameOrigin } = await import("./security.server");
+    const { assertSameOrigin, throttleRetryMs, throttleMessage, recordFailure, clientIp } =
+      await import("./security.server");
     await assertSameOrigin();
+
+    // Rate limit: a few submissions per IP/email, then exponential backoff.
+    const ip = await clientIp();
+    const throttleIds = [`ip:${ip}`, `email:${data.leader_email}`];
+    const retry = await throttleRetryMs("registration", throttleIds);
+    if (retry > 0) throw new Error(throttleMessage(retry));
+    await recordFailure("registration", throttleIds);
+
     const { admin, writeAudit, padCode } = await import("./db.server");
+
     const db = await admin();
 
     const { data: settings } = await db.from("event_settings").select("*").limit(1).maybeSingle();
