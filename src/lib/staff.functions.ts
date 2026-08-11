@@ -201,12 +201,23 @@ export const getRegistrationDetail = createServerFn({ method: "POST" })
         .createSignedUrl(payment.screenshot_path, 600);
       screenshot_url = signed.data?.signedUrl ?? null;
     }
+    let receipt_url: string | null = null;
+    const receiptPath = (verifications ?? []).find(
+      (v) => (v as { receipt_path?: string | null }).receipt_path,
+    ) as { receipt_path?: string | null } | undefined;
+    if (receiptPath?.receipt_path) {
+      const signed = await db.storage
+        .from("payment-proofs")
+        .createSignedUrl(receiptPath.receipt_path, 600);
+      receipt_url = signed.data?.signedUrl ?? null;
+    }
     return {
       registration: reg,
       team,
       members: members ?? [],
       payment,
       screenshot_url,
+      receipt_url,
       history: history ?? [],
       verifications: verifications ?? [],
     };
