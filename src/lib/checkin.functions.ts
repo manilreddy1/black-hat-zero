@@ -11,7 +11,7 @@ export const resolveScan = createServerFn({ method: "POST" })
   .inputValidator(codeInput)
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
-    await requireRole(context.supabase, context.userId, ["coordinator", "admin", "payment_verifier"]);
+    await requireRole(context.supabase, context.userId, ["coordinator", "admin"]);
     const { readToken } = await import("./tokens.server");
     const parsed = await readToken(data.code);
     if (!parsed) throw new Error("Invalid or tampered QR code.");
@@ -87,11 +87,7 @@ export const markAttendance = createServerFn({ method: "POST" })
   .inputValidator(codeInput)
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
-    const role = await requireRole(context.supabase, context.userId, [
-      "coordinator",
-      "admin",
-      "payment_verifier",
-    ]);
+    const role = await requireRole(context.supabase, context.userId, ["coordinator", "admin"]);
     const { readToken } = await import("./tokens.server");
     const parsed = await readToken(data.code);
     if (!parsed || parsed.kind !== "A") throw new Error("Invalid attendance QR code.");
@@ -144,11 +140,7 @@ export const redeemFoodToken = createServerFn({ method: "POST" })
   .inputValidator(codeInput)
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
-    const role = await requireRole(context.supabase, context.userId, [
-      "coordinator",
-      "admin",
-      "payment_verifier",
-    ]);
+    const role = await requireRole(context.supabase, context.userId, ["coordinator", "admin"]);
     const { readToken } = await import("./tokens.server");
     const parsed = await readToken(data.code);
     if (!parsed || parsed.kind !== "F") throw new Error("Invalid food token QR.");
@@ -199,8 +191,8 @@ export const redeemFoodToken = createServerFn({ method: "POST" })
 export const getCheckinStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { requireStaff } = await import("./staff.server");
-    await requireStaff(context.supabase, context.userId);
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["coordinator", "admin"]);
     const { admin } = await import("./db.server");
     const db = await admin();
     const [teams, present, tokens] = await Promise.all([
