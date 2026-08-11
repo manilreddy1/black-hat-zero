@@ -439,10 +439,8 @@ function RegisterPage() {
                             value={m.email}
                             onChange={(v) => setMember(i, { email: v })}
                           />
-                          <Field
+                          <PhoneField
                             label="PHONE"
-                            maxLength={FIELD_LIMITS.phone}
-                            inputMode="tel"
                             value={m.phone}
                             onChange={(v) => setMember(i, { phone: v })}
                           />
@@ -454,18 +452,13 @@ function RegisterPage() {
                             onChange={(v) => setMember(i, { student_id: v })}
                           />
                           <SelectField
-                            label="DEPARTMENT (OPTIONAL)"
+                            label="DEPARTMENT & YEAR (OPTIONAL)"
                             value={m.department}
                             options={DEPARTMENT_OPTIONS}
                             optional
-                            onChange={(v) => setMember(i, { department: v })}
-                          />
-                          <SelectField
-                            label="YEAR (OPTIONAL)"
-                            value={m.year}
-                            options={YEAR_OPTIONS as unknown as string[]}
-                            optional
-                            onChange={(v) => setMember(i, { year: v })}
+                            onChange={(v) =>
+                              setMember(i, { department: v, year: yearFromDepartment(v) })
+                            }
                           />
 
                         </div>
