@@ -867,7 +867,7 @@ export type Database = {
       }
       teams: {
         Row: {
-          city: string
+          city: string | null
           college: string
           created_at: string
           department: string
@@ -882,7 +882,7 @@ export type Database = {
           year: string
         }
         Insert: {
-          city: string
+          city?: string | null
           college: string
           created_at?: string
           department: string
@@ -897,7 +897,7 @@ export type Database = {
           year: string
         }
         Update: {
-          city?: string
+          city?: string | null
           college?: string
           created_at?: string
           department?: string
