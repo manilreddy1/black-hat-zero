@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { QrScanner } from "@/components/staff/QrScanner";
 import { toast } from "sonner";
 import {
@@ -37,6 +37,7 @@ function CheckinPage() {
   const [code, setCode] = useState("");
   const [scan, setScan] = useState<Scan | null>(null);
   const [camera, setCamera] = useState(false);
+  const resultRef = useRef<HTMLDivElement | null>(null);
 
   const stats = useQuery({ queryKey: ["checkin-stats"], queryFn: () => statsFn() });
 
@@ -51,8 +52,12 @@ function CheckinPage() {
 
   const onCameraResult = useCallback(
     (value: string) => {
+      setCamera(false);
       setCode(value);
       lookup.mutate(value);
+      requestAnimationFrame(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
     },
     [lookup],
   );
@@ -122,17 +127,19 @@ function CheckinPage() {
         </button>
         <button
           type="button"
-          onClick={() => setCamera((v) => !v)}
+          onClick={() => {
+            setCamera((v) => !v);
+          }}
           className="clip-notch border border-border px-6 py-3 font-mono text-[11px] font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
         >
-          {camera ? "[ Close camera ]" : "[ Scan with camera ]"}
+          {camera ? "[ Close camera ]" : scan ? "[ Scan next ]" : "[ Scan with camera ]"}
         </button>
       </form>
 
       <QrScanner active={camera} onResult={onCameraResult} onClose={() => setCamera(false)} />
 
       {scan && (
-        <div className="panel space-y-3 p-5">
+        <div ref={resultRef} className="panel space-y-3 p-5">
           {scan.kind === "attendance" ? (
             <>
               <p className="font-mono text-[11px] tracking-[0.3em] text-primary">TEAM ATTENDANCE</p>
