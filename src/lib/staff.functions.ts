@@ -1093,21 +1093,21 @@ export const resendLeadInvite = createServerFn({ method: "POST" })
       .eq("id", reg.team_id)
       .maybeSingle();
     if (!team) throw new Error("Team not found.");
-    const { getRequestHeader } = await import("@tanstack/react-start/server");
-    const origin = getRequestHeader("origin") ?? "";
-    const { ensureLeadAccount, sendLeadPasswordEmail } = await import("./lead.server");
-    if (team.lead_user_id) await sendLeadPasswordEmail(team.leader_email, origin);
-    else {
-      const uid = await ensureLeadAccount(team.leader_email, team.leader_name, origin);
-      if (uid) await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
-    }
+    const { issueLeadPassword } = await import("./lead.server");
+    const { userId: uid, tempPassword, emailed } = await issueLeadPassword(
+      team.leader_email,
+      team.leader_name,
+    );
+    if (uid && !team.lead_user_id)
+      await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
     await writeAudit({
       actor_id: context.userId,
       actor_role: role,
-      action: "LEAD_INVITE_SENT",
+      action: "LEAD_PASSWORD_ISSUED",
       entity: "teams",
       entity_id: team.id,
-      metadata: { email: team.leader_email },
+      metadata: { email: team.leader_email, emailed },
     });
-    return { ok: true };
+    return { ok: true, email: team.leader_email, tempPassword, emailed };
+
   });
