@@ -104,6 +104,15 @@ function RegistrationsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const releaseAll = useMutation({
+    mutationFn: () => releaseFn({ data: { registration_id: null, all: true, release: true } }),
+    onSuccess: (r) => {
+      toast.success(`${r.tokens} food token(s) released across ${r.teams} team(s).`);
+      qc.invalidateQueries({ queryKey: ["registration"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const invite = useMutation({
     mutationFn: () => inviteFn({ data: { registration_id: openId! } }),
     onSuccess: (r: { email: string; tempPassword: string; emailed: boolean }) => {
