@@ -105,7 +105,7 @@ export const createRegistration = createServerFn({ method: "POST" })
         college: data.college,
         department: data.department,
         year: data.year,
-        city: data.city,
+        city: null,
         team_size: data.team_size,
       })
       .select("id, team_code")
