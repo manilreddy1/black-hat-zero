@@ -257,12 +257,32 @@ export const verifyPayment = createServerFn({ method: "POST" })
       throw new Error("A rejection reason is required.");
 
     const approve = data.decision === "APPROVE";
+
+    let receipt_path: string | null = null;
+    if (approve) {
+      if (!data.receipt?.base64)
+        throw new Error("A payment-received proof image is required to approve.");
+      const raw = data.receipt.base64.split(",").pop() ?? "";
+      const bytes = Buffer.from(raw, "base64");
+      if (bytes.length > 5 * 1024 * 1024) throw new Error("Proof must be under 5 MB.");
+      if (!/^image\/(png|jpe?g|webp)$/.test(data.receipt.type))
+        throw new Error("Proof must be a PNG, JPG or WEBP image.");
+      const ext = data.receipt.type.split("/")[1]!.replace("jpeg", "jpg");
+      const path = `${reg.registration_code}/receipt-${Date.now()}.${ext}`;
+      const up = await db.storage
+        .from("payment-proofs")
+        .upload(path, bytes, { contentType: data.receipt.type, upsert: false });
+      if (up.error) throw new Error("Proof upload failed. Try again.");
+      receipt_path = path;
+    }
+
     await db.from("payment_verifications").insert({
       payment_id: payment.id,
       registration_id: reg.id,
       decision: approve ? "APPROVED" : "REJECTED",
       reason: data.reason || null,
       notes: data.notes || null,
+      receipt_path,
       verified_by: context.userId,
     });
     await db
