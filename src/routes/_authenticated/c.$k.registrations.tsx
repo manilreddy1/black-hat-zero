@@ -1,17 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   deleteRegistration,
   getMe,
   getRegistrationDetail,
   listRegistrations,
+  updateRegistrationTeam,
   verifyPayment,
 } from "@/lib/staff.functions";
 import { formatMoney, REJECTION_REASONS } from "@/lib/constants";
+import { DEPARTMENT_OPTIONS, localPhone } from "@/lib/schemas";
 import { StatusBadge } from "@/components/site/StatusBadge";
+
+type EditMember = {
+  id: string | null;
+  full_name: string;
+  email: string;
+  phone: string;
+  student_id: string;
+  department: string;
+};
+
 
 export const Route = createFileRoute("/_authenticated/c/$k/registrations")({
   component: RegistrationsPage,
@@ -36,8 +48,8 @@ function RegistrationsPage() {
   const qc = useQueryClient();
 
   const me = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
-  const isAdmin =
-    !!me.data?.roles.includes("admin") || !!me.data?.roles.includes("super_admin");
+  const isSuper = !!me.data?.roles.includes("super_admin");
+  const isAdmin = isSuper || !!me.data?.roles.includes("admin");
 
 
   const [status, setStatus] = useState("ALL");
@@ -49,6 +61,14 @@ function RegistrationsPage() {
     null,
   );
   const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [edit, setEdit] = useState<{
+    team_name: string;
+    college: string;
+    department: string;
+    members: EditMember[];
+  } | null>(null);
+
 
   const list = useQuery({
     queryKey: ["registrations", status, search],
@@ -60,6 +80,61 @@ function RegistrationsPage() {
     queryFn: () => detailFn({ data: { id: openId! } }),
     enabled: !!openId,
   });
+
+  const updateFn = useServerFn(updateRegistrationTeam);
+  const d = detail.data;
+  const regStatus = d?.registration.status ?? "";
+  const paymentLocked = regStatus === "PAYMENT_APPROVED" || regStatus === "REGISTERED";
+  const canEdit = isAdmin && (!paymentLocked || isSuper);
+
+  useEffect(() => {
+    setEditing(false);
+    setEdit(null);
+  }, [openId]);
+
+  const startEdit = () => {
+    if (!d) return;
+    setEdit({
+      team_name: d.team?.team_name ?? "",
+      college: d.team?.college ?? "",
+      department: d.team?.department ?? "",
+      members: d.members.map((m) => ({
+        id: m.id,
+        full_name: m.full_name ?? "",
+        email: m.email ?? "",
+        phone: localPhone(m.phone ?? ""),
+        student_id: m.student_id ?? "",
+        department: m.department ?? d.team?.department ?? "",
+      })),
+    });
+    setEditing(true);
+  };
+
+  const save = useMutation({
+    mutationFn: () =>
+      updateFn({
+        data: {
+          id: openId!,
+          team_name: edit!.team_name,
+          college: edit!.college,
+          department: edit!.department,
+          members: edit!.members.map((m) => ({ ...m, phone: `+91${m.phone}` })),
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Team updated.");
+      setEditing(false);
+      qc.invalidateQueries({ queryKey: ["registrations"] });
+      qc.invalidateQueries({ queryKey: ["registration", openId] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const setMember = (i: number, patch: Partial<EditMember>) =>
+    setEdit((s) =>
+      s ? { ...s, members: s.members.map((m, j) => (j === i ? { ...m, ...patch } : m)) } : s,
+    );
+
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
@@ -249,16 +324,177 @@ function RegistrationsPage() {
                 </div>
 
                 <div>
-                  <p className="font-mono text-[11px] tracking-[0.3em] text-primary">MEMBERS</p>
-                  <ul className="mt-2 space-y-1 font-mono text-xs text-muted-foreground">
-                    {detail.data.members.map((m) => (
-                      <li key={m.id}>
-                        {String(m.member_index).padStart(2, "0")} · {m.full_name} · {m.email} ·{" "}
-                        {m.phone}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-mono text-[11px] tracking-[0.3em] text-primary">MEMBERS</p>
+                    {isAdmin && !editing && (
+                      <button
+                        onClick={startEdit}
+                        disabled={!canEdit}
+                        title={
+                          canEdit
+                            ? "Edit team details"
+                            : "Payment approved — only a super admin can edit"
+                        }
+                        className="font-mono text-[11px] tracking-[0.2em] text-primary uppercase disabled:opacity-40"
+                      >
+                        [ Edit team ]
+                      </button>
+                    )}
+                  </div>
+
+                  {!editing && (
+                    <ul className="mt-2 space-y-1 font-mono text-xs text-muted-foreground">
+                      {detail.data.members.map((m) => (
+                        <li key={m.id}>
+                          {String(m.member_index).padStart(2, "0")} · {m.full_name} · {m.email} ·{" "}
+                          {m.phone} · {m.student_id ?? "—"} · {m.department ?? "—"}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {editing && edit && (
+                    <div className="mt-3 space-y-4">
+                      {paymentLocked && (
+                        <p className="font-mono text-[10px] tracking-[0.2em] text-destructive uppercase">
+                          Payment already approved — super admin override
+                        </p>
+                      )}
+                      <div className="grid gap-2">
+                        <input
+                          value={edit.team_name}
+                          onChange={(e) => setEdit({ ...edit, team_name: e.target.value })}
+                          placeholder="Team name"
+                          className="border border-input bg-background px-3 py-2 font-mono text-xs"
+                        />
+                        <input
+                          value={edit.college}
+                          onChange={(e) => setEdit({ ...edit, college: e.target.value })}
+                          placeholder="College"
+                          className="border border-input bg-background px-3 py-2 font-mono text-xs"
+                        />
+                        <select
+                          value={edit.department}
+                          onChange={(e) => setEdit({ ...edit, department: e.target.value })}
+                          className="border border-input bg-background px-3 py-2 font-mono text-xs"
+                        >
+                          <option value="">Department…</option>
+                          {DEPARTMENT_OPTIONS.map((o) => (
+                            <option key={o}>{o}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {edit.members.map((m, i) => (
+                        <div key={m.id ?? `new-${i}`} className="space-y-2 border border-border p-3">
+                          <div className="flex items-center justify-between">
+                            <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                              {i === 0 ? "Leader" : `Member ${i + 1}`}
+                            </p>
+                            {i > 0 && (
+                              <button
+                                onClick={() =>
+                                  setEdit({
+                                    ...edit,
+                                    members: edit.members.filter((_, j) => j !== i),
+                                  })
+                                }
+                                className="font-mono text-[10px] tracking-[0.2em] text-destructive uppercase"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                          <input
+                            value={m.full_name}
+                            onChange={(e) => setMember(i, { full_name: e.target.value })}
+                            placeholder="Full name"
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          />
+                          <input
+                            value={m.email}
+                            onChange={(e) => setMember(i, { email: e.target.value })}
+                            placeholder="Email"
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          />
+                          <div className="flex">
+                            <span className="border border-r-0 border-input bg-surface px-3 py-2 font-mono text-xs text-muted-foreground">
+                              +91
+                            </span>
+                            <input
+                              value={m.phone}
+                              inputMode="numeric"
+                              maxLength={10}
+                              onChange={(e) =>
+                                setMember(i, { phone: e.target.value.replace(/\D/g, "").slice(0, 10) })
+                              }
+                              placeholder="10-digit mobile"
+                              className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                            />
+                          </div>
+                          <input
+                            value={m.student_id}
+                            onChange={(e) =>
+                              setMember(i, { student_id: e.target.value.toUpperCase().slice(0, 10) })
+                            }
+                            placeholder="Roll number (2_X0_A62__)"
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          />
+                          <select
+                            value={m.department}
+                            onChange={(e) => setMember(i, { department: e.target.value })}
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          >
+                            <option value="">Department…</option>
+                            {DEPARTMENT_OPTIONS.map((o) => (
+                              <option key={o}>{o}</option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
+
+                      <button
+                        onClick={() =>
+                          setEdit({
+                            ...edit,
+                            members: [
+                              ...edit.members,
+                              {
+                                id: null,
+                                full_name: "",
+                                email: "",
+                                phone: "",
+                                student_id: "",
+                                department: edit.department,
+                              },
+                            ],
+                          })
+                        }
+                        className="w-full border border-dashed border-border py-2 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+                      >
+                        + Add member
+                      </button>
+
+                      <div className="flex gap-3">
+                        <button
+                          disabled={save.isPending}
+                          onClick={() => setEditing(false)}
+                          className="clip-notch flex-1 border border-border py-3 font-mono text-[11px] font-bold tracking-[0.2em] uppercase disabled:opacity-60"
+                        >
+                          [ Cancel ]
+                        </button>
+                        <button
+                          disabled={save.isPending}
+                          onClick={() => save.mutate()}
+                          className="clip-notch flex-1 bg-primary py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+                        >
+                          {save.isPending ? "[ Saving… ]" : "[ Save changes ]"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
 
                 <div>
                   <p className="font-mono text-[11px] tracking-[0.3em] text-primary">PAYMENT</p>
