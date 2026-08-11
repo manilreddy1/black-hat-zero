@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { QrScanner } from "@/components/staff/QrScanner";
 import { toast } from "sonner";
 import {
   getCheckinStats,
