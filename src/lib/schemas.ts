@@ -16,14 +16,24 @@ export const clean = (v: unknown): string =>
 export const cleanEmail = (v: unknown): string =>
   typeof v === "string" ? clean(v).toLowerCase().replace(/\s/g, "") : (v as string);
 
-export const cleanPhone = (v: unknown): string =>
-  typeof v === "string" ? clean(v).replace(/[^\d+]/g, "").slice(0, 20) : (v as string);
+export const cleanPhone = (v: unknown): string => {
+  if (typeof v !== "string") return v as string;
+  let s = clean(v).replace(/[^\d+]/g, "");
+  s = s.replace(/(?!^)\+/g, "");
+  let digits = s.replace(/\D/g, "");
+  if (digits.startsWith("91") && digits.length > 10) digits = digits.slice(2);
+  if (digits.startsWith("0")) digits = digits.replace(/^0+/, "");
+  return "+91" + digits.slice(0, 10);
+};
+
+/** Local 10-digit part of a stored +91 number (for form inputs). */
+export const localPhone = (v: string) => cleanPhone(v).replace(/^\+91/, "");
 
 export const FIELD_LIMITS = {
   team_name: 60,
   name: 80,
   email: 120,
-  phone: 20,
+  phone: 13,
   college: 120,
   department: 80,
   year: 20,
@@ -31,17 +41,33 @@ export const FIELD_LIMITS = {
   utr: 40,
 } as const;
 
-/** Fixed academic options (year + section) offered in the registration form. */
-export const YEAR_OPTIONS = ["2nd Year", "3rd Year", "4th Year"] as const;
+/** Fixed academic options: branch + year + section, e.g. "CSE-CS II-A". */
+export const BRANCH_OPTIONS = [
+  "CSE",
+  "CSE-CS",
+  "CSE-AIML",
+  "CSE-DS",
+  "CSE-IOT",
+  "IT",
+  "ECE",
+  "EEE",
+  "MECH",
+  "CIVIL",
+] as const;
+export const YEAR_OPTIONS = ["II", "III", "IV"] as const;
 export const SECTION_OPTIONS = ["A", "B"] as const;
-export const DEPARTMENT_OPTIONS = YEAR_OPTIONS.flatMap((y) =>
-  SECTION_OPTIONS.map((s) => `${y} - ${s}`),
+export const DEPARTMENT_OPTIONS = BRANCH_OPTIONS.flatMap((b) =>
+  YEAR_OPTIONS.flatMap((y) => SECTION_OPTIONS.map((s) => `${b} ${y}-${s}`)),
 );
 
+/** Extracts the year token ("II" | "III" | "IV") from a department option. */
+export const yearFromDepartment = (dept: string) =>
+  (dept.match(/\s(II|III|IV)-[AB]$/)?.[1] ?? "") as string;
 
 const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M}\s.'-]*$/u;
 const TEXT_RE = /^[\p{L}\p{M}\p{N}\s.,'&()\/+-]+$/u;
-const PHONE_RE = /^\+?\d{7,15}$/;
+const PHONE_RE = /^\+91[6-9]\d{9}$/;
+
 
 const str = (min: number, max: number, re: RegExp, msg: string) =>
   z
