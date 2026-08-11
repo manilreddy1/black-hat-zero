@@ -17,6 +17,9 @@ import {
   ROLL_RE,
   FIELD_LIMITS,
   DEPARTMENT_OPTIONS,
+  FOOD_OPTIONS,
+  foodLabel,
+
 } from "@/lib/schemas";
 
 import { GlitchText } from "@/components/site/GlitchText";
