@@ -245,6 +245,22 @@ function RegisterPage() {
   const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(cleanEmail(v));
   const validPhone = (v: string) => /^\+91[6-9]\d{9}$/.test(cleanPhone(v));
 
+  const memberIssues = (m: Member, i: number): string[] => {
+    const out: string[] = [];
+    if (clean(m.full_name).length < 2) out.push("Enter the member's full name");
+    if (!validEmail(m.email)) out.push("Enter a valid email address");
+    if (!validPhone(m.phone)) out.push("Enter a valid 10-digit mobile number (starts 6-9)");
+    const others = [
+      { email: cleanEmail(team.leader_email), phone: cleanPhone(team.leader_phone) },
+      ...members.slice(0, coMemberCount).filter((_, idx) => idx !== i),
+    ];
+    if (validEmail(m.email) && others.some((o) => cleanEmail(o.email) === cleanEmail(m.email)))
+      out.push("This email is already used by another member");
+    if (validPhone(m.phone) && others.some((o) => cleanPhone(o.phone) === cleanPhone(m.phone)))
+      out.push("This phone number is already used by another member");
+    return out;
+  };
+
   const stepValid = () => {
     if (step === 0)
       return Boolean(
