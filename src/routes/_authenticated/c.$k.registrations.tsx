@@ -48,8 +48,8 @@ function RegistrationsPage() {
   const qc = useQueryClient();
 
   const me = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
-  const isAdmin =
-    !!me.data?.roles.includes("admin") || !!me.data?.roles.includes("super_admin");
+  const isSuper = !!me.data?.roles.includes("super_admin");
+  const isAdmin = isSuper || !!me.data?.roles.includes("admin");
 
 
   const [status, setStatus] = useState("ALL");
@@ -61,6 +61,14 @@ function RegistrationsPage() {
     null,
   );
   const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [edit, setEdit] = useState<{
+    team_name: string;
+    college: string;
+    department: string;
+    members: EditMember[];
+  } | null>(null);
+
 
   const list = useQuery({
     queryKey: ["registrations", status, search],
