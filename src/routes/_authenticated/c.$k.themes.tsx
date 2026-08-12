@@ -9,7 +9,7 @@ import {
   saveContentRow,
   updateEventSettings,
 } from "@/lib/staff.functions";
-import { siteContentQuery } from "@/lib/site-content";
+import { siteContentQuery } from "@/hooks/useSiteContent";
 
 export const Route = createFileRoute("/_authenticated/c/$k/themes")({
   component: ThemesPage,
