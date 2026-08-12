@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { getPaymentContext, submitPayment } from "@/lib/public.functions";
 import { buildUpiUri, formatMoney } from "@/lib/constants";
 import { CyberBackground } from "@/components/site/CyberBackground";
+import { WhatsAppLink } from "@/components/site/WhatsAppLink";
 import { supabase } from "@/integrations/supabase/client";
 import upiLogo from "@/assets/upi-logo.png.asset.json";
 
