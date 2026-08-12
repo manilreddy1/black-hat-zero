@@ -241,12 +241,15 @@ function PaymentPage() {
                     We received your transaction reference. Track your status any time with your
                     registration code.
                   </p>
-                  <Link
-                    to="/status"
-                    className="clip-notch mt-6 inline-block border border-border px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
-                  >
-                    [ Track status ]
-                  </Link>
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                    <WhatsAppLink url={data.settings?.whatsapp_group_url} />
+                    <Link
+                      to="/status"
+                      className="clip-notch inline-block border border-border px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+                    >
+                      [ Track status ]
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <form
