@@ -450,6 +450,7 @@ export const updateEventSettings = createServerFn({ method: "POST" })
         metadata: { key, from: (current as never)[key], to: patch[key] },
       });
     }
+    (await import("./site-content.server")).invalidateSiteContent();
     return { ok: true };
   });
 
@@ -496,6 +497,7 @@ export const saveContentRow = createServerFn({ method: "POST" })
       entity: data.table,
       entity_id: data.id ?? "new",
     });
+    (await import("./site-content.server")).invalidateSiteContent();
     return { ok: true };
   });
 
@@ -518,6 +520,7 @@ export const deleteContentRow = createServerFn({ method: "POST" })
       entity: data.table,
       entity_id: data.id,
     });
+    (await import("./site-content.server")).invalidateSiteContent();
     return { ok: true };
   });
 
@@ -742,6 +745,7 @@ export const saveSiteTexts = createServerFn({ method: "POST" })
       entity_id: String(data.items.length),
       metadata: { keys: data.items.map((i) => i.key) },
     });
+    (await import("./site-content.server")).invalidateSiteContent();
     return { ok: true };
   });
 
