@@ -71,7 +71,7 @@ const CONFIG: Record<
     ],
   },
   sponsors: {
-    label: "Sponsors",
+    label: "Sponsors (see Sponsors tab)",
     titleField: "name",
     fields: [
       { name: "name", label: "Name", type: "text" },
