@@ -224,6 +224,29 @@ export function PrizesSection({
   );
 }
 
+function SponsorCard({ s }: { s: SiteContent["sponsors"][number] }) {
+  return (
+    <a
+      href={s.website ?? "#"}
+      target={s.website ? "_blank" : undefined}
+      rel="noreferrer"
+      className="panel clip-notch flex h-28 w-52 shrink-0 items-center justify-center p-4 transition-colors hover:border-primary/60"
+      aria-label={s.name}
+    >
+      {s.logo_url ? (
+        <img
+          src={s.logo_url}
+          alt={`${s.name} logo`}
+          loading="lazy"
+          className="max-h-16 max-w-full object-contain"
+        />
+      ) : (
+        <span className="font-display text-lg font-bold tracking-widest">{s.name}</span>
+      )}
+    </a>
+  );
+}
+
 export function SponsorsSection({ sponsors }: { sponsors: SiteContent["sponsors"] }) {
   const t = useT();
   const tiers = [...new Set(sponsors.map((s) => s.tier))];
@@ -234,37 +257,21 @@ export function SponsorsSection({ sponsors }: { sponsors: SiteContent["sponsors"
       title={t("sponsors.title", "Sponsors & partners")}
     >
       <div className="space-y-8">
-        {tiers.map((tier) => (
-          <div key={tier}>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-primary">{tier}</p>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {sponsors
-                .filter((s) => s.tier === tier)
-                .map((s) => (
-                  <a
-                    key={s.id}
-                    href={s.website ?? "#"}
-                    target={s.website ? "_blank" : undefined}
-                    rel="noreferrer"
-                    className="panel clip-notch flex h-24 items-center justify-center p-4 transition-colors hover:border-primary/60"
-                  >
-                    {s.logo_url ? (
-                      <img
-                        src={s.logo_url}
-                        alt={`${s.name} logo`}
-                        loading="lazy"
-                        className="max-h-12 max-w-full object-contain"
-                      />
-                    ) : (
-                      <span className="font-display text-lg font-bold tracking-widest">
-                        {s.name}
-                      </span>
-                    )}
-                  </a>
-                ))}
+        {tiers.map((tier) => {
+          const list = sponsors.filter((s) => s.tier === tier);
+          return (
+            <div key={tier}>
+              <p className="font-mono text-[11px] tracking-[0.3em] text-primary">{tier}</p>
+              <div className="group relative mt-3 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+                <div className="flex w-max gap-4 animate-marquee group-hover:[animation-play-state:paused]">
+                  {[...list, ...list].map((s, i) => (
+                    <SponsorCard key={`${s.id}-${i}`} s={s} />
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </SectionShell>
   );
