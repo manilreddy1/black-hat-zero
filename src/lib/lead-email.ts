@@ -79,7 +79,7 @@ export function leadPasswordEmailHtml(
                 <a href="${SITE}/team" style="display:inline-block;background-color:${RED};color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 30px;border-radius:2px;">Open team portal</a>
               </td>
               <td>
-                <a href="https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz" style="display:inline-block;background-color:#25D366;color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 26px;border-radius:2px;">Join WhatsApp group</a>
+                <a href="${wa}" style="display:inline-block;background-color:#25D366;color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 26px;border-radius:2px;">Join WhatsApp group</a>
               </td>
             </tr>
           </table>
