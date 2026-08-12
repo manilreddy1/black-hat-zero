@@ -142,7 +142,10 @@ function SettingsPage() {
                 checked={Boolean(form[k])}
                 onChange={(e) => setForm({ ...form, [k]: e.target.checked })}
               />
-              {k.replace(/_/g, " ")}
+              {k === "themes_revealed"
+                ? "Show themes + problem statements in team-lead portal"
+                : k.replace(/_/g, " ")}
+
             </label>
           ))}
         </div>
