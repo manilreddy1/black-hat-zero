@@ -17,16 +17,11 @@ const CONFIG: Record<
   { label: string; fields: Field[]; titleField: string }
 > = {
   challenges: {
-    label: "Challenge tracks",
+    label: "Challenge tracks (see Themes tab)",
     titleField: "title",
     fields: [
       { name: "title", label: "Title", type: "text" },
       { name: "description", label: "Description", type: "textarea" },
-      {
-        name: "problem_statement",
-        label: "Problem statement (team leads only, hidden until revealed)",
-        type: "textarea",
-      },
       { name: "icon", label: "Icon", type: "text" },
       { name: "sort_order", label: "Order", type: "number" },
       { name: "is_published", label: "Published", type: "bool" },
