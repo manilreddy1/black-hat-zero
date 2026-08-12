@@ -35,6 +35,7 @@ import { Route as AuthenticatedCKContentRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCKLogsRouteImport } from './routes/_authenticated/c.$k.logs'
 import { Route as AuthenticatedCKMessagesRouteImport } from './routes/_authenticated/c.$k.messages'
 import { Route as AuthenticatedCKRegistrationsRouteImport } from './routes/_authenticated/c.$k.registrations'
+import { Route as AuthenticatedCKReportsRouteImport } from './routes/_authenticated/c.$k.reports'
 import { Route as AuthenticatedCKSettingsRouteImport } from './routes/_authenticated/c.$k.settings'
 import { Route as AuthenticatedCKTextsRouteImport } from './routes/_authenticated/c.$k.texts'
 import { Route as AuthenticatedCKThemesRouteImport } from './routes/_authenticated/c.$k.themes'
@@ -171,6 +172,11 @@ const AuthenticatedCKRegistrationsRoute =
     path: '/registrations',
     getParentRoute: () => AuthenticatedCKRoute,
   } as any)
+const AuthenticatedCKReportsRoute = AuthenticatedCKReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
 const AuthenticatedCKSettingsRoute = AuthenticatedCKSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -217,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
   '/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
+  '/c/$k/reports': typeof AuthenticatedCKReportsRoute
   '/c/$k/settings': typeof AuthenticatedCKSettingsRoute
   '/c/$k/texts': typeof AuthenticatedCKTextsRoute
   '/c/$k/themes': typeof AuthenticatedCKThemesRoute
@@ -247,6 +254,7 @@ export interface FileRoutesByTo {
   '/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/c/$k/messages': typeof AuthenticatedCKMessagesRoute
   '/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
+  '/c/$k/reports': typeof AuthenticatedCKReportsRoute
   '/c/$k/settings': typeof AuthenticatedCKSettingsRoute
   '/c/$k/texts': typeof AuthenticatedCKTextsRoute
   '/c/$k/themes': typeof AuthenticatedCKThemesRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/_authenticated/c/$k/logs': typeof AuthenticatedCKLogsRoute
   '/_authenticated/c/$k/messages': typeof AuthenticatedCKMessagesRoute
   '/_authenticated/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
+  '/_authenticated/c/$k/reports': typeof AuthenticatedCKReportsRoute
   '/_authenticated/c/$k/settings': typeof AuthenticatedCKSettingsRoute
   '/_authenticated/c/$k/texts': typeof AuthenticatedCKTextsRoute
   '/_authenticated/c/$k/themes': typeof AuthenticatedCKThemesRoute
@@ -313,6 +322,7 @@ export interface FileRouteTypes {
     | '/c/$k/logs'
     | '/c/$k/messages'
     | '/c/$k/registrations'
+    | '/c/$k/reports'
     | '/c/$k/settings'
     | '/c/$k/texts'
     | '/c/$k/themes'
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/c/$k/logs'
     | '/c/$k/messages'
     | '/c/$k/registrations'
+    | '/c/$k/reports'
     | '/c/$k/settings'
     | '/c/$k/texts'
     | '/c/$k/themes'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/_authenticated/c/$k/logs'
     | '/_authenticated/c/$k/messages'
     | '/_authenticated/c/$k/registrations'
+    | '/_authenticated/c/$k/reports'
     | '/_authenticated/c/$k/settings'
     | '/_authenticated/c/$k/texts'
     | '/_authenticated/c/$k/themes'
@@ -587,6 +599,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCKRegistrationsRouteImport
       parentRoute: typeof AuthenticatedCKRoute
     }
+    '/_authenticated/c/$k/reports': {
+      id: '/_authenticated/c/$k/reports'
+      path: '/reports'
+      fullPath: '/c/$k/reports'
+      preLoaderRoute: typeof AuthenticatedCKReportsRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
+    }
     '/_authenticated/c/$k/settings': {
       id: '/_authenticated/c/$k/settings'
       path: '/settings'
@@ -625,6 +644,7 @@ interface AuthenticatedCKRouteChildren {
   AuthenticatedCKLogsRoute: typeof AuthenticatedCKLogsRoute
   AuthenticatedCKMessagesRoute: typeof AuthenticatedCKMessagesRoute
   AuthenticatedCKRegistrationsRoute: typeof AuthenticatedCKRegistrationsRoute
+  AuthenticatedCKReportsRoute: typeof AuthenticatedCKReportsRoute
   AuthenticatedCKSettingsRoute: typeof AuthenticatedCKSettingsRoute
   AuthenticatedCKTextsRoute: typeof AuthenticatedCKTextsRoute
   AuthenticatedCKThemesRoute: typeof AuthenticatedCKThemesRoute
@@ -639,6 +659,7 @@ const AuthenticatedCKRouteChildren: AuthenticatedCKRouteChildren = {
   AuthenticatedCKLogsRoute: AuthenticatedCKLogsRoute,
   AuthenticatedCKMessagesRoute: AuthenticatedCKMessagesRoute,
   AuthenticatedCKRegistrationsRoute: AuthenticatedCKRegistrationsRoute,
+  AuthenticatedCKReportsRoute: AuthenticatedCKReportsRoute,
   AuthenticatedCKSettingsRoute: AuthenticatedCKSettingsRoute,
   AuthenticatedCKTextsRoute: AuthenticatedCKTextsRoute,
   AuthenticatedCKThemesRoute: AuthenticatedCKThemesRoute,
