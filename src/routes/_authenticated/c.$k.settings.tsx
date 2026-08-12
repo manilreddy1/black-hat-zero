@@ -26,6 +26,7 @@ const TEXT_FIELDS = [
   "upi_id",
   "upi_payee_name",
   "payment_instructions",
+  "whatsapp_group_url",
 ] as const;
 
 const NUMBER_FIELDS = [
