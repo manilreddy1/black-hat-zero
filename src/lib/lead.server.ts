@@ -21,7 +21,7 @@ export function generateTempPassword() {
  * password, flagged so the portal forces a change on first sign-in.
  * Returns the plaintext temp password so staff/email can deliver it.
  */
-export async function issueLeadPassword(email: string, fullName: string) {
+export async function issueLeadPassword(email: string, fullName: string, teamName?: string) {
   const { admin } = await import("./db.server");
   const db = await admin();
 
@@ -50,7 +50,7 @@ export async function issueLeadPassword(email: string, fullName: string) {
     });
   }
 
-  const emailed = await sendLeadPasswordEmail(addr, fullName, temp).catch(() => false);
+  const emailed = await sendLeadPasswordEmail(addr, fullName, temp, teamName).catch(() => false);
   return { userId, tempPassword: temp, emailed };
 }
 
@@ -59,7 +59,12 @@ export async function issueLeadPassword(email: string, fullName: string) {
  * API. Failures are logged and reported back so staff can fall back to
  * handing the password over manually.
  */
-export async function sendLeadPasswordEmail(email: string, fullName: string, temp: string) {
+export async function sendLeadPasswordEmail(
+  email: string,
+  fullName: string,
+  temp: string,
+  teamName?: string,
+) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   // Verified sender subdomain for this project (not a secret).
   const senderDomain =
@@ -69,7 +74,7 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
     return false;
   }
 
-  const { leadPasswordEmailHtml } = await import("./lead-email");
+  const { leadPasswordEmailHtml, leadPasswordEmailText, EVENT_NAME } = await import("./lead-email");
   const { sendLovableEmail } = await import("@lovable.dev/email-js");
   const idempotencyKey = `lead-password-${crypto.randomUUID()}`;
 
@@ -77,11 +82,13 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
     const res = await sendLovableEmail(
       {
         to: email,
-        from: `BLACK HAT ZERO <noreply@${senderDomain}>`,
+        from: `${EVENT_NAME} <noreply@${senderDomain}>`,
         sender_domain: senderDomain,
-        subject: "Your BLACK HAT ZERO '26 team portal password",
-        html: leadPasswordEmailHtml(fullName, temp),
-        text: `Hi ${fullName},\n\nYour BLACK HAT ZERO '26 team portal password: ${temp}\n\nSign in at the Team Login page and set your own password immediately.`,
+        subject: teamName
+          ? `Registration confirmed: ${teamName} — ${EVENT_NAME} team portal access`
+          : `Registration confirmed — ${EVENT_NAME} team portal access`,
+        html: leadPasswordEmailHtml(fullName, temp, teamName),
+        text: leadPasswordEmailText(fullName, temp, teamName),
         purpose: "transactional",
         idempotency_key: idempotencyKey,
       },
@@ -94,4 +101,5 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
     return false;
   }
 }
+
 
