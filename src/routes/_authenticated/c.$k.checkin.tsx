@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useRef, useState } from "react";
@@ -20,6 +20,8 @@ export const Route = createFileRoute("/_authenticated/c/$k/checkin")({
 
 type Scan = Awaited<ReturnType<typeof resolveScan>>;
 
+const consoleRoute = getRouteApi("/_authenticated/c/$k");
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="panel clip-notch p-4">
@@ -37,6 +39,8 @@ function CheckinPage() {
   const presentFn = useServerFn(getPresentTeams);
   const releaseFn = useServerFn(releaseFoodTokens);
   const qc = useQueryClient();
+  const roles = consoleRoute.useLoaderData().roles as string[];
+  const canRelease = roles.includes("admin") || roles.includes("super_admin");
 
   const [code, setCode] = useState("");
   const [scan, setScan] = useState<Scan | null>(null);
@@ -262,6 +266,7 @@ function CheckinPage() {
                     FOOD TOKENS · {t.tokens_released}/{t.tokens_total || t.team_size} released ·{" "}
                     {t.tokens_redeemed} redeemed
                   </p>
+                  {canRelease && (
                   <div className="flex flex-wrap gap-2">
                     <button
                       disabled={release.isPending || all}
@@ -284,6 +289,7 @@ function CheckinPage() {
                       </button>
                     )}
                   </div>
+                  )}
                 </div>
               );
             })}
