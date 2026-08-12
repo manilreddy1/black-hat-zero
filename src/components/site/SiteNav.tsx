@@ -122,7 +122,7 @@ export function SiteNav() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            className="grid-bg fixed inset-x-0 top-16 bottom-0 z-40 border-t border-border bg-background/98 px-6 py-8 lg:hidden"
+            className="grid-bg fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto overscroll-contain border-t border-border bg-background/98 px-6 py-8 lg:hidden"
           >
             <ul className="space-y-1">
               {links.map((item, i) => (
@@ -136,7 +136,7 @@ export function SiteNav() {
                     href={item.href}
                     newTab={item.new_tab}
                     onClick={() => setOpen(false)}
-                    className="block border-b border-border/60 py-4 font-display text-2xl uppercase tracking-wider"
+                    className="block border-b border-border/60 py-3 font-display text-xl uppercase tracking-wider"
                   >
                     <span className="mr-3 font-mono text-xs text-primary">
                       {String(i + 1).padStart(2, "0")}
@@ -152,7 +152,7 @@ export function SiteNav() {
                 href={item.href}
                 newTab={item.new_tab}
                 onClick={() => setOpen(false)}
-                className="clip-notch mt-8 block bg-primary py-4 text-center font-mono text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground"
+                className="clip-notch mt-6 mb-4 block bg-primary py-4 text-center font-mono text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground"
               >
                 {item.label}
               </DynamicLink>
