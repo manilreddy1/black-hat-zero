@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMyTeam } from "@/lib/lead.functions";
 import { foodLabel } from "@/lib/schemas";
 import { StatusBadge } from "@/components/site/StatusBadge";
+import { WhatsAppLink } from "@/components/site/WhatsAppLink";
 
 export const Route = createFileRoute("/team/portal")({
   ssr: false,
