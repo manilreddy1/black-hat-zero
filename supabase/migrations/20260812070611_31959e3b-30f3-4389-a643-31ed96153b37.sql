@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS teams_team_name_unique_ci ON public.teams (lower(btrim(team_name)));
