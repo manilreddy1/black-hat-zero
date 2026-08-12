@@ -40,6 +40,7 @@ const BOOL_FIELDS = [
   "payments_enabled",
   "waitlist_enabled",
   "maintenance_mode",
+  "themes_revealed",
 ] as const;
 
 const DATE_FIELDS = [
