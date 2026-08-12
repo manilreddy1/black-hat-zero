@@ -6,10 +6,12 @@ import { QrScanner } from "@/components/staff/QrScanner";
 import { toast } from "sonner";
 import {
   getCheckinStats,
+  getPresentTeams,
   markAttendance,
   redeemFoodToken,
   resolveScan,
 } from "@/lib/checkin.functions";
+import { releaseFoodTokens } from "@/lib/staff.functions";
 import { foodLabel } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_authenticated/c/$k/checkin")({
