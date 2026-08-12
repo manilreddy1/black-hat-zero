@@ -81,8 +81,9 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
         subject: "Your BLACK HAT ZERO '26 team portal password",
         html: leadPasswordEmailHtml(fullName, temp),
         text: `Hi ${fullName},\n\nYour BLACK HAT ZERO '26 team portal password: ${temp}\n\nSign in at the Team Login page and set your own password immediately.`,
+        purpose: "transactional",
       },
-      { apiKey },
+      { apiKey, idempotencyKey: `lead-password-${crypto.randomUUID()}` },
     );
     if (!res.success) console.error("[lead-email] send not accepted", res.status);
     return res.success !== false;

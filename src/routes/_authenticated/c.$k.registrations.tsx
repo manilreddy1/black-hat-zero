@@ -119,7 +119,7 @@ function RegistrationsPage() {
       setTempPass({ email: r.email, password: r.tempPassword, emailed: r.emailed });
       toast.success(
         r.emailed
-          ? "Temporary password emailed to the team lead."
+          ? `Email sent successfully to ${r.email}.`
           : "Temporary password issued — share it with the lead.",
       );
     },
@@ -635,14 +635,20 @@ function RegistrationsPage() {
                       </div>
                     )}
                     {isAdmin && tempPass && (
-                      <div className="mt-3 border border-primary/50 bg-primary/10 p-3">
+                      <div
+                        className={`mt-3 border p-3 ${
+                          tempPass.emailed
+                            ? "border-success/50 bg-success/10"
+                            : "border-destructive/50 bg-destructive/10"
+                        }`}
+                      >
                         <p className="font-mono text-[10px] tracking-[0.3em] text-primary">
-                          TEMPORARY PASSWORD — {tempPass.email}
+                          {tempPass.emailed ? "EMAIL SENT SUCCESSFULLY" : "EMAIL DELIVERY FAILED"} — {tempPass.email}
                         </p>
                         <p className="mt-2 font-mono text-lg break-all">{tempPass.password}</p>
                         <p className="mt-2 font-mono text-[10px] text-muted-foreground">
                           {tempPass.emailed
-                            ? "Emailed to the lead. They must set their own password on first sign-in."
+                            ? "The temporary password was accepted for delivery to the team lead. They must set their own password on first sign-in."
                             : "The email could not be delivered — share this password with the lead directly. They must set their own password on first sign-in."}
                         </p>
                       </div>
