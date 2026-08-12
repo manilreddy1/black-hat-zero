@@ -78,15 +78,15 @@ function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-surface/50 p-5 lg:flex">
-        <Link to="/" className="flex items-center gap-2">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col overflow-hidden border-r border-border bg-surface/50 p-5 lg:flex">
+        <Link to="/" className="flex shrink-0 items-center gap-2">
           <Logo className="h-9 w-9" />
           <span className="font-display text-sm font-bold tracking-widest">
             BLACK<span className="text-primary">HAT#0</span>
           </span>
         </Link>
-        <p className="mt-8 font-mono text-[10px] tracking-[0.3em] text-primary">CONSOLE</p>
-        <nav className="mt-3 flex flex-col gap-1">
+        <p className="mt-8 shrink-0 font-mono text-[10px] tracking-[0.3em] text-primary">CONSOLE</p>
+        <nav className="mt-3 -mr-2 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pr-2">
           {visibleLinks.map((l) => (
             <Link
               key={l.to}
@@ -102,7 +102,7 @@ function DashboardLayout() {
             </Link>
           ))}
         </nav>
-        <div className="mt-auto space-y-3 border-t border-border pt-4">
+        <div className="mt-4 shrink-0 space-y-3 border-t border-border pt-4">
           <p className="font-mono text-[10px] break-all text-muted-foreground">
             {data.profile?.email}
           </p>
