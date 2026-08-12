@@ -1117,3 +1117,28 @@ export const resendLeadInvite = createServerFn({ method: "POST" })
     return { ok: true, email: team.leader_email, tempPassword, emailed };
 
   });
+
+export const uploadSponsorLogo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ base64: z.string().min(10), type: z.string(), name: z.string().max(120) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["admin"]);
+    if (!/^image\/(png|jpe?g|webp|svg\+xml)$/.test(data.type))
+      throw new Error("Logo must be a PNG, JPG, WEBP or SVG image.");
+    const raw = data.base64.split(",").pop() ?? "";
+    const bytes = Buffer.from(raw, "base64");
+    if (bytes.length > 3 * 1024 * 1024) throw new Error("Logo must be under 3 MB.");
+    const ext = data.type.split("/")[1]!.replace("jpeg", "jpg").replace("svg+xml", "svg");
+    const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "logo";
+    const path = `${slug}-${Date.now()}.${ext}`;
+    const { admin } = await import("./db.server");
+    const db = await admin();
+    const up = await db.storage
+      .from("sponsor-logos")
+      .upload(path, bytes, { contentType: data.type, upsert: false });
+    if (up.error) throw new Error("Logo upload failed. Try again.");
+    return { url: `/api/public/sponsor-logo?p=${encodeURIComponent(path)}` };
+  });
