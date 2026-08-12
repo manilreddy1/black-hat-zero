@@ -174,6 +174,9 @@ function PaymentPage() {
               Payment verified
             </p>
             <p className="mt-2 text-sm text-muted-foreground">Your slot is locked. See you at the event.</p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <WhatsAppLink url={data.settings?.whatsapp_group_url} />
+            </div>
           </div>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
