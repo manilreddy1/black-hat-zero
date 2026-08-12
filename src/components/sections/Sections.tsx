@@ -230,7 +230,7 @@ function SponsorCard({ s }: { s: SiteContent["sponsors"][number] }) {
       href={s.website ?? "#"}
       target={s.website ? "_blank" : undefined}
       rel="noreferrer"
-      className="panel clip-notch flex h-28 w-52 shrink-0 items-center justify-center p-4 transition-colors hover:border-primary/60"
+      className="panel clip-notch group/card flex h-32 w-56 shrink-0 flex-col items-center justify-center gap-2 p-4 transition-colors hover:border-primary/60"
       aria-label={s.name}
     >
       {s.logo_url ? (
@@ -238,44 +238,66 @@ function SponsorCard({ s }: { s: SiteContent["sponsors"][number] }) {
           src={s.logo_url}
           alt={`${s.name} logo`}
           loading="lazy"
-          className="max-h-16 max-w-full object-contain"
+          className="max-h-14 max-w-full object-contain opacity-80 grayscale transition duration-300 group-hover/card:opacity-100 group-hover/card:grayscale-0"
         />
       ) : (
         <span className="font-display text-lg font-bold tracking-widest">{s.name}</span>
       )}
+      <span className="line-clamp-1 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+        {s.name}
+      </span>
     </a>
+  );
+}
+
+function SponsorTrack({ list }: { list: SiteContent["sponsors"] }) {
+  // Repeat until the strip is comfortably wider than any viewport, then render
+  // it twice so the -50% keyframe loops without a visible seam.
+  const reps = Math.max(1, Math.ceil(8 / Math.max(list.length, 1)));
+  const half = Array.from({ length: reps }, () => list).flat();
+  return (
+    <div className="group relative mt-3 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
+      <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
+        {[0, 1].map((copy) => (
+          <div key={copy} className="flex shrink-0 gap-4 pr-4" aria-hidden={copy === 1}>
+            {half.map((s, i) => (
+              <SponsorCard key={`${copy}-${s.id}-${i}`} s={s} />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
 export function SponsorsSection({ sponsors }: { sponsors: SiteContent["sponsors"] }) {
   const t = useT();
   const tiers = [...new Set(sponsors.map((s) => s.tier))];
+  if (sponsors.length === 0) return null;
   return (
     <SectionShell
       id="sponsors"
       eyebrow={t("sponsors.eyebrow", "// 07 — BACKED BY")}
       title={t("sponsors.title", "Sponsors & partners")}
+      subtitle={t("sponsors.subtitle") || undefined}
     >
       <div className="space-y-8">
-        {tiers.map((tier) => {
-          const list = sponsors.filter((s) => s.tier === tier);
-          return (
-            <div key={tier}>
-              <p className="font-mono text-[11px] tracking-[0.3em] text-primary">{tier}</p>
-              <div className="group relative mt-3 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
-                <div className="flex w-max gap-4 animate-marquee group-hover:[animation-play-state:paused]">
-                  {[...list, ...list].map((s, i) => (
-                    <SponsorCard key={`${s.id}-${i}`} s={s} />
-                  ))}
-                </div>
-              </div>
+        {tiers.map((tier) => (
+          <div key={tier}>
+            <div className="flex items-center gap-3">
+              <p className="font-mono text-[11px] tracking-[0.3em] text-primary whitespace-nowrap">
+                {tier}
+              </p>
+              <span className="h-px flex-1 bg-border" />
             </div>
-          );
-        })}
+            <SponsorTrack list={sponsors.filter((s) => s.tier === tier)} />
+          </div>
+        ))}
       </div>
     </SectionShell>
   );
 }
+
 
 export function FaqSection({ faqs }: { faqs: SiteContent["faqs"] }) {
   const t = useT();
