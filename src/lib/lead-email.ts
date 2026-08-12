@@ -67,11 +67,21 @@ export function leadPasswordEmailHtml(fullName: string, temp: string, teamName?:
         </td></tr>
 
         <tr><td style="padding:24px 28px 0 28px;">
-          <a href="${SITE}/team" style="display:inline-block;background-color:${RED};color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 30px;border-radius:2px;">Open team portal</a>
+          <table role="presentation" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding-right:10px;">
+                <a href="${SITE}/team" style="display:inline-block;background-color:${RED};color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 30px;border-radius:2px;">Open team portal</a>
+              </td>
+              <td>
+                <a href="https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz" style="display:inline-block;background-color:#25D366;color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 26px;border-radius:2px;">Join WhatsApp group</a>
+              </td>
+            </tr>
+          </table>
         </td></tr>
 
         <tr><td style="padding:18px 28px 0 28px;">
           <p style="margin:0;font-family:${SANS};font-size:13px;line-height:1.65;color:${MUTED};">For your security, you will be asked to set a new password immediately after your first sign-in. Keep this password private and do not share it with anyone.</p>
+          <p style="margin:10px 0 0 0;font-family:${SANS};font-size:12px;line-height:1.65;color:${MUTED};">If the portal button does not open, copy and paste this exact link into your browser: <span style="color:${TEXT};font-family:${MONO};font-size:11px;">${SITE}/team</span></p>
         </td></tr>
 
         <tr><td style="padding:24px 28px 28px 28px;">
@@ -97,8 +107,11 @@ Sign-in email: your registered email address
 Temporary password: ${temp}
 
 Open the team portal: ${SITE}/team
+Join the WhatsApp group: https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz
 
 For your security, you will be asked to set a new password immediately after your first sign-in. Please keep this password private.
+
+If the portal link does not open, copy and paste this exact link into your browser: ${SITE}/team
 
 You are receiving this email because your team registered for ${EVENT_NAME}. This is an automated message - please do not reply.`;
 }
