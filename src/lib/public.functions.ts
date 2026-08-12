@@ -89,6 +89,16 @@ export const createRegistration = createServerFn({ method: "POST" })
       .maybeSingle();
     if (dupe) throw new Error("A team is already registered with this leader email.");
 
+    // Team names must be unique (case-insensitive).
+    const { data: nameDupe } = await db
+      .from("teams")
+      .select("id")
+      .ilike("team_name", data.team_name.trim())
+      .limit(1)
+      .maybeSingle();
+    if (nameDupe)
+      throw new Error("That team name is already taken. Please choose a different team name.");
+
     // Server is the only source of truth for pricing.
     const fee = settings.registration_fee;
     const expected = fee * data.team_size;
@@ -116,7 +126,11 @@ export const createRegistration = createServerFn({ method: "POST" })
       })
       .select("id, team_code")
       .single();
-    if (teamErr || !team) throw new Error("Could not create the team record.");
+    if (teamErr || !team) {
+      if ((teamErr as { code?: string } | null)?.code === "23505")
+        throw new Error("That team name is already taken. Please choose a different team name.");
+      throw new Error("Could not create the team record.");
+    }
 
     await db.from("team_members").insert(
       data.members.map((m, i) => ({
