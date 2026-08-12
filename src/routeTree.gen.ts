@@ -37,6 +37,7 @@ import { Route as AuthenticatedCKMessagesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCKRegistrationsRouteImport } from './routes/_authenticated/c.$k.registrations'
 import { Route as AuthenticatedCKSettingsRouteImport } from './routes/_authenticated/c.$k.settings'
 import { Route as AuthenticatedCKTextsRouteImport } from './routes/_authenticated/c.$k.texts'
+import { Route as AuthenticatedCKThemesRouteImport } from './routes/_authenticated/c.$k.themes'
 import { Route as AuthenticatedCKUsersRouteImport } from './routes/_authenticated/c.$k.users'
 
 const IndexRoute = IndexRouteImport.update({
@@ -180,6 +181,11 @@ const AuthenticatedCKTextsRoute = AuthenticatedCKTextsRouteImport.update({
   path: '/texts',
   getParentRoute: () => AuthenticatedCKRoute,
 } as any)
+const AuthenticatedCKThemesRoute = AuthenticatedCKThemesRouteImport.update({
+  id: '/themes',
+  path: '/themes',
+  getParentRoute: () => AuthenticatedCKRoute,
+} as any)
 const AuthenticatedCKUsersRoute = AuthenticatedCKUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -213,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
   '/c/$k/settings': typeof AuthenticatedCKSettingsRoute
   '/c/$k/texts': typeof AuthenticatedCKTextsRoute
+  '/c/$k/themes': typeof AuthenticatedCKThemesRoute
   '/c/$k/users': typeof AuthenticatedCKUsersRoute
   '/c/$k/': typeof AuthenticatedCKIndexRoute
 }
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
   '/c/$k/settings': typeof AuthenticatedCKSettingsRoute
   '/c/$k/texts': typeof AuthenticatedCKTextsRoute
+  '/c/$k/themes': typeof AuthenticatedCKThemesRoute
   '/c/$k/users': typeof AuthenticatedCKUsersRoute
   '/c/$k': typeof AuthenticatedCKIndexRoute
 }
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/_authenticated/c/$k/registrations': typeof AuthenticatedCKRegistrationsRoute
   '/_authenticated/c/$k/settings': typeof AuthenticatedCKSettingsRoute
   '/_authenticated/c/$k/texts': typeof AuthenticatedCKTextsRoute
+  '/_authenticated/c/$k/themes': typeof AuthenticatedCKThemesRoute
   '/_authenticated/c/$k/users': typeof AuthenticatedCKUsersRoute
   '/_authenticated/c/$k/': typeof AuthenticatedCKIndexRoute
 }
@@ -306,6 +315,7 @@ export interface FileRouteTypes {
     | '/c/$k/registrations'
     | '/c/$k/settings'
     | '/c/$k/texts'
+    | '/c/$k/themes'
     | '/c/$k/users'
     | '/c/$k/'
   fileRoutesByTo: FileRoutesByTo
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/c/$k/registrations'
     | '/c/$k/settings'
     | '/c/$k/texts'
+    | '/c/$k/themes'
     | '/c/$k/users'
     | '/c/$k'
   id:
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/_authenticated/c/$k/registrations'
     | '/_authenticated/c/$k/settings'
     | '/_authenticated/c/$k/texts'
+    | '/_authenticated/c/$k/themes'
     | '/_authenticated/c/$k/users'
     | '/_authenticated/c/$k/'
   fileRoutesById: FileRoutesById
@@ -589,6 +601,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCKTextsRouteImport
       parentRoute: typeof AuthenticatedCKRoute
     }
+    '/_authenticated/c/$k/themes': {
+      id: '/_authenticated/c/$k/themes'
+      path: '/themes'
+      fullPath: '/c/$k/themes'
+      preLoaderRoute: typeof AuthenticatedCKThemesRouteImport
+      parentRoute: typeof AuthenticatedCKRoute
+    }
     '/_authenticated/c/$k/users': {
       id: '/_authenticated/c/$k/users'
       path: '/users'
@@ -608,6 +627,7 @@ interface AuthenticatedCKRouteChildren {
   AuthenticatedCKRegistrationsRoute: typeof AuthenticatedCKRegistrationsRoute
   AuthenticatedCKSettingsRoute: typeof AuthenticatedCKSettingsRoute
   AuthenticatedCKTextsRoute: typeof AuthenticatedCKTextsRoute
+  AuthenticatedCKThemesRoute: typeof AuthenticatedCKThemesRoute
   AuthenticatedCKUsersRoute: typeof AuthenticatedCKUsersRoute
   AuthenticatedCKIndexRoute: typeof AuthenticatedCKIndexRoute
 }
@@ -621,6 +641,7 @@ const AuthenticatedCKRouteChildren: AuthenticatedCKRouteChildren = {
   AuthenticatedCKRegistrationsRoute: AuthenticatedCKRegistrationsRoute,
   AuthenticatedCKSettingsRoute: AuthenticatedCKSettingsRoute,
   AuthenticatedCKTextsRoute: AuthenticatedCKTextsRoute,
+  AuthenticatedCKThemesRoute: AuthenticatedCKThemesRoute,
   AuthenticatedCKUsersRoute: AuthenticatedCKUsersRoute,
   AuthenticatedCKIndexRoute: AuthenticatedCKIndexRoute,
 }
@@ -663,3 +684,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
