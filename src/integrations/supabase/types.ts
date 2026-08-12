@@ -191,6 +191,7 @@ export type Database = {
           icon: string | null
           id: string
           is_published: boolean
+          problem_statement: string | null
           sort_order: number
           title: string
         }
@@ -200,6 +201,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_published?: boolean
+          problem_statement?: string | null
           sort_order?: number
           title: string
         }
@@ -209,6 +211,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_published?: boolean
+          problem_statement?: string | null
           sort_order?: number
           title?: string
         }
@@ -314,6 +317,7 @@ export type Database = {
           start_at: string
           start_time: string
           tagline: string
+          themes_revealed: boolean
           updated_at: string
           upi_id: string
           upi_payee_name: string
@@ -350,6 +354,7 @@ export type Database = {
           start_at?: string
           start_time?: string
           tagline?: string
+          themes_revealed?: boolean
           updated_at?: string
           upi_id?: string
           upi_payee_name?: string
@@ -386,6 +391,7 @@ export type Database = {
           start_at?: string
           start_time?: string
           tagline?: string
+          themes_revealed?: boolean
           updated_at?: string
           upi_id?: string
           upi_payee_name?: string

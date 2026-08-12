@@ -64,6 +64,32 @@ export const getMyTeam = createServerFn({ method: "GET" })
     const { makeToken } = await import("./tokens.server");
     const tokenByMember = new Map((tokens ?? []).map((t) => [t.member_id, t]));
 
+    // Themes + problem statements stay sealed until staff flip the reveal
+    // switch in event settings; before that leads only see "not released yet".
+    const { data: settings } = await db
+      .from("event_settings")
+      .select("themes_revealed")
+      .limit(1)
+      .maybeSingle();
+    const themesRevealed = Boolean(
+      (settings as { themes_revealed?: boolean } | null)?.themes_revealed,
+    );
+    let themes: { id: string; title: string; description: string | null; problem_statement: string | null }[] = [];
+    if (themesRevealed && confirmed) {
+      const { data: rows } = await db
+        .from("challenges")
+        .select("id, title, description, problem_statement, sort_order, is_published")
+        .eq("is_published", true)
+        .order("sort_order");
+      themes = (rows ?? []).map((r) => ({
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        problem_statement: (r as { problem_statement?: string | null }).problem_statement ?? null,
+      }));
+    }
+
+
     return {
       team: {
         team_code: team.team_code,
@@ -81,6 +107,8 @@ export const getMyTeam = createServerFn({ method: "GET" })
         submitted_at: reg.submitted_at,
       },
       payment,
+      themes_revealed: themesRevealed && confirmed,
+      themes,
       attendance: att ? { marked_at: att.marked_at } : null,
       attendance_qr: confirmed ? await makeToken("A", reg.id) : null,
       members: await Promise.all(

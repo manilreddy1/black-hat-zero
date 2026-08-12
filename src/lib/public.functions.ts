@@ -13,7 +13,13 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(async ()
       sb.from("rules").select("*").order("sort_order"),
       sb.from("faqs").select("*").order("sort_order"),
       sb.from("sponsors").select("*").order("sort_order"),
-      sb.from("challenges").select("*").order("sort_order"),
+      // Never expose problem_statement publicly — it is revealed only in the
+      // team-lead portal once staff flip `themes_revealed`.
+      sb
+        .from("challenges")
+        .select("id,title,description,icon,sort_order,is_published,created_at")
+        .order("sort_order"),
+
       sb.from("announcements").select("*").order("created_at", { ascending: false }).limit(5),
       sb.from("site_texts").select("key,value"),
       sb.from("page_sections").select("*").order("sort_order"),
