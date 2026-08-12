@@ -55,29 +55,40 @@ export async function issueLeadPassword(email: string, fullName: string) {
 }
 
 /**
- * Emails the temporary password to the lead. Requires a configured sender
- * domain; when none is set up the send fails and staff hand the password over
- * manually (it is returned to the console).
+ * Emails the temporary password to the lead through Lovable's managed email
+ * API. Failures are logged and reported back so staff can fall back to
+ * handing the password over manually.
  */
 export async function sendLeadPasswordEmail(email: string, fullName: string, temp: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   // Verified sender subdomain for this project (not a secret).
-  const senderDomain = process.env["LOVABLE_EMAIL_SENDER_DOMAIN"] ?? "notify.blackhatzeronrcm.linkpc.net";
-  if (!apiKey || !senderDomain) return false;
-
+  const senderDomain =
+    process.env["LOVABLE_EMAIL_SENDER_DOMAIN"] ?? "notify.blackhatzeronrcm.linkpc.net";
+  if (!apiKey || !senderDomain) {
+    console.error("[lead-email] missing LOVABLE_API_KEY or sender domain");
+    return false;
+  }
 
   const { leadPasswordEmailHtml } = await import("./lead-email");
+  const { sendLovableEmail } = await import("@lovable.dev/email-js");
 
-  const res = await fetch("https://email.lovable.dev/v1/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      sender_domain: senderDomain,
-      from: `BLACK HAT ZERO <noreply@${senderDomain}>`,
-      to: email,
-      subject: "Your BLACK HAT ZERO '26 team portal password",
-      html: leadPasswordEmailHtml(fullName, temp),
-    }),
-  });
-  return res.ok;
+  try {
+    const res = await sendLovableEmail(
+      {
+        to: email,
+        from: `BLACK HAT ZERO <noreply@${senderDomain}>`,
+        sender_domain: senderDomain,
+        subject: "Your BLACK HAT ZERO '26 team portal password",
+        html: leadPasswordEmailHtml(fullName, temp),
+        text: `Hi ${fullName},\n\nYour BLACK HAT ZERO '26 team portal password: ${temp}\n\nSign in at the Team Login page and set your own password immediately.`,
+      },
+      { apiKey },
+    );
+    if (!res.success) console.error("[lead-email] send not accepted", res.status);
+    return res.success !== false;
+  } catch (err) {
+    console.error("[lead-email] send failed", err);
+    return false;
+  }
 }
+

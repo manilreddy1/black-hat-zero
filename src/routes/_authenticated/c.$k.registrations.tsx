@@ -643,7 +643,7 @@ function RegistrationsPage() {
                         <p className="mt-2 font-mono text-[10px] text-muted-foreground">
                           {tempPass.emailed
                             ? "Emailed to the lead. They must set their own password on first sign-in."
-                            : "Email sending is not configured yet — share this password with the lead directly. They must set their own password on first sign-in."}
+                            : "The email could not be delivered — share this password with the lead directly. They must set their own password on first sign-in."}
                         </p>
                       </div>
                     )}
