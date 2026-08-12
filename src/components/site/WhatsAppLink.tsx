@@ -2,7 +2,7 @@ import { useT } from "@/hooks/useSiteContent";
 
 const WHATSAPP_GREEN = "#25D366";
 
-export function WhatsAppLink({ url }: { url?: string | null }) {
+export function WhatsAppLink({ url }: { url?: string | null | undefined }) {
   const t = useT();
   if (!url) return null;
   const label = t("whatsapp.cta", "Join WhatsApp group");
