@@ -124,13 +124,13 @@ export const requestLeadPassword = createServerFn({ method: "POST" })
       const db = await admin();
       const { data: team } = await db
         .from("teams")
-        .select("id, leader_email, leader_name, lead_user_id")
+        .select("id, team_name, leader_email, leader_name, lead_user_id")
         .ilike("leader_email", addr)
         .limit(1)
         .maybeSingle();
       if (team?.lead_user_id) {
         const { issueLeadPassword } = await import("./lead.server");
-        await issueLeadPassword(team.leader_email, team.leader_name);
+        await issueLeadPassword(team.leader_email, team.leader_name, team.team_name ?? undefined);
       }
     } catch {
       /* swallow: response must not leak account existence */

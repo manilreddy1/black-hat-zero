@@ -366,7 +366,7 @@ export const verifyPayment = createServerFn({ method: "POST" })
       if (fullReg) {
         const { data: team } = await db
           .from("teams")
-          .select("id, leader_email, leader_name, lead_user_id")
+          .select("id, team_name, leader_email, leader_name, lead_user_id")
           .eq("id", fullReg.team_id)
           .maybeSingle();
         const { data: members } = await db
@@ -381,7 +381,7 @@ export const verifyPayment = createServerFn({ method: "POST" })
         if (team && !team.lead_user_id) {
           try {
             const { issueLeadPassword } = await import("./lead.server");
-            const { userId: uid } = await issueLeadPassword(team.leader_email, team.leader_name);
+            const { userId: uid } = await issueLeadPassword(team.leader_email, team.leader_name, team.team_name ?? undefined);
             if (uid) await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
           } catch {
             /* never block verification on email/account provisioning */
@@ -1089,7 +1089,7 @@ export const resendLeadInvite = createServerFn({ method: "POST" })
       throw new Error("Only confirmed teams have portal access.");
     const { data: team } = await db
       .from("teams")
-      .select("id, leader_email, leader_name, lead_user_id")
+      .select("id, team_name, leader_email, leader_name, lead_user_id")
       .eq("id", reg.team_id)
       .maybeSingle();
     if (!team) throw new Error("Team not found.");
@@ -1097,6 +1097,7 @@ export const resendLeadInvite = createServerFn({ method: "POST" })
     const { userId: uid, tempPassword, emailed } = await issueLeadPassword(
       team.leader_email,
       team.leader_name,
+      team.team_name ?? undefined,
     );
     if (uid && !team.lead_user_id)
       await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
