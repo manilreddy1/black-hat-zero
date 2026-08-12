@@ -101,6 +101,9 @@ function TeamPortal() {
               <span>· {d.registration.team_size} members</span>
               <StatusBadge status={d.registration.status} />
             </div>
+            <div className="mt-4">
+              <WhatsAppLink url={d.whatsapp_group_url} />
+            </div>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
