@@ -1,0 +1,15 @@
+CREATE INDEX IF NOT EXISTS idx_registrations_team_id ON public.registrations (team_id);
+CREATE INDEX IF NOT EXISTS idx_registrations_status ON public.registrations (status);
+CREATE INDEX IF NOT EXISTS idx_registrations_code ON public.registrations (lower(registration_code));
+CREATE INDEX IF NOT EXISTS idx_team_members_team_id ON public.team_members (team_id);
+CREATE INDEX IF NOT EXISTS idx_payments_registration_id ON public.payments (registration_id);
+CREATE INDEX IF NOT EXISTS idx_payments_utr ON public.payments (lower(utr_number));
+CREATE INDEX IF NOT EXISTS idx_attendance_registration_id ON public.attendance (registration_id);
+CREATE INDEX IF NOT EXISTS idx_food_tokens_registration_id ON public.food_tokens (registration_id);
+CREATE INDEX IF NOT EXISTS idx_food_tokens_member_id ON public.food_tokens (member_id);
+CREATE INDEX IF NOT EXISTS idx_teams_leader_email ON public.teams (lower(leader_email));
+CREATE INDEX IF NOT EXISTS idx_teams_team_code ON public.teams (lower(team_code));
+CREATE INDEX IF NOT EXISTS idx_auth_throttle_scope_identifier ON public.auth_throttle (scope, identifier);
+CREATE INDEX IF NOT EXISTS idx_reg_status_history_registration_id ON public.registration_status_history (registration_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON public.audit_logs (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON public.user_roles (user_id);
