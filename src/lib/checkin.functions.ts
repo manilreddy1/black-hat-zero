@@ -212,3 +212,56 @@ export const getCheckinStats = createServerFn({ method: "GET" })
       total_tokens: list.length,
     };
   });
+
+/** Teams already marked present, with their food-token state. */
+export const getPresentTeams = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["coordinator", "admin"]);
+    const { admin } = await import("./db.server");
+    const db = await admin();
+
+    const { data: att } = await db
+      .from("attendance")
+      .select("registration_id, marked_at, marked_by_email")
+      .order("marked_at", { ascending: false });
+    const rows = att ?? [];
+    if (rows.length === 0) return [];
+
+    const ids = rows.map((a) => a.registration_id);
+    const [{ data: regs }, { data: toks }] = await Promise.all([
+      db
+        .from("registrations")
+        .select("id, registration_code, team_size, status, team_id")
+        .in("id", ids),
+      db.from("food_tokens").select("registration_id, released, redeemed_at").in("registration_id", ids),
+    ]);
+    const regList = regs ?? [];
+    const { data: teams } = await db
+      .from("teams")
+      .select("id, team_name, team_code, college")
+      .in("id", regList.map((r) => r.team_id));
+
+    const regById = new Map(regList.map((r) => [r.id, r]));
+    const teamById = new Map((teams ?? []).map((t) => [t.id, t]));
+
+    return rows.map((a) => {
+      const reg = regById.get(a.registration_id);
+      const team = reg ? teamById.get(reg.team_id) : undefined;
+      const mine = (toks ?? []).filter((t) => t.registration_id === a.registration_id);
+      return {
+        registration_id: a.registration_id,
+        marked_at: a.marked_at as string,
+        marked_by: a.marked_by_email as string | null,
+        registration_code: reg?.registration_code ?? "",
+        team_name: team?.team_name ?? "",
+        team_code: team?.team_code ?? "",
+        college: team?.college ?? "",
+        team_size: reg?.team_size ?? 0,
+        tokens_total: mine.length,
+        tokens_released: mine.filter((t) => t.released).length,
+        tokens_redeemed: mine.filter((t) => t.redeemed_at).length,
+      };
+    });
+  });

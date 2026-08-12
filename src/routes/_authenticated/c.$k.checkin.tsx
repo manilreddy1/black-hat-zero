@@ -6,10 +6,12 @@ import { QrScanner } from "@/components/staff/QrScanner";
 import { toast } from "sonner";
 import {
   getCheckinStats,
+  getPresentTeams,
   markAttendance,
   redeemFoodToken,
   resolveScan,
 } from "@/lib/checkin.functions";
+import { releaseFoodTokens } from "@/lib/staff.functions";
 import { foodLabel } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_authenticated/c/$k/checkin")({
@@ -32,6 +34,8 @@ function CheckinPage() {
   const attendFn = useServerFn(markAttendance);
   const foodFn = useServerFn(redeemFoodToken);
   const statsFn = useServerFn(getCheckinStats);
+  const presentFn = useServerFn(getPresentTeams);
+  const releaseFn = useServerFn(releaseFoodTokens);
   const qc = useQueryClient();
 
   const [code, setCode] = useState("");
@@ -40,6 +44,18 @@ function CheckinPage() {
   const resultRef = useRef<HTMLDivElement | null>(null);
 
   const stats = useQuery({ queryKey: ["checkin-stats"], queryFn: () => statsFn() });
+  const present = useQuery({ queryKey: ["present-teams"], queryFn: () => presentFn() });
+
+  const release = useMutation({
+    mutationFn: (v: { registration_id: string; release: boolean }) =>
+      releaseFn({ data: { registration_id: v.registration_id, release: v.release } }),
+    onSuccess: (_r, v) => {
+      toast.success(v.release ? "Food tokens sent." : "Food tokens withdrawn.");
+      qc.invalidateQueries({ queryKey: ["present-teams"] });
+      qc.invalidateQueries({ queryKey: ["checkin-stats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const lookup = useMutation({
     mutationFn: (value: string) => resolveFn({ data: { code: value } }),
@@ -78,6 +94,7 @@ function CheckinPage() {
           }.`,
         );
       qc.invalidateQueries({ queryKey: ["checkin-stats"] });
+      qc.invalidateQueries({ queryKey: ["present-teams"] });
       lookup.mutate(code);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -203,6 +220,76 @@ function CheckinPage() {
           )}
         </div>
       )}
+    
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="font-mono text-[11px] tracking-[0.3em] text-primary">// PRESENT TEAMS</p>
+            <h2 className="mt-1 font-display text-xl font-bold tracking-widest uppercase">
+              Marked present ({present.data?.length ?? 0})
+            </h2>
+          </div>
+        </div>
+
+        {present.isLoading ? (
+          <p className="font-mono text-xs text-muted-foreground">LOADING...</p>
+        ) : (present.data?.length ?? 0) === 0 ? (
+          <div className="panel p-5">
+            <p className="font-mono text-xs text-muted-foreground">
+              No team has been marked present yet.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {present.data!.map((t) => {
+              const all = t.tokens_total > 0 && t.tokens_released === t.tokens_total;
+              return (
+                <div key={t.registration_id} className="panel clip-notch space-y-3 p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="font-display text-base font-bold tracking-widest uppercase">
+                        {t.team_name}
+                      </p>
+                      <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                        {t.registration_code} · {t.team_code} · {t.team_size} members
+                      </p>
+                    </div>
+                    <p className="font-mono text-[10px] tracking-[0.2em] text-primary uppercase">
+                      Present · {new Date(t.marked_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <p className="font-mono text-[11px] text-muted-foreground">
+                    FOOD TOKENS · {t.tokens_released}/{t.tokens_total || t.team_size} released ·{" "}
+                    {t.tokens_redeemed} redeemed
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      disabled={release.isPending || all}
+                      onClick={() =>
+                        release.mutate({ registration_id: t.registration_id, release: true })
+                      }
+                      className="clip-notch bg-primary px-4 py-2 font-mono text-[10px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-50"
+                    >
+                      {all ? "[ Tokens sent ]" : "[ Send food tokens ]"}
+                    </button>
+                    {t.tokens_released > 0 && (
+                      <button
+                        disabled={release.isPending}
+                        onClick={() =>
+                          release.mutate({ registration_id: t.registration_id, release: false })
+                        }
+                        className="clip-notch border border-border px-4 py-2 font-mono text-[10px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary disabled:opacity-50"
+                      >
+                        [ Withdraw ]
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
