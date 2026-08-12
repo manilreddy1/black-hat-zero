@@ -1,0 +1,2 @@
+alter table public.event_settings add column if not exists whatsapp_group_url text;
+comment on column public.event_settings.whatsapp_group_url is 'Public WhatsApp community/group link shown after payment and in the team portal.';
