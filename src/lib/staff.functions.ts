@@ -1011,7 +1011,13 @@ export const releaseFoodTokens = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { requireRole } = await import("./staff.server");
-    const role = await requireRole(context.supabase, context.userId, ["admin"]);
+    // Bulk release stays admin-only; per-team release is also open to coordinators
+    // running the check-in desk.
+    const role = await requireRole(
+      context.supabase,
+      context.userId,
+      data.all ? ["admin"] : ["coordinator", "admin"],
+    );
     const { admin, writeAudit } = await import("./db.server");
     const db = await admin();
 
