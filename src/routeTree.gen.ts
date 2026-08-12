@@ -28,6 +28,7 @@ import { Route as TeamIndexRouteImport } from './routes/team.index'
 import { Route as TeamPortalRouteImport } from './routes/team.portal'
 import { Route as TeamSetPasswordRouteImport } from './routes/team.set-password'
 import { Route as AuthenticatedCKRouteImport } from './routes/_authenticated/c.$k'
+import { Route as ApiPublicSponsorLogoRouteImport } from './routes/api/public/sponsor-logo'
 import { Route as AuthenticatedCKIndexRouteImport } from './routes/_authenticated/c.$k.index'
 import { Route as AuthenticatedCKCertificatesRouteImport } from './routes/_authenticated/c.$k.certificates'
 import { Route as AuthenticatedCKCheckinRouteImport } from './routes/_authenticated/c.$k.checkin'
@@ -136,6 +137,11 @@ const AuthenticatedCKRoute = AuthenticatedCKRouteImport.update({
   path: '/c/$k',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicSponsorLogoRoute = ApiPublicSponsorLogoRouteImport.update({
+  id: '/api/public/sponsor-logo',
+  path: '/api/public/sponsor-logo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCKIndexRoute = AuthenticatedCKIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/team/set-password': typeof TeamSetPasswordRoute
   '/team/': typeof TeamIndexRoute
   '/c/$k': typeof AuthenticatedCKRouteWithChildren
+  '/api/public/sponsor-logo': typeof ApiPublicSponsorLogoRoute
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
@@ -255,6 +262,7 @@ export interface FileRoutesByTo {
   '/team/portal': typeof TeamPortalRoute
   '/team/set-password': typeof TeamSetPasswordRoute
   '/team': typeof TeamIndexRoute
+  '/api/public/sponsor-logo': typeof ApiPublicSponsorLogoRoute
   '/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/c/$k/content': typeof AuthenticatedCKContentRoute
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/team/set-password': typeof TeamSetPasswordRoute
   '/team/': typeof TeamIndexRoute
   '/_authenticated/c/$k': typeof AuthenticatedCKRouteWithChildren
+  '/api/public/sponsor-logo': typeof ApiPublicSponsorLogoRoute
   '/_authenticated/c/$k/certificates': typeof AuthenticatedCKCertificatesRoute
   '/_authenticated/c/$k/checkin': typeof AuthenticatedCKCheckinRoute
   '/_authenticated/c/$k/content': typeof AuthenticatedCKContentRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/team/set-password'
     | '/team/'
     | '/c/$k'
+    | '/api/public/sponsor-logo'
     | '/c/$k/certificates'
     | '/c/$k/checkin'
     | '/c/$k/content'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
     | '/team/portal'
     | '/team/set-password'
     | '/team'
+    | '/api/public/sponsor-logo'
     | '/c/$k/certificates'
     | '/c/$k/checkin'
     | '/c/$k/content'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/team/set-password'
     | '/team/'
     | '/_authenticated/c/$k'
+    | '/api/public/sponsor-logo'
     | '/_authenticated/c/$k/certificates'
     | '/_authenticated/c/$k/checkin'
     | '/_authenticated/c/$k/content'
@@ -425,6 +437,7 @@ export interface RootRouteChildren {
   TeamPortalRoute: typeof TeamPortalRoute
   TeamSetPasswordRoute: typeof TeamSetPasswordRoute
   TeamIndexRoute: typeof TeamIndexRoute
+  ApiPublicSponsorLogoRoute: typeof ApiPublicSponsorLogoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -561,6 +574,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/c/$k'
       preLoaderRoute: typeof AuthenticatedCKRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/sponsor-logo': {
+      id: '/api/public/sponsor-logo'
+      path: '/api/public/sponsor-logo'
+      fullPath: '/api/public/sponsor-logo'
+      preLoaderRoute: typeof ApiPublicSponsorLogoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/c/$k/': {
       id: '/_authenticated/c/$k/'
@@ -722,6 +742,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamPortalRoute: TeamPortalRoute,
   TeamSetPasswordRoute: TeamSetPasswordRoute,
   TeamIndexRoute: TeamIndexRoute,
+  ApiPublicSponsorLogoRoute: ApiPublicSponsorLogoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
