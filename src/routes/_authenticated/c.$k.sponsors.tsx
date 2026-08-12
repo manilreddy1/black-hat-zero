@@ -3,7 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { deleteContentRow, listContentRows, saveContentRow } from "@/lib/staff.functions";
+import {
+  deleteContentRow,
+  listContentRows,
+  saveContentRow,
+  uploadSponsorLogo,
+} from "@/lib/staff.functions";
 
 export const Route = createFileRoute("/_authenticated/c/$k/sponsors")({
   component: SponsorsPage,
@@ -30,6 +35,8 @@ const blank = (order: number): Row => ({
 
 function SponsorsPage() {
   const [editing, setEditing] = useState<Row | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const upload = useServerFn(uploadSponsorLogo);
   const list = useServerFn(listContentRows);
   const save = useServerFn(saveContentRow);
   const remove = useServerFn(deleteContentRow);
@@ -126,13 +133,61 @@ function SponsorsPage() {
               />
             </label>
             <label className="space-y-1 sm:col-span-2">
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase">Logo URL</span>
+              <span className="font-mono text-[10px] tracking-[0.2em] uppercase">
+                Logo — upload a file or paste a URL
+              </span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                disabled={uploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (!file) return;
+                  if (file.size > 3 * 1024 * 1024) {
+                    toast.error("Logo must be under 3 MB.");
+                    return;
+                  }
+                  setUploading(true);
+                  const reader = new FileReader();
+                  reader.onload = async () => {
+                    try {
+                      const res = await upload({
+                        data: {
+                          base64: String(reader.result),
+                          type: file.type,
+                          name: editing?.name || file.name.replace(/\.[^.]+$/, ""),
+                        },
+                      });
+                      setEditing((prev) => (prev ? { ...prev, logo_url: res.url } : prev));
+                      toast.success("Logo uploaded.");
+                    } catch (err) {
+                      toast.error((err as Error).message || "Upload failed.");
+                    } finally {
+                      setUploading(false);
+                    }
+                  };
+                  reader.onerror = () => {
+                    setUploading(false);
+                    toast.error("Could not read that file.");
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                className="w-full border border-input bg-surface px-3 py-2 font-mono text-xs file:mr-3 file:border-0 file:bg-primary file:px-3 file:py-1 file:font-mono file:text-[10px] file:tracking-[0.2em] file:text-primary-foreground file:uppercase disabled:opacity-50"
+              />
               <input
                 className={input}
+                placeholder="https://…"
                 value={editing.logo_url}
                 onChange={(e) => setEditing({ ...editing, logo_url: e.target.value })}
               />
+              {uploading && (
+                <span className="font-mono text-[10px] tracking-[0.2em] text-primary uppercase">
+                  Uploading…
+                </span>
+              )}
             </label>
+
             <label className="space-y-1">
               <span className="font-mono text-[10px] tracking-[0.2em] uppercase">Website</span>
               <input
