@@ -107,8 +107,11 @@ Sign-in email: your registered email address
 Temporary password: ${temp}
 
 Open the team portal: ${SITE}/team
+Join the WhatsApp group: https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz
 
 For your security, you will be asked to set a new password immediately after your first sign-in. Please keep this password private.
+
+If the portal link does not open, copy and paste this exact link into your browser: ${SITE}/team
 
 You are receiving this email because your team registered for ${EVENT_NAME}. This is an automated message - please do not reply.`;
 }
