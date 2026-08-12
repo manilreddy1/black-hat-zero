@@ -638,7 +638,7 @@ function RegistrationsPage() {
                       <div
                         className={`mt-3 border p-3 ${
                           tempPass.emailed
-                            ? "border-success/50 bg-success/10"
+                            ? "border-primary/50 bg-primary/10"
                             : "border-destructive/50 bg-destructive/10"
                         }`}
                       >
