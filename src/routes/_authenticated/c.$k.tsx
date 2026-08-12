@@ -52,6 +52,7 @@ const LINKS = [
   { to: "/c/$k/messages", label: "Messages", roles: ["admin", "coordinator"] },
 
   { to: "/c/$k/themes", label: "Themes", roles: ["admin"] },
+  { to: "/c/$k/sponsors", label: "Sponsors", roles: ["admin"] },
   { to: "/c/$k/content", label: "Content", roles: ["admin"] },
   { to: "/c/$k/certificates", label: "Certificates", roles: ["admin"] },
   { to: "/c/$k/texts", label: "Website Text", roles: ["admin"] },
