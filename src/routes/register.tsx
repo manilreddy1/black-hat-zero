@@ -365,7 +365,7 @@ function RegisterPage() {
         },
       }),
     onSuccess: (res) => {
-      toast.success(`Registration ${res.registration_code} created.`);
+      toast.success(`Registration ${res.registration_code} created · Team ${res.team_code}`);
       navigate({ to: "/payment/$id", params: { id: res.registration_id } });
     },
     onError: (e: Error) => toast.error(e.message || "Registration failed."),
