@@ -12,6 +12,7 @@ import {
 import { SectionShell } from "@/components/site/SectionShell";
 import { Reveal } from "@/components/site/GlitchText";
 import { TerminalPanel } from "@/components/site/TerminalPanel";
+import { WhatsAppLink } from "@/components/site/WhatsAppLink";
 import { submitContactMessage } from "@/lib/public.functions";
 import { formatMoney } from "@/lib/constants";
 import { useT, type SiteContent, type EventSettings } from "@/hooks/useSiteContent";
