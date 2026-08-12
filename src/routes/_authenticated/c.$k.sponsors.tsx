@@ -3,7 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { deleteContentRow, listContentRows, saveContentRow } from "@/lib/staff.functions";
+import {
+  deleteContentRow,
+  listContentRows,
+  saveContentRow,
+  uploadSponsorLogo,
+} from "@/lib/staff.functions";
 
 export const Route = createFileRoute("/_authenticated/c/$k/sponsors")({
   component: SponsorsPage,
@@ -30,6 +35,8 @@ const blank = (order: number): Row => ({
 
 function SponsorsPage() {
   const [editing, setEditing] = useState<Row | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const upload = useServerFn(uploadSponsorLogo);
   const list = useServerFn(listContentRows);
   const save = useServerFn(saveContentRow);
   const remove = useServerFn(deleteContentRow);
