@@ -108,6 +108,7 @@ export const getMyTeam = createServerFn({ method: "GET" })
         submitted_at: reg.submitted_at,
       },
       payment,
+      whatsapp_group_url: whatsappGroupUrl,
       themes_revealed: themesRevealed && confirmed,
       themes,
       attendance: att ? { marked_at: att.marked_at } : null,
