@@ -71,6 +71,7 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
 
   const { leadPasswordEmailHtml } = await import("./lead-email");
   const { sendLovableEmail } = await import("@lovable.dev/email-js");
+  const idempotencyKey = `lead-password-${crypto.randomUUID()}`;
 
   try {
     const res = await sendLovableEmail(
@@ -82,8 +83,9 @@ export async function sendLeadPasswordEmail(email: string, fullName: string, tem
         html: leadPasswordEmailHtml(fullName, temp),
         text: `Hi ${fullName},\n\nYour BLACK HAT ZERO '26 team portal password: ${temp}\n\nSign in at the Team Login page and set your own password immediately.`,
         purpose: "transactional",
+        idempotency_key: idempotencyKey,
       },
-      { apiKey, idempotencyKey: `lead-password-${crypto.randomUUID()}` },
+      { apiKey, idempotencyKey },
     );
     if (!res.success) console.error("[lead-email] send not accepted", res.status);
     return res.success !== false;
