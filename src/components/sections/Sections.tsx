@@ -366,6 +366,14 @@ export function ContactSection({ settings }: { settings: EventSettings | null })
               {settings?.contact_phone}
             </a>
           </div>
+          {settings?.whatsapp_group_url && (
+            <div>
+              <p className="font-mono text-[11px] tracking-[0.3em] text-primary">COMMUNITY</p>
+              <div className="mt-2">
+                <WhatsAppLink url={settings.whatsapp_group_url} />
+              </div>
+            </div>
+          )}
         </div>
 
         <form
