@@ -134,21 +134,43 @@ function SettingsPage() {
           </label>
         ))}
 
-        <div className="sm:col-span-2 flex flex-wrap gap-5 border-t border-border pt-4">
-          {BOOL_FIELDS.map((k) => (
-            <label key={k} className="flex items-center gap-2 font-mono text-[11px] uppercase">
-              <input
-                type="checkbox"
-                checked={Boolean(form[k])}
-                onChange={(e) => setForm({ ...form, [k]: e.target.checked })}
-              />
-              {k === "themes_revealed"
-                ? "Show themes + problem statements in team-lead portal"
-                : k.replace(/_/g, " ")}
-
-            </label>
-          ))}
+        <div className="sm:col-span-2 grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
+          {BOOL_FIELDS.map((k) => {
+            const on = Boolean(form[k]);
+            return (
+              <button
+                key={k}
+                type="button"
+                role="switch"
+                aria-checked={on}
+                onClick={() => setForm({ ...form, [k]: !on })}
+                className={`flex items-center justify-between gap-4 border px-4 py-3 text-left font-mono text-[11px] tracking-[0.15em] uppercase transition-colors ${
+                  on
+                    ? "border-primary/70 text-foreground"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>
+                  {k === "themes_revealed"
+                    ? "Show themes + problem statements in team-lead portal"
+                    : k.replace(/_/g, " ")}
+                </span>
+                <span
+                  className={`relative h-5 w-10 shrink-0 rounded-full transition-colors ${
+                    on ? "bg-primary" : "bg-muted"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all ${
+                      on ? "left-[22px]" : "left-0.5"
+                    }`}
+                  />
+                </span>
+              </button>
+            );
+          })}
         </div>
+
 
         <div className="sm:col-span-2">
           <button

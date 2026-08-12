@@ -200,14 +200,28 @@ function ThemesPage() {
               className={`mt-2 ${input}`}
             />
           </label>
-          <label className="flex items-end gap-2 font-mono text-[11px] uppercase">
-            <input
-              type="checkbox"
-              checked={Boolean(editing["is_published"])}
-              onChange={(e) => setEditing({ ...editing, is_published: e.target.checked })}
-            />
-            Published
-          </label>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={Boolean(editing["is_published"])}
+            onClick={() => setEditing({ ...editing, is_published: !editing["is_published"] })}
+            className={`flex items-center justify-between gap-4 self-end border px-4 py-3 font-mono text-[11px] tracking-[0.15em] uppercase ${
+              editing["is_published"] ? "border-primary/70" : "border-border text-muted-foreground"
+            }`}
+          >
+            <span>Published on public site</span>
+            <span
+              className={`relative h-5 w-10 shrink-0 rounded-full transition-colors ${
+                editing["is_published"] ? "bg-primary" : "bg-muted"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all ${
+                  editing["is_published"] ? "left-[22px]" : "left-0.5"
+                }`}
+              />
+            </span>
+          </button>
           <div className="flex gap-3 sm:col-span-2">
             <button
               disabled={saveMutation.isPending}
