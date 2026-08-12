@@ -163,7 +163,8 @@ function PaymentPage() {
           Complete payment
         </h1>
         <p className="mt-3 font-mono text-xs tracking-[0.2em] text-muted-foreground">
-          {reg.registration_code} · {data.team?.team_name} · {reg.team_size} members
+          {reg.registration_code} · {data.team?.team_code} · {data.team?.team_name} ·{" "}
+          {reg.team_size} members
         </p>
 
         {approved ? (

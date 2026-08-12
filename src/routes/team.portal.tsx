@@ -95,6 +95,7 @@ function TeamPortal() {
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground">
               <span>{d.registration.registration_code}</span>
+              <span>· {d.team.team_code}</span>
               <span>· {d.team.college}</span>
               <span>· {d.registration.team_size} members</span>
               <StatusBadge status={d.registration.status} />
