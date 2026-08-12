@@ -316,7 +316,7 @@ export const getPaymentContext = createServerFn({ method: "POST" })
       .single();
     const { data: settings } = await db
       .from("event_settings")
-      .select("upi_id, upi_payee_name, payment_instructions, currency, payments_enabled")
+      .select("upi_id, upi_payee_name, payment_instructions, currency, payments_enabled, whatsapp_group_url")
       .limit(1)
       .maybeSingle();
     return { registration: reg, team, settings };

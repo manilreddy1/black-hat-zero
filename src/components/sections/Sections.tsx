@@ -12,6 +12,7 @@ import {
 import { SectionShell } from "@/components/site/SectionShell";
 import { Reveal } from "@/components/site/GlitchText";
 import { TerminalPanel } from "@/components/site/TerminalPanel";
+import { WhatsAppLink } from "@/components/site/WhatsAppLink";
 import { submitContactMessage } from "@/lib/public.functions";
 import { formatMoney } from "@/lib/constants";
 import { useT, type SiteContent, type EventSettings } from "@/hooks/useSiteContent";
@@ -365,6 +366,14 @@ export function ContactSection({ settings }: { settings: EventSettings | null })
               {settings?.contact_phone}
             </a>
           </div>
+          {settings?.whatsapp_group_url && (
+            <div>
+              <p className="font-mono text-[11px] tracking-[0.3em] text-primary">COMMUNITY</p>
+              <div className="mt-2">
+                <WhatsAppLink url={settings.whatsapp_group_url} />
+              </div>
+            </div>
+          )}
         </div>
 
         <form

@@ -21,10 +21,16 @@ const SANS = "'Trebuchet MS',Arial,Helvetica,sans-serif";
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-export function leadPasswordEmailHtml(fullName: string, temp: string, teamName?: string) {
+export function leadPasswordEmailHtml(
+  fullName: string,
+  temp: string,
+  teamName?: string,
+  whatsappUrl?: string | null,
+) {
   const name = esc(fullName || "there");
   const pass = esc(temp);
   const team = teamName ? esc(teamName) : "";
+  const wa = whatsappUrl ? esc(whatsappUrl) : "https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz";
   const teamLine = team
     ? `Your team <strong style="color:${RED};">${team}</strong> has been successfully registered for ${EVENT_NAME}.`
     : `Your team has been successfully registered for ${EVENT_NAME}.`;
@@ -73,7 +79,7 @@ export function leadPasswordEmailHtml(fullName: string, temp: string, teamName?:
                 <a href="${SITE}/team" style="display:inline-block;background-color:${RED};color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 30px;border-radius:2px;">Open team portal</a>
               </td>
               <td>
-                <a href="https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz" style="display:inline-block;background-color:#25D366;color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 26px;border-radius:2px;">Join WhatsApp group</a>
+                <a href="${wa}" style="display:inline-block;background-color:#25D366;color:#ffffff;text-decoration:none;font-family:${SANS};font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:13px 26px;border-radius:2px;">Join WhatsApp group</a>
               </td>
             </tr>
           </table>
@@ -95,8 +101,14 @@ export function leadPasswordEmailHtml(fullName: string, temp: string, teamName?:
 }
 
 
-export function leadPasswordEmailText(fullName: string, temp: string, teamName?: string) {
+export function leadPasswordEmailText(
+  fullName: string,
+  temp: string,
+  teamName?: string,
+  whatsappUrl?: string | null,
+) {
   const team = teamName ? `Your team ${teamName}` : "Your team";
+  const wa = whatsappUrl ?? "https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz";
   return `Hi ${fullName || "there"},
 
 ${team} has been successfully registered for ${EVENT_NAME}.
@@ -107,7 +119,7 @@ Sign-in email: your registered email address
 Temporary password: ${temp}
 
 Open the team portal: ${SITE}/team
-Join the WhatsApp group: https://chat.whatsapp.com/DojbYHW1iIUBClofPsiYxz
+Join the WhatsApp group: ${wa}
 
 For your security, you will be asked to set a new password immediately after your first sign-in. Please keep this password private.
 

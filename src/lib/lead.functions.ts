@@ -68,12 +68,13 @@ export const getMyTeam = createServerFn({ method: "GET" })
     // switch in event settings; before that leads only see "not released yet".
     const { data: settings } = await db
       .from("event_settings")
-      .select("themes_revealed")
+      .select("themes_revealed, whatsapp_group_url")
       .limit(1)
       .maybeSingle();
     const themesRevealed = Boolean(
       (settings as { themes_revealed?: boolean } | null)?.themes_revealed,
     );
+    const whatsappGroupUrl = (settings as { whatsapp_group_url?: string | null } | null)?.whatsapp_group_url ?? null;
     let themes: { id: string; title: string; description: string | null; problem_statement: string | null }[] = [];
     if (themesRevealed && confirmed) {
       const { data: rows } = await db
@@ -107,6 +108,7 @@ export const getMyTeam = createServerFn({ method: "GET" })
         submitted_at: reg.submitted_at,
       },
       payment,
+      whatsapp_group_url: whatsappGroupUrl,
       themes_revealed: themesRevealed && confirmed,
       themes,
       attendance: att ? { marked_at: att.marked_at } : null,

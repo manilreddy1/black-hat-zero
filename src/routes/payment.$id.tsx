@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { getPaymentContext, submitPayment } from "@/lib/public.functions";
 import { buildUpiUri, formatMoney } from "@/lib/constants";
 import { CyberBackground } from "@/components/site/CyberBackground";
+import { WhatsAppLink } from "@/components/site/WhatsAppLink";
 import { supabase } from "@/integrations/supabase/client";
 import upiLogo from "@/assets/upi-logo.png.asset.json";
 
@@ -173,6 +174,9 @@ function PaymentPage() {
               Payment verified
             </p>
             <p className="mt-2 text-sm text-muted-foreground">Your slot is locked. See you at the event.</p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <WhatsAppLink url={data.settings?.whatsapp_group_url} />
+            </div>
           </div>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -237,12 +241,15 @@ function PaymentPage() {
                     We received your transaction reference. Track your status any time with your
                     registration code.
                   </p>
-                  <Link
-                    to="/status"
-                    className="clip-notch mt-6 inline-block border border-border px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
-                  >
-                    [ Track status ]
-                  </Link>
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                    <WhatsAppLink url={data.settings?.whatsapp_group_url} />
+                    <Link
+                      to="/status"
+                      className="clip-notch inline-block border border-border px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+                    >
+                      [ Track status ]
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <form

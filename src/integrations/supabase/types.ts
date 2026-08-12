@@ -323,6 +323,7 @@ export type Database = {
           upi_payee_name: string
           venue: string
           waitlist_enabled: boolean
+          whatsapp_group_url: string | null
         }
         Insert: {
           about?: string
@@ -360,6 +361,7 @@ export type Database = {
           upi_payee_name?: string
           venue?: string
           waitlist_enabled?: boolean
+          whatsapp_group_url?: string | null
         }
         Update: {
           about?: string
@@ -397,6 +399,7 @@ export type Database = {
           upi_payee_name?: string
           venue?: string
           waitlist_enabled?: boolean
+          whatsapp_group_url?: string | null
         }
         Relationships: []
       }

@@ -25,6 +25,12 @@ export async function issueLeadPassword(email: string, fullName: string, teamNam
   const { admin } = await import("./db.server");
   const db = await admin();
 
+  const { data: settings } = await db
+    .from("event_settings")
+    .select("whatsapp_group_url")
+    .limit(1)
+    .maybeSingle();
+
   const addr = email.toLowerCase();
   const temp = generateTempPassword();
   const meta = { full_name: fullName, account_type: "team_lead", must_change_password: true };
@@ -50,7 +56,7 @@ export async function issueLeadPassword(email: string, fullName: string, teamNam
     });
   }
 
-  const emailed = await sendLeadPasswordEmail(addr, fullName, temp, teamName).catch(() => false);
+  const emailed = await sendLeadPasswordEmail(addr, fullName, temp, teamName, settings?.whatsapp_group_url).catch(() => false);
   return { userId, tempPassword: temp, emailed };
 }
 
@@ -64,6 +70,7 @@ export async function sendLeadPasswordEmail(
   fullName: string,
   temp: string,
   teamName?: string,
+  whatsappUrl?: string | null,
 ) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   // Verified sender subdomain for this project (not a secret).
@@ -87,8 +94,8 @@ export async function sendLeadPasswordEmail(
         subject: teamName
           ? `Registration confirmed: ${teamName} — ${EVENT_NAME} team portal access`
           : `Registration confirmed — ${EVENT_NAME} team portal access`,
-        html: leadPasswordEmailHtml(fullName, temp, teamName),
-        text: leadPasswordEmailText(fullName, temp, teamName),
+        html: leadPasswordEmailHtml(fullName, temp, teamName, whatsappUrl),
+        text: leadPasswordEmailText(fullName, temp, teamName, whatsappUrl),
         purpose: "transactional",
         idempotency_key: idempotencyKey,
       },

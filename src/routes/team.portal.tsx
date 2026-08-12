@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMyTeam } from "@/lib/lead.functions";
 import { foodLabel } from "@/lib/schemas";
 import { StatusBadge } from "@/components/site/StatusBadge";
+import { WhatsAppLink } from "@/components/site/WhatsAppLink";
 
 export const Route = createFileRoute("/team/portal")({
   ssr: false,
@@ -99,6 +100,9 @@ function TeamPortal() {
               <span>· {d.team.college}</span>
               <span>· {d.registration.team_size} members</span>
               <StatusBadge status={d.registration.status} />
+            </div>
+            <div className="mt-4">
+              <WhatsAppLink url={d.whatsapp_group_url} />
             </div>
           </div>
 
