@@ -107,6 +107,8 @@ export const getMyTeam = createServerFn({ method: "GET" })
         submitted_at: reg.submitted_at,
       },
       payment,
+      themes_revealed: themesRevealed && confirmed,
+      themes,
       attendance: att ? { marked_at: att.marked_at } : null,
       attendance_qr: confirmed ? await makeToken("A", reg.id) : null,
       members: await Promise.all(
