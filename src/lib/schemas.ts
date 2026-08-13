@@ -160,10 +160,11 @@ export const paymentSchema = z.object({
   registration_id: z.string().uuid(),
   utr_number: z
     .preprocess(
-      (v) => (typeof v === "string" ? clean(v).toUpperCase().replace(/[^A-Z0-9-]/g, "") : v),
-      z.string().min(6, "UTR looks too short").max(FIELD_LIMITS.utr),
+      (v) => (typeof v === "string" ? clean(v).replace(/\D/g, "").slice(0, 12) : v),
+      z.string().regex(/^\d{12}$/, "UTR must be exactly 12 digits"),
     ) as unknown as z.ZodType<string>,
   paid_on: z.preprocess(clean, z.string().min(4).max(20)) as unknown as z.ZodType<string>,
+
   paid_time: z.preprocess(clean, z.string().min(3).max(20)) as unknown as z.ZodType<string>,
   screenshot: z.object(
     { name: z.string().max(140), type: z.string().max(60), base64: z.string().max(9_000_000) },
