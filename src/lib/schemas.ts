@@ -26,8 +26,9 @@ export const cleanPhone = (v: unknown): string => {
   return "+91" + digits.slice(0, 10);
 };
 
-/** Local 10-digit part of a stored +91 number (for form inputs). */
-export const localPhone = (v: string) => cleanPhone(v).replace(/^\+91/, "");
+/** Local 10-digit part of a stored +91 number (for form inputs). Display-only: never invents digits. */
+export const localPhone = (v: string) =>
+  (typeof v === "string" ? v : "").replace(/^\+?91/, "").replace(/\D/g, "").slice(0, 10);
 
 export const FIELD_LIMITS = {
   team_name: 60,
