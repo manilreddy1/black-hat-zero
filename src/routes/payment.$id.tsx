@@ -154,6 +154,7 @@ function PaymentPage() {
   const currency = data.settings?.currency ?? "INR";
   const alreadySubmitted = done || reg.status === "PAYMENT_REVIEW";
   const approved = reg.status === "PAYMENT_APPROVED" || reg.status === "REGISTERED";
+  const rejected = reg.status === "PAYMENT_REJECTED";
 
   return (
     <div className="scanlines relative min-h-screen px-6 pt-28 pb-20">
@@ -178,7 +179,49 @@ function PaymentPage() {
               <WhatsAppLink url={data.settings?.whatsapp_group_url} />
             </div>
           </div>
+        ) : rejected ? (
+          <div className="panel clip-notch mt-8 border-destructive/50 p-8">
+            <p className="font-display text-2xl font-bold tracking-widest text-destructive uppercase">
+              Your team has been rejected
+            </p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Your payment could not be verified, so your registration was rejected.
+            </p>
+            <div className="mt-5 border-l-2 border-l-destructive bg-destructive/10 p-4">
+              <p className="font-mono text-[10px] tracking-[0.3em] text-destructive">REASON</p>
+              <p className="mt-1 text-sm">
+                {data.rejection_reason ?? "Invalid payment proof."}
+              </p>
+            </div>
+            {data.retry_requested || retryDone ? (
+              <p className="mt-6 font-mono text-xs tracking-[0.2em] text-primary">
+                REQUEST RECEIVED — THE ORGANISERS WILL REVIEW AND RE-OPEN YOUR PAYMENT IF APPROVED.
+              </p>
+            ) : (
+              <div className="mt-6">
+                <textarea
+                  rows={3}
+                  maxLength={500}
+                  value={retryNote}
+                  onChange={(e) => setRetryNote(e.target.value)}
+                  placeholder="Optional: explain what went wrong with your payment"
+                  className={field}
+                />
+                <button
+                  disabled={retry.isPending}
+                  onClick={() => retry.mutate()}
+                  className="clip-notch mt-3 bg-primary px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+                >
+                  {retry.isPending ? "SENDING..." : "[ Request another chance ]"}
+                </button>
+              </div>
+            )}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <WhatsAppLink url={data.settings?.whatsapp_group_url} />
+            </div>
+          </div>
         ) : (
+
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <div className="panel clip-notch p-6">
               <p className={labelCls}>SCAN TO PAY</p>
