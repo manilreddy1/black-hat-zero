@@ -263,17 +263,23 @@ function PaymentPage() {
                     SUBMIT TRANSACTION PROOF
                   </p>
                   <label className="block">
-                    <span className={labelCls}>UTR / TRANSACTION REFERENCE</span>
+                    <span className={labelCls}>UTR / TRANSACTION REFERENCE (12 DIGITS)</span>
                     <input
                       required
-                      minLength={6}
-                      maxLength={40}
+                      minLength={12}
+                      maxLength={12}
+                      inputMode="numeric"
+                      pattern="\d{12}"
                       value={utr}
-                      onChange={(e) => setUtr(e.target.value.toUpperCase())}
+                      onChange={(e) => setUtr(e.target.value.replace(/\D/g, "").slice(0, 12))}
                       placeholder="E.G. 412345678901"
-                      className={`mt-2 ${field}`}
+                      className={`mt-2 ${field} tracking-[0.25em]`}
                     />
+                    <span className="mt-1 block font-mono text-[10px] tracking-[0.15em] text-muted-foreground">
+                      {utr.length}/12 DIGITS
+                    </span>
                   </label>
+
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
                       <span className={labelCls}>PAID ON</span>
