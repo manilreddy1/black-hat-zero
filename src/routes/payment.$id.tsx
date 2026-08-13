@@ -104,6 +104,18 @@ function PaymentPage() {
     onError: (e: Error) => toast.error(e.message || "Could not submit payment."),
   });
 
+  const [retryNote, setRetryNote] = useState("");
+  const [retryDone, setRetryDone] = useState(false);
+  const retry = useMutation({
+    mutationFn: () => retryFn({ data: { registration_id: id, message: retryNote.trim() } }),
+    onSuccess: () => {
+      setRetryDone(true);
+      toast.success("Request sent. The organisers will review it shortly.");
+    },
+    onError: (e: Error) => toast.error(e.message || "Could not send the request."),
+  });
+
+
   const upiUri = useMemo(() => {
     if (!data?.settings?.upi_id || !data.registration) return "";
     return buildUpiUri({
