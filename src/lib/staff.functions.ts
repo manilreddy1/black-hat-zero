@@ -1142,3 +1142,36 @@ export const uploadSponsorLogo = createServerFn({ method: "POST" })
     if (up.error) throw new Error("Logo upload failed. Try again.");
     return { url: `/api/public/sponsor-logo?p=${encodeURIComponent(path)}` };
   });
+
+/**
+ * Rewinds the registration ID counter so the next team registered gets the
+ * first code again. Super admin only, and refused while registrations exist
+ * (reusing a code would collide with the unique registration_code index).
+ */
+export const resetRegistrationSequence = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["super_admin"]);
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+
+    const { count } = await db
+      .from("registrations")
+      .select("id", { count: "exact", head: true });
+    if ((count ?? 0) > 0)
+      throw new Error(
+        `Cannot reset: ${count} registration(s) still exist. Delete every team first, then reset.`,
+      );
+
+    const { error } = await db.rpc("reset_registration_sequence");
+    if (error) throw new Error("Could not reset the registration counter.");
+
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: "super_admin",
+      action: "REGISTRATION_SEQUENCE_RESET",
+      entity: "registrations",
+    });
+    return { ok: true as const };
+  });
