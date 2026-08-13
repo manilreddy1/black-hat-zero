@@ -319,11 +319,12 @@ function PaymentPage() {
                   </label>
                   <button
                     type="submit"
-                    disabled={mutation.isPending || !shot}
+                    disabled={mutation.isPending || !shot || utr.length !== 12}
                     className="clip-notch w-full bg-primary py-3.5 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase transition-shadow hover:shadow-[var(--glow-red)] disabled:opacity-60"
                   >
                     {mutation.isPending ? "SUBMITTING..." : "[ Submit for verification ]"}
                   </button>
+
                   <p className="text-xs text-muted-foreground">
                     Each UTR can only be used once. Fake references are logged and reported.
                   </p>
