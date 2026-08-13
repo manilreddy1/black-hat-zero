@@ -169,8 +169,13 @@ export const submitPayment = createServerFn({ method: "POST" })
       .eq("id", data.registration_id)
       .maybeSingle();
     if (!reg) throw new Error("Registration not found.");
-    if (!["PAYMENT_PENDING", "PAYMENT_REJECTED"].includes(reg.status))
-      throw new Error("This registration is not awaiting a payment submission.");
+    if (reg.status !== "PAYMENT_PENDING")
+      throw new Error(
+        reg.status === "PAYMENT_REJECTED"
+          ? "Your payment was rejected. Request another chance before resubmitting."
+          : "This registration is not awaiting a payment submission.",
+      );
+
 
     const { data: existingUtr } = await db
       .from("payments")
