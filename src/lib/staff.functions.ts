@@ -399,15 +399,8 @@ export const verifyPayment = createServerFn({ method: "POST" })
         note: data.reason,
         changed_by: context.userId,
       });
-      await db.from("registrations").update({ status: "PAYMENT_PENDING" }).eq("id", reg.id);
-      await db.from("registration_status_history").insert({
-        registration_id: reg.id,
-        from_status: "PAYMENT_REJECTED",
-        to_status: "PAYMENT_PENDING",
-        note: "Team may resubmit payment",
-        changed_by: context.userId,
-      });
     }
+
 
     await writeAudit({
       actor_id: context.userId,
