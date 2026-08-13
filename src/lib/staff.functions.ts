@@ -1165,7 +1165,8 @@ export const resetRegistrationSequence = createServerFn({ method: "POST" })
       );
 
     const { error } = await db.rpc("reset_registration_sequence");
-    if (error) throw new Error("Could not reset the registration counter.");
+    if (error)
+      throw new Error(`Could not reset the registration counter: ${error.message}`);
 
     await writeAudit({
       actor_id: context.userId,
