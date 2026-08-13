@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
-import { getPaymentContext, submitPayment } from "@/lib/public.functions";
+import { getPaymentContext, submitPayment, requestPaymentRetry } from "@/lib/public.functions";
 import { buildUpiUri, formatMoney } from "@/lib/constants";
 import { CyberBackground } from "@/components/site/CyberBackground";
 import { WhatsAppLink } from "@/components/site/WhatsAppLink";
@@ -39,6 +39,7 @@ function PaymentPage() {
   const { id } = Route.useParams();
   const ctxFn = useServerFn(getPaymentContext);
   const payFn = useServerFn(submitPayment);
+  const retryFn = useServerFn(requestPaymentRetry);
   const qc = useQueryClient();
 
 
