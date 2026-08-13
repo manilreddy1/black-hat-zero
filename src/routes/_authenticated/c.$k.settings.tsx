@@ -1,14 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { siteContentQuery } from "@/hooks/useSiteContent";
-import { updateEventSettings } from "@/lib/staff.functions";
+import { updateEventSettings, resetRegistrationSequence } from "@/lib/staff.functions";
 
 export const Route = createFileRoute("/_authenticated/c/$k/settings")({
   component: SettingsPage,
 });
+
+const consoleRoute = getRouteApi("/_authenticated/c/$k");
 
 const TEXT_FIELDS = [
   "event_name",
@@ -63,6 +65,10 @@ function SettingsPage() {
   const save = useServerFn(updateEventSettings);
   const qc = useQueryClient();
   const [form, setForm] = useState<Record<string, unknown>>({});
+  const { roles } = consoleRoute.useLoaderData() as { roles: string[] };
+  const isSuper = roles.includes("super_admin");
+  const resetSeq = useServerFn(resetRegistrationSequence);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
     if (data?.settings) setForm({ ...data.settings });
@@ -73,6 +79,15 @@ function SettingsPage() {
     onSuccess: () => {
       toast.success("Settings updated.");
       qc.invalidateQueries({ queryKey: ["site-content"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const resetMutation = useMutation({
+    mutationFn: () => resetSeq({ data: undefined }),
+    onSuccess: () => {
+      setConfirmReset(false);
+      toast.success("Registration IDs reset — the next team starts from the first ID.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -183,6 +198,45 @@ function SettingsPage() {
           </button>
         </div>
       </div>
+
+      {isSuper ? (
+        <div className="panel space-y-3 border-destructive/40 p-6">
+          <p className="font-mono text-[11px] tracking-[0.3em] text-destructive uppercase">
+            // Danger zone
+          </p>
+          <h2 className="font-display text-lg font-bold tracking-widest uppercase">
+            Reset registration IDs
+          </h2>
+          <p className="max-w-2xl font-mono text-xs text-muted-foreground">
+            Rewinds the registration counter so the next team registered gets the very first ID
+            again. Only possible when no registrations exist — delete every team first.
+          </p>
+          {confirmReset ? (
+            <div className="flex flex-wrap gap-3">
+              <button
+                disabled={resetMutation.isPending}
+                onClick={() => resetMutation.mutate()}
+                className="clip-notch bg-destructive px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] text-destructive-foreground uppercase disabled:opacity-60"
+              >
+                {resetMutation.isPending ? "RESETTING..." : "[ Yes, reset counter ]"}
+              </button>
+              <button
+                onClick={() => setConfirmReset(false)}
+                className="clip-notch border border-border px-5 py-3 font-mono text-xs tracking-[0.2em] uppercase"
+              >
+                [ Cancel ]
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmReset(true)}
+              className="clip-notch border border-destructive px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] text-destructive uppercase"
+            >
+              [ Reset registration IDs ]
+            </button>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }
