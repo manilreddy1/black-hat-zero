@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { siteContentQuery, useT } from "@/hooks/useSiteContent";
@@ -245,18 +245,68 @@ function RollField({
 }) {
   const v = cleanRoll(value);
   const full = v.length === 10 ? v : "";
-  const a = full ? full[1]! : "";
-  const b = full ? full[4]! : "";
-  const c = full ? full.slice(8) : "";
-  const [parts, setParts] = useState<[string, string, string]>([a, b, c]);
-  const push = (next: [string, string, string]) => {
+  const [parts, setParts] = useState<string[]>([
+    full ? full[1]! : "",
+    full ? full[4]! : "",
+    full ? full[8]! : "",
+    full ? full[9]! : "",
+  ]);
+  const refs = useRef<Array<HTMLInputElement | null>>([]);
+
+  const push = (idx: number, raw: string) => {
+    const isDigitSlot = idx < 2;
+    const cleaned = isDigitSlot
+      ? raw.replace(/\D/g, "")
+      : raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const next = [...parts];
+    // Support paste / fast typing by spilling extra characters into later slots.
+    let i = idx;
+    for (const ch of cleaned) {
+      if (i > 3) break;
+      if (i < 2 && !/\d/.test(ch)) break;
+      next[i] = ch;
+      i++;
+    }
+    if (cleaned === "") next[idx] = "";
     setParts(next);
-    const composed = `2${next[0]}X0${next[1]}A62${next[2]}`;
-    onChange(next[0] && next[1] && next[2].length === 2 ? composed : "");
+    const complete = next.every((p) => p.length === 1);
+    onChange(complete ? `2${next[0]}X0${next[1]}A62${next[2]}${next[3]}` : "");
+    if (cleaned !== "") refs.current[Math.min(i, 3)]?.focus();
   };
+
+  const onKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !parts[idx] && idx > 0) {
+      e.preventDefault();
+      const next = [...parts];
+      next[idx - 1] = "";
+      setParts(next);
+      onChange("");
+      refs.current[idx - 1]?.focus();
+    }
+    if (e.key === "ArrowLeft" && idx > 0) refs.current[idx - 1]?.focus();
+    if (e.key === "ArrowRight" && idx < 3) refs.current[idx + 1]?.focus();
+  };
+
   const slot =
     "w-10 border border-input bg-surface px-0 py-3 text-center font-mono text-sm uppercase outline-none focus:border-primary focus:shadow-[var(--glow-red)]";
   const fixed = "px-1 font-mono text-sm text-muted-foreground";
+  const box = (idx: number) => (
+    <input
+      ref={(el) => {
+        refs.current[idx] = el;
+      }}
+      className={slot}
+      value={parts[idx] ?? ""}
+      inputMode={idx < 2 ? "numeric" : "text"}
+      autoComplete="off"
+      maxLength={1}
+      placeholder="_"
+      onFocus={(e) => e.currentTarget.select()}
+      onChange={(e) => push(idx, e.target.value)}
+      onKeyDown={(e) => onKeyDown(idx, e)}
+    />
+  );
+
   return (
     <label className="block">
       <span className={labelCls}>
@@ -265,45 +315,17 @@ function RollField({
       </span>
       <div className="mt-2 flex items-center gap-1">
         <span className={fixed}>2</span>
-        <input
-          className={slot}
-          value={parts[0]}
-          inputMode="numeric"
-          maxLength={1}
-          placeholder="_"
-          onChange={(e) =>
-            push([e.target.value.replace(/\D/g, "").slice(0, 1), parts[1], parts[2]])
-          }
-        />
+        {box(0)}
         <span className={fixed}>X0</span>
-        <input
-          className={slot}
-          value={parts[1]}
-          inputMode="numeric"
-          maxLength={1}
-          placeholder="_"
-          onChange={(e) =>
-            push([parts[0], e.target.value.replace(/\D/g, "").slice(0, 1), parts[2]])
-          }
-        />
+        {box(1)}
         <span className={fixed}>A62</span>
-        <input
-          className={`${slot} w-14`}
-          value={parts[2]}
-          maxLength={2}
-          placeholder="__"
-          onChange={(e) =>
-            push([
-              parts[0],
-              parts[1],
-              e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 2),
-            ])
-          }
-        />
+        {box(2)}
+        {box(3)}
       </div>
     </label>
   );
 }
+
 
 
 function RegisterPage() {

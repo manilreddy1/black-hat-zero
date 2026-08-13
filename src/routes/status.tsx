@@ -109,7 +109,25 @@ function StatusPage() {
               ))}
             </div>
 
-            {(result.status === "PAYMENT_PENDING" || result.status === "PAYMENT_REJECTED") && (
+            {result.status === "PAYMENT_REJECTED" && (
+              <div className="mt-6 border-l-2 border-l-destructive bg-destructive/10 p-4">
+                <p className="font-display text-lg font-bold tracking-widest text-destructive uppercase">
+                  Your team has been rejected
+                </p>
+                <p className="mt-1 text-sm">
+                  Reason: {result.rejection_reason ?? "Invalid payment proof."}
+                </p>
+                <Link
+                  to="/payment/$id"
+                  params={{ id: result.registration_id }}
+                  className="clip-notch mt-4 inline-block bg-primary px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase"
+                >
+                  {result.retry_requested ? "[ View request status ]" : "[ Request another chance ]"}
+                </Link>
+              </div>
+            )}
+
+            {result.status === "PAYMENT_PENDING" && (
               <Link
                 to="/payment/$id"
                 params={{ id: result.registration_id }}
@@ -118,6 +136,7 @@ function StatusPage() {
                 [ Complete payment ]
               </Link>
             )}
+
           </motion.div>
         )}
       </div>

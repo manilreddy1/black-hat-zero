@@ -399,15 +399,8 @@ export const verifyPayment = createServerFn({ method: "POST" })
         note: data.reason,
         changed_by: context.userId,
       });
-      await db.from("registrations").update({ status: "PAYMENT_PENDING" }).eq("id", reg.id);
-      await db.from("registration_status_history").insert({
-        registration_id: reg.id,
-        from_status: "PAYMENT_REJECTED",
-        to_status: "PAYMENT_PENDING",
-        note: "Team may resubmit payment",
-        changed_by: context.userId,
-      });
     }
+
 
     await writeAudit({
       actor_id: context.userId,
@@ -419,6 +412,49 @@ export const verifyPayment = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/** Give a rejected team another chance to pay (re-opens the payment form). */
+export const grantPaymentRetry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ registration_id: z.string().uuid(), note: z.string().trim().max(300).optional().default("") }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    const role = await requireRole(context.supabase, context.userId, [
+      "payment_verifier",
+      "admin",
+    ]);
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+    const { data: reg } = await db
+      .from("registrations")
+      .select("id, status, registration_code")
+      .eq("id", data.registration_id)
+      .maybeSingle();
+    if (!reg) throw new Error("Registration not found.");
+    if (reg.status !== "PAYMENT_REJECTED")
+      throw new Error("Only rejected registrations can be re-opened.");
+    await db.from("registrations").update({ status: "PAYMENT_PENDING" }).eq("id", reg.id);
+    await db.from("registration_status_history").insert({
+      registration_id: reg.id,
+      from_status: "PAYMENT_REJECTED",
+      to_status: "PAYMENT_PENDING",
+      note: data.note || "Another chance granted — team may resubmit payment",
+      changed_by: context.userId,
+    });
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: role,
+      action: "PAYMENT_RETRY_GRANTED",
+      entity: "registrations",
+      entity_id: reg.id,
+      metadata: { registration_code: reg.registration_code },
+    });
+    return { ok: true };
+  });
+
+
 
 export const updateEventSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

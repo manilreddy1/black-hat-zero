@@ -169,8 +169,13 @@ export const submitPayment = createServerFn({ method: "POST" })
       .eq("id", data.registration_id)
       .maybeSingle();
     if (!reg) throw new Error("Registration not found.");
-    if (!["PAYMENT_PENDING", "PAYMENT_REJECTED"].includes(reg.status))
-      throw new Error("This registration is not awaiting a payment submission.");
+    if (reg.status !== "PAYMENT_PENDING")
+      throw new Error(
+        reg.status === "PAYMENT_REJECTED"
+          ? "Your payment was rejected. Request another chance before resubmitting."
+          : "This registration is not awaiting a payment submission.",
+      );
+
 
     const { data: existingUtr } = await db
       .from("payments")
@@ -280,6 +285,9 @@ export const lookupRegistration = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
 
+    const rejection =
+      reg.status === "PAYMENT_REJECTED" ? await rejectionInfo(db, reg.id, reg.registration_code) : null;
+
     return {
       found: true as const,
       team_name: team.team_name,
@@ -295,8 +303,33 @@ export const lookupRegistration = createServerFn({ method: "POST" })
       payment_status: payment?.status ?? null,
       utr_number: payment?.utr_number ?? null,
       registration_id: reg.id,
+      rejection_reason: rejection?.reason ?? null,
+      retry_requested: rejection?.retry_requested ?? false,
     };
   });
+
+/** Latest rejection reason + whether the team already asked for another chance. */
+async function rejectionInfo(
+  db: { from: (t: string) => any },
+  registrationId: string,
+  registrationCode: string,
+) {
+  const { data: v } = await db
+    .from("payment_verifications")
+    .select("reason, created_at")
+    .eq("registration_id", registrationId)
+    .eq("decision", "REJECTED")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const { data: req } = await db
+    .from("contact_messages")
+    .select("id")
+    .eq("subject", `RETRY REQUEST — ${registrationCode}`)
+    .limit(1)
+    .maybeSingle();
+  return { reason: v?.reason ?? null, retry_requested: !!req };
+}
 
 export const getPaymentContext = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ registration_id: z.string().uuid() }).parse(d))
@@ -319,8 +352,71 @@ export const getPaymentContext = createServerFn({ method: "POST" })
       .select("upi_id, upi_payee_name, payment_instructions, currency, payments_enabled, whatsapp_group_url")
       .limit(1)
       .maybeSingle();
-    return { registration: reg, team, settings };
+    const rejection =
+      reg.status === "PAYMENT_REJECTED" ? await rejectionInfo(db, reg.id, reg.registration_code) : null;
+    return {
+      registration: reg,
+      team,
+      settings,
+      rejection_reason: rejection?.reason ?? null,
+      retry_requested: rejection?.retry_requested ?? false,
+    };
   });
+
+/** Public: a rejected team asks the organisers for another chance to pay. */
+export const requestPaymentRetry = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        registration_id: z.string().uuid(),
+        message: z.string().trim().max(500).optional().default(""),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { assertSameOrigin } = await import("./security.server");
+    await assertSameOrigin();
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+    const { data: reg } = await db
+      .from("registrations")
+      .select("id, registration_code, status, team_id")
+      .eq("id", data.registration_id)
+      .maybeSingle();
+    if (!reg) throw new Error("Registration not found.");
+    if (reg.status !== "PAYMENT_REJECTED")
+      throw new Error("Only rejected registrations can request another chance.");
+    const { data: team } = await db
+      .from("teams")
+      .select("team_name, leader_name, leader_email")
+      .eq("id", reg.team_id)
+      .single();
+    const subject = `RETRY REQUEST — ${reg.registration_code}`;
+    const { data: existing } = await db
+      .from("contact_messages")
+      .select("id")
+      .eq("subject", subject)
+      .limit(1)
+      .maybeSingle();
+    if (existing) return { ok: true, already: true };
+    await db.from("contact_messages").insert({
+      name: team?.leader_name ?? "Team lead",
+      email: team?.leader_email ?? "unknown@unknown",
+      subject,
+      message:
+        `Team "${team?.team_name ?? "—"}" (${reg.registration_code}) is requesting another chance to submit payment.` +
+        (data.message ? `\n\nNote from team: ${data.message}` : ""),
+    });
+    await writeAudit({
+      action: "PAYMENT_RETRY_REQUESTED",
+      entity: "registrations",
+      entity_id: reg.id,
+      actor_role: "public",
+      metadata: { registration_code: reg.registration_code },
+    });
+    return { ok: true, already: false };
+  });
+
 
 export const submitContactMessage = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>

@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
-import { getPaymentContext, submitPayment } from "@/lib/public.functions";
+import { getPaymentContext, submitPayment, requestPaymentRetry } from "@/lib/public.functions";
 import { buildUpiUri, formatMoney } from "@/lib/constants";
 import { CyberBackground } from "@/components/site/CyberBackground";
 import { WhatsAppLink } from "@/components/site/WhatsAppLink";
@@ -39,6 +39,7 @@ function PaymentPage() {
   const { id } = Route.useParams();
   const ctxFn = useServerFn(getPaymentContext);
   const payFn = useServerFn(submitPayment);
+  const retryFn = useServerFn(requestPaymentRetry);
   const qc = useQueryClient();
 
 
@@ -104,6 +105,18 @@ function PaymentPage() {
     onError: (e: Error) => toast.error(e.message || "Could not submit payment."),
   });
 
+  const [retryNote, setRetryNote] = useState("");
+  const [retryDone, setRetryDone] = useState(false);
+  const retry = useMutation({
+    mutationFn: () => retryFn({ data: { registration_id: id, message: retryNote.trim() } }),
+    onSuccess: () => {
+      setRetryDone(true);
+      toast.success("Request sent. The organisers will review it shortly.");
+    },
+    onError: (e: Error) => toast.error(e.message || "Could not send the request."),
+  });
+
+
   const upiUri = useMemo(() => {
     if (!data?.settings?.upi_id || !data.registration) return "";
     return buildUpiUri({
@@ -154,6 +167,7 @@ function PaymentPage() {
   const currency = data.settings?.currency ?? "INR";
   const alreadySubmitted = done || reg.status === "PAYMENT_REVIEW";
   const approved = reg.status === "PAYMENT_APPROVED" || reg.status === "REGISTERED";
+  const rejected = reg.status === "PAYMENT_REJECTED";
 
   return (
     <div className="scanlines relative min-h-screen px-6 pt-28 pb-20">
@@ -178,7 +192,49 @@ function PaymentPage() {
               <WhatsAppLink url={data.settings?.whatsapp_group_url} />
             </div>
           </div>
+        ) : rejected ? (
+          <div className="panel clip-notch mt-8 border-destructive/50 p-8">
+            <p className="font-display text-2xl font-bold tracking-widest text-destructive uppercase">
+              Your team has been rejected
+            </p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Your payment could not be verified, so your registration was rejected.
+            </p>
+            <div className="mt-5 border-l-2 border-l-destructive bg-destructive/10 p-4">
+              <p className="font-mono text-[10px] tracking-[0.3em] text-destructive">REASON</p>
+              <p className="mt-1 text-sm">
+                {data.rejection_reason ?? "Invalid payment proof."}
+              </p>
+            </div>
+            {data.retry_requested || retryDone ? (
+              <p className="mt-6 font-mono text-xs tracking-[0.2em] text-primary">
+                REQUEST RECEIVED — THE ORGANISERS WILL REVIEW AND RE-OPEN YOUR PAYMENT IF APPROVED.
+              </p>
+            ) : (
+              <div className="mt-6">
+                <textarea
+                  rows={3}
+                  maxLength={500}
+                  value={retryNote}
+                  onChange={(e) => setRetryNote(e.target.value)}
+                  placeholder="Optional: explain what went wrong with your payment"
+                  className={field}
+                />
+                <button
+                  disabled={retry.isPending}
+                  onClick={() => retry.mutate()}
+                  className="clip-notch mt-3 bg-primary px-5 py-3 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+                >
+                  {retry.isPending ? "SENDING..." : "[ Request another chance ]"}
+                </button>
+              </div>
+            )}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <WhatsAppLink url={data.settings?.whatsapp_group_url} />
+            </div>
+          </div>
         ) : (
+
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <div className="panel clip-notch p-6">
               <p className={labelCls}>SCAN TO PAY</p>
@@ -263,17 +319,23 @@ function PaymentPage() {
                     SUBMIT TRANSACTION PROOF
                   </p>
                   <label className="block">
-                    <span className={labelCls}>UTR / TRANSACTION REFERENCE</span>
+                    <span className={labelCls}>UTR / TRANSACTION REFERENCE (12 DIGITS)</span>
                     <input
                       required
-                      minLength={6}
-                      maxLength={40}
+                      minLength={12}
+                      maxLength={12}
+                      inputMode="numeric"
+                      pattern="\d{12}"
                       value={utr}
-                      onChange={(e) => setUtr(e.target.value.toUpperCase())}
+                      onChange={(e) => setUtr(e.target.value.replace(/\D/g, "").slice(0, 12))}
                       placeholder="E.G. 412345678901"
-                      className={`mt-2 ${field}`}
+                      className={`mt-2 ${field} tracking-[0.25em]`}
                     />
+                    <span className="mt-1 block font-mono text-[10px] tracking-[0.15em] text-muted-foreground">
+                      {utr.length}/12 DIGITS
+                    </span>
                   </label>
+
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
                       <span className={labelCls}>PAID ON</span>
@@ -313,11 +375,12 @@ function PaymentPage() {
                   </label>
                   <button
                     type="submit"
-                    disabled={mutation.isPending || !shot}
+                    disabled={mutation.isPending || !shot || utr.length !== 12}
                     className="clip-notch w-full bg-primary py-3.5 font-mono text-xs font-bold tracking-[0.2em] text-primary-foreground uppercase transition-shadow hover:shadow-[var(--glow-red)] disabled:opacity-60"
                   >
                     {mutation.isPending ? "SUBMITTING..." : "[ Submit for verification ]"}
                   </button>
+
                   <p className="text-xs text-muted-foreground">
                     Each UTR can only be used once. Fake references are logged and reported.
                   </p>

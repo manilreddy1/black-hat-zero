@@ -7,6 +7,7 @@ import {
   deleteRegistration,
   getMe,
   getRegistrationDetail,
+  grantPaymentRetry,
   listRegistrations,
   releaseFoodTokens,
   resendLeadInvite,
@@ -45,6 +46,7 @@ function RegistrationsPage() {
   const listFn = useServerFn(listRegistrations);
   const detailFn = useServerFn(getRegistrationDetail);
   const verifyFn = useServerFn(verifyPayment);
+  const retryFn = useServerFn(grantPaymentRetry);
   const deleteFn = useServerFn(deleteRegistration);
   const meFn = useServerFn(getMe);
   const qc = useQueryClient();
@@ -210,6 +212,17 @@ function RegistrationsPage() {
     onSuccess: () => {
       toast.success("Verification recorded.");
       setReceipt(null);
+      qc.invalidateQueries({ queryKey: ["registrations"] });
+      qc.invalidateQueries({ queryKey: ["registration", openId] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const grantRetry = useMutation({
+    mutationFn: () => retryFn({ data: { registration_id: openId!, note: notes } }),
+    onSuccess: () => {
+      toast.success("Team can submit payment again.");
       qc.invalidateQueries({ queryKey: ["registrations"] });
       qc.invalidateQueries({ queryKey: ["registration", openId] });
       qc.invalidateQueries({ queryKey: ["stats"] });
@@ -654,6 +667,25 @@ function RegistrationsPage() {
                       </div>
                     )}
 
+                  </div>
+                )}
+
+                {detail.data.registration.status === "PAYMENT_REJECTED" && (
+                  <div className="space-y-3 border-t border-border pt-4">
+                    <p className="font-mono text-[11px] tracking-[0.3em] text-destructive">
+                      REJECTED — ANOTHER CHANCE
+                    </p>
+                    <p className="font-mono text-[11px] text-muted-foreground">
+                      The team sees the rejection reason and can request another chance. Granting it
+                      re-opens their payment form.
+                    </p>
+                    <button
+                      disabled={grantRetry.isPending}
+                      onClick={() => grantRetry.mutate()}
+                      className="clip-notch w-full border border-primary py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-primary uppercase disabled:opacity-60"
+                    >
+                      [ Grant another chance ]
+                    </button>
                   </div>
                 )}
 
