@@ -1107,6 +1107,7 @@ export type Database = {
     }
     Functions: {
       next_registration_number: { Args: never; Returns: number }
+      reset_registration_sequence: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "coordinator" | "payment_verifier" | "super_admin"
