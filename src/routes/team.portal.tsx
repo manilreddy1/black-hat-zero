@@ -138,46 +138,8 @@ function TeamPortal() {
             </div>
           </div>
 
-          <div>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
-              THEMES &amp; PROBLEM STATEMENTS
-            </p>
-            {d.themes_revealed && d.themes.length > 0 ? (
-              <div className="mt-4 grid gap-5 lg:grid-cols-2">
-                {d.themes.map((t, i) => (
-                  <article key={t.id} className="panel clip-notch p-5">
-                    <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
-                      THEME {String(i + 1).padStart(2, "0")}
-                    </p>
-                    <h3 className="mt-2 font-display text-lg font-bold tracking-widest uppercase">
-                      {t.title}
-                    </h3>
-                    {t.description && (
-                      <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
-                    )}
-                    {t.problem_statement && (
-                      <div className="mt-4 border-l-2 border-primary/60 pl-3">
-                        <p className="font-mono text-[10px] tracking-[0.3em] text-primary">
-                          PROBLEM STATEMENT
-                        </p>
-                        <p className="mt-2 text-sm whitespace-pre-line">{t.problem_statement}</p>
-                      </div>
-                    )}
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="panel mt-4 p-5">
-                <p className="font-mono text-xs tracking-[0.2em] text-muted-foreground uppercase">
-                  // LOCKED — THEMES NOT RELEASED YET
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  The themes and problem statements are sealed until the organisers release them.
-                  They will appear here automatically — keep this page handy on event day.
-                </p>
-              </div>
-            )}
-          </div>
+          <ThemePicker data={d} onSaved={() => q.refetch()} />
+
 
 
           <div>
