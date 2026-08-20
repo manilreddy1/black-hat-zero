@@ -38,6 +38,38 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+function PostponementBanner() {
+  const [dismissed, setDismissed] = useState(true);
+
+  useEffect(() => {
+    const seen = localStorage.getItem("bh-postponed-seen");
+    setDismissed(seen === "1");
+  }, []);
+
+  if (dismissed) return null;
+
+  return (
+    <div className="fixed top-0 right-0 left-0 z-50 border-b border-primary/30 bg-surface/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <p className="text-sm font-medium text-foreground sm:text-base">
+          <span className="mr-2 inline-flex h-2 w-2 animate-pulse rounded-full bg-primary" />
+          EVENT POSTPONED: BLACK HAT ZERO &apos;26 is now scheduled for{" "}
+          <strong className="text-primary">2 &amp; 3 September</strong> instead of 21 &amp; 22 August.
+        </p>
+        <button
+          onClick={() => {
+            localStorage.setItem("bh-postponed-seen", "1");
+            setDismissed(true);
+          }}
+          className="clip-notch shrink-0 bg-primary px-4 py-1.5 font-mono text-xs font-bold tracking-[0.15em] text-primary-foreground uppercase hover:shadow-[var(--glow-red)]"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Home() {
   const { data } = useSuspenseQuery(siteContentQuery);
   const settings = data.settings ?? null;
@@ -59,6 +91,7 @@ function Home() {
 
   return (
     <>
+      <PostponementBanner />
       {sections.map((s) => (
         <div key={s.id}>
           {builtin[s.key] ?? (
