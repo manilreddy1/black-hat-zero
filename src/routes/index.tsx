@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { siteContentQuery } from "@/hooks/useSiteContent";
+import { Logo } from "@/components/site/Logo";
 import { Hero } from "@/components/site/Hero";
 import {
   AboutSection,
