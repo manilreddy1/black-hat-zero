@@ -90,6 +90,15 @@ export const getMyTeam = createServerFn({ method: "GET" })
       }));
     }
 
+    const r = reg as unknown as {
+      selected_challenge_id: string | null;
+      custom_problem_title: string | null;
+      custom_problem_statement: string | null;
+      theme_selected_at: string | null;
+    };
+    const selectionLocked = Boolean(
+      (settings as { theme_selection_locked?: boolean } | null)?.theme_selection_locked,
+    );
 
     return {
       team: {
@@ -111,6 +120,16 @@ export const getMyTeam = createServerFn({ method: "GET" })
       whatsapp_group_url: whatsappGroupUrl,
       themes_revealed: themesRevealed && confirmed,
       themes,
+      selection: r.theme_selected_at
+        ? {
+            challenge_id: r.selected_challenge_id,
+            custom_title: r.custom_problem_title,
+            custom_statement: r.custom_problem_statement,
+            selected_at: r.theme_selected_at,
+          }
+        : null,
+      selection_locked: selectionLocked,
+
       attendance: att ? { marked_at: att.marked_at } : null,
       attendance_qr: confirmed ? await makeToken("A", reg.id) : null,
       members: await Promise.all(
