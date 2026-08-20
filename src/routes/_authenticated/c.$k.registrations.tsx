@@ -425,7 +425,8 @@ function RegistrationsPage() {
                       {detail.data.members.map((m) => (
                         <li key={m.id}>
                           {String(m.member_index).padStart(2, "0")} · {m.full_name} · {m.email} ·{" "}
-                          {m.phone} · {m.student_id ?? "—"} · {m.department ?? "—"}
+                          {m.phone} · {m.student_id ?? "—"} · {m.department ?? "—"} ·{" "}
+                          {m.food_pref === "NON_VEG" ? "Non-veg" : "Veg"}
                         </li>
                       ))}
                     </ul>
