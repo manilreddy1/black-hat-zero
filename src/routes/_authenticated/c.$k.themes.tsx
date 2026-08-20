@@ -8,6 +8,8 @@ import {
   listContentRows,
   saveContentRow,
   updateEventSettings,
+  listThemeSelections,
+  resetThemeSelection,
 } from "@/lib/staff.functions";
 import { siteContentQuery } from "@/hooks/useSiteContent";
 
@@ -44,6 +46,33 @@ function ThemesPage() {
   const revealed = Boolean(
     (site?.settings as { themes_revealed?: boolean } | undefined)?.themes_revealed,
   );
+  const selectionLocked = Boolean(
+    (site?.settings as { theme_selection_locked?: boolean } | undefined)?.theme_selection_locked,
+  );
+
+  const listSelections = useServerFn(listThemeSelections);
+  const resetSelection = useServerFn(resetThemeSelection);
+  const selections = useQuery({
+    queryKey: ["theme-selections"],
+    queryFn: () => listSelections(),
+    refetchInterval: 15_000,
+  });
+  const lockMutation = useMutation({
+    mutationFn: (next: boolean) => saveSettings({ data: { theme_selection_locked: next } }),
+    onSuccess: (_r, next) => {
+      toast.success(next ? "Selections locked." : "Selections unlocked.");
+      qc.invalidateQueries({ queryKey: ["site-content"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const resetMutation = useMutation({
+    mutationFn: (id: string) => resetSelection({ data: { registration_id: id } }),
+    onSuccess: () => {
+      toast.success("Selection cleared.");
+      qc.invalidateQueries({ queryKey: ["theme-selections"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["content-rows", "challenges"] });
@@ -131,6 +160,74 @@ function ThemesPage() {
               ? "[ Hide from team leads ]"
               : "[ Show in team-lead portal ]"}
         </button>
+      </div>
+
+      <div className="panel flex flex-wrap items-center justify-between gap-4 p-6">
+        <div>
+          <p className="font-mono text-[11px] tracking-[0.3em] text-primary">SELECTION LOCK</p>
+          <p className="mt-2 font-mono text-xs text-muted-foreground">
+            {selectionLocked
+              ? "LOCKED — teams can no longer change their chosen problem statement."
+              : "OPEN — teams can change their pick any time."}
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={selectionLocked}
+          disabled={lockMutation.isPending}
+          onClick={() => lockMutation.mutate(!selectionLocked)}
+          className="flex items-center gap-4 border border-border px-4 py-3 font-mono text-[11px] tracking-[0.15em] uppercase disabled:opacity-60"
+        >
+          <span>{selectionLocked ? "Locked" : "Open"}</span>
+          <span
+            className={`relative h-5 w-10 shrink-0 rounded-full transition-colors ${
+              selectionLocked ? "bg-primary" : "bg-muted"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all ${
+                selectionLocked ? "left-[22px]" : "left-0.5"
+              }`}
+            />
+          </span>
+        </button>
+      </div>
+
+      <div className="panel p-6">
+        <p className="font-mono text-[11px] tracking-[0.3em] text-primary">TEAM SELECTIONS</p>
+        {(selections.data ?? []).length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No team has picked a statement yet.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {(selections.data ?? []).map((s) => (
+              <div
+                key={s.id}
+                className="flex flex-wrap items-start justify-between gap-3 border border-border p-4"
+              >
+                <div>
+                  <p className="font-display text-sm font-bold tracking-widest uppercase">
+                    {s.team_name} <span className="text-muted-foreground">· {s.team_code}</span>
+                  </p>
+                  <p className="mt-1 font-mono text-[11px] text-primary">{s.theme_title}</p>
+                  {s.is_custom && s.custom_statement && (
+                    <p className="mt-2 max-w-xl text-sm whitespace-pre-line text-muted-foreground">
+                      {s.custom_statement}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    if (confirm(`Clear ${s.team_name}'s selection?`)) resetMutation.mutate(s.id);
+                  }}
+                  className="font-mono text-[11px] tracking-[0.2em] text-muted-foreground uppercase hover:text-destructive"
+                >
+                  [ Reset ]
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end">
