@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyTeam } from "@/lib/lead.functions";
+import { getMyTeam, selectTheme } from "@/lib/lead.functions";
+import { toast } from "sonner";
 import { foodLabel } from "@/lib/schemas";
 import { StatusBadge } from "@/components/site/StatusBadge";
 import { WhatsAppLink } from "@/components/site/WhatsAppLink";
@@ -34,6 +35,281 @@ function QRPanel({ title, note, value }: { title: string; note?: string; value: 
         <QRCode value={value} size={148} />
       </div>
       {note && <p className="mt-3 font-mono text-[10px] text-muted-foreground">{note}</p>}
+    </div>
+  );
+}
+
+type TeamData = Awaited<ReturnType<typeof getMyTeam>>;
+
+function ThemePicker({ data, onSaved }: { data: TeamData; onSaved: () => void }) {
+  const save = useServerFn(selectTheme);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [statement, setStatement] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: (v: { challenge_id: string | null; custom_title?: string; custom_statement?: string }) =>
+      save({ data: v }),
+    onSuccess: () => {
+      toast.success("Problem statement locked in for your team.");
+      setCustomOpen(false);
+      onSaved();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (!("themes_revealed" in data) || !data.themes_revealed) {
+    return (
+      <div>
+        <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
+          THEMES &amp; PROBLEM STATEMENTS
+        </p>
+        <div className="panel mt-4 p-5">
+          <p className="font-mono text-xs tracking-[0.2em] text-muted-foreground uppercase">
+            // LOCKED — THEMES NOT RELEASED YET
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            The themes and problem statements are sealed until the organisers release them. They
+            will appear here automatically — keep this page handy on event day.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const selection = data.selection;
+  const locked = data.selection_locked;
+  const chosen = selection?.challenge_id
+    ? data.themes.find((t) => t.id === selection.challenge_id)
+    : null;
+
+  if (selection) {
+    return (
+      <div>
+        <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
+          YOUR PROBLEM STATEMENT
+        </p>
+        <article className="panel clip-notch mt-4 border-primary/60 p-6">
+          <p className="font-mono text-[10px] tracking-[0.3em] text-primary">
+            {chosen ? "SELECTED THEME" : "403 — CUSTOM PROBLEM STATEMENT"}
+          </p>
+          <h3 className="mt-2 font-display text-xl font-bold tracking-widest uppercase">
+            {chosen ? chosen.title : (selection.custom_title ?? "Custom")}
+          </h3>
+          {chosen?.description && (
+            <p className="mt-2 text-sm text-muted-foreground">{chosen.description}</p>
+          )}
+          <div className="mt-4 border-l-2 border-primary/60 pl-3">
+            <p className="font-mono text-[10px] tracking-[0.3em] text-primary">PROBLEM STATEMENT</p>
+            <p className="mt-2 text-sm whitespace-pre-line">
+              {chosen ? (chosen.problem_statement ?? "—") : selection.custom_statement}
+            </p>
+          </div>
+          <p className="mt-5 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+            {locked
+              ? "// LOCKED BY ORGANISERS — CONTACT A COORDINATOR TO CHANGE"
+              : "// You can change your choice until the organisers lock selections."}
+          </p>
+          {!locked && (
+            <ChangeChoice data={data} onSaved={onSaved} />
+          )}
+        </article>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
+        CHOOSE YOUR PROBLEM STATEMENT
+      </p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Pick one theme for your team. Once selected, the other statements are hidden.
+      </p>
+      <div className="mt-4 grid gap-5 lg:grid-cols-2">
+        {data.themes.map((t, i) => (
+          <article key={t.id} className="panel clip-notch flex flex-col p-5">
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
+              THEME {String(i + 1).padStart(2, "0")}
+            </p>
+            <h3 className="mt-2 font-display text-lg font-bold tracking-widest uppercase">
+              {t.title}
+            </h3>
+            {t.description && <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>}
+            {t.problem_statement && (
+              <div className="mt-4 border-l-2 border-primary/60 pl-3">
+                <p className="font-mono text-[10px] tracking-[0.3em] text-primary">
+                  PROBLEM STATEMENT
+                </p>
+                <p className="mt-2 text-sm whitespace-pre-line">{t.problem_statement}</p>
+              </div>
+            )}
+            <button
+              disabled={mutation.isPending || locked}
+              onClick={() => {
+                if (confirm(`Select "${t.title}" as your team's problem statement?`))
+                  mutation.mutate({ challenge_id: t.id });
+              }}
+              className="clip-notch mt-5 self-start bg-primary px-5 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+            >
+              [ Select this theme ]
+            </button>
+          </article>
+        ))}
+
+        <article className="panel clip-notch flex flex-col border-dashed p-5">
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">THEME 403</p>
+          <h3 className="mt-2 font-display text-lg font-bold tracking-widest uppercase">
+            403 — Problem Statement Not Found
+          </h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Bring your own idea. Define a problem statement of your choice and build for it.
+          </p>
+          {customOpen ? (
+            <div className="mt-4 space-y-3">
+              <input
+                value={title}
+                maxLength={120}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Your problem statement title"
+                className="w-full border border-input bg-surface px-3 py-2.5 font-mono text-xs"
+              />
+              <textarea
+                rows={6}
+                value={statement}
+                maxLength={4000}
+                onChange={(e) => setStatement(e.target.value)}
+                placeholder="Describe the problem you want to solve (min 20 characters)"
+                className="w-full border border-input bg-surface px-3 py-2.5 font-mono text-xs"
+              />
+              <div className="flex gap-3">
+                <button
+                  disabled={mutation.isPending || locked}
+                  onClick={() =>
+                    mutation.mutate({
+                      challenge_id: null,
+                      custom_title: title,
+                      custom_statement: statement,
+                    })
+                  }
+                  className="clip-notch bg-primary px-5 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+                >
+                  {mutation.isPending ? "SAVING..." : "[ Submit statement ]"}
+                </button>
+                <button
+                  onClick={() => setCustomOpen(false)}
+                  className="clip-notch border border-border px-5 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase"
+                >
+                  [ Cancel ]
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              disabled={locked}
+              onClick={() => setCustomOpen(true)}
+              className="clip-notch mt-5 self-start border border-primary px-5 py-2.5 font-mono text-[11px] tracking-[0.2em] text-primary uppercase disabled:opacity-60"
+            >
+              [ Define our own ]
+            </button>
+          )}
+        </article>
+      </div>
+      {locked && (
+        <p className="mt-4 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+          // SELECTIONS ARE LOCKED — CONTACT A COORDINATOR
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Lets a team swap their pick while selections are still open. */
+function ChangeChoice({ data, onSaved }: { data: TeamData; onSaved: () => void }) {
+  const save = useServerFn(selectTheme);
+  const [open, setOpen] = useState(false);
+  const [custom, setCustom] = useState(false);
+  const [title, setTitle] = useState("");
+  const [statement, setStatement] = useState("");
+  const mutation = useMutation({
+    mutationFn: (v: { challenge_id: string | null; custom_title?: string; custom_statement?: string }) =>
+      save({ data: v }),
+    onSuccess: () => {
+      toast.success("Problem statement updated.");
+      setOpen(false);
+      onSaved();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  if (!("themes" in data)) return null;
+
+  if (!open)
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="mt-4 font-mono text-[11px] tracking-[0.2em] text-primary uppercase"
+      >
+        [ Change selection ]
+      </button>
+    );
+
+  return (
+    <div className="mt-5 space-y-3 border-t border-border pt-5">
+      <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground uppercase">
+        Pick a different statement
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {data.themes.map((t) => (
+          <button
+            key={t.id}
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate({ challenge_id: t.id })}
+            className="border border-border px-3 py-2 font-mono text-[11px] tracking-[0.15em] uppercase hover:border-primary hover:text-primary disabled:opacity-60"
+          >
+            {t.title}
+          </button>
+        ))}
+        <button
+          onClick={() => setCustom((v) => !v)}
+          className="border border-primary px-3 py-2 font-mono text-[11px] tracking-[0.15em] text-primary uppercase"
+        >
+          403 — Our own
+        </button>
+      </div>
+      {custom && (
+        <div className="space-y-3">
+          <input
+            value={title}
+            maxLength={120}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Your problem statement title"
+            className="w-full border border-input bg-surface px-3 py-2.5 font-mono text-xs"
+          />
+          <textarea
+            rows={5}
+            value={statement}
+            maxLength={4000}
+            onChange={(e) => setStatement(e.target.value)}
+            placeholder="Describe the problem you want to solve (min 20 characters)"
+            className="w-full border border-input bg-surface px-3 py-2.5 font-mono text-xs"
+          />
+          <button
+            disabled={mutation.isPending}
+            onClick={() =>
+              mutation.mutate({ challenge_id: null, custom_title: title, custom_statement: statement })
+            }
+            className="clip-notch bg-primary px-5 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-60"
+          >
+            {mutation.isPending ? "SAVING..." : "[ Save statement ]"}
+          </button>
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(false)}
+        className="font-mono text-[11px] tracking-[0.2em] text-muted-foreground uppercase"
+      >
+        [ Cancel ]
+      </button>
     </div>
   );
 }
@@ -138,46 +414,8 @@ function TeamPortal() {
             </div>
           </div>
 
-          <div>
-            <p className="font-mono text-[11px] tracking-[0.3em] text-primary">
-              THEMES &amp; PROBLEM STATEMENTS
-            </p>
-            {d.themes_revealed && d.themes.length > 0 ? (
-              <div className="mt-4 grid gap-5 lg:grid-cols-2">
-                {d.themes.map((t, i) => (
-                  <article key={t.id} className="panel clip-notch p-5">
-                    <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
-                      THEME {String(i + 1).padStart(2, "0")}
-                    </p>
-                    <h3 className="mt-2 font-display text-lg font-bold tracking-widest uppercase">
-                      {t.title}
-                    </h3>
-                    {t.description && (
-                      <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
-                    )}
-                    {t.problem_statement && (
-                      <div className="mt-4 border-l-2 border-primary/60 pl-3">
-                        <p className="font-mono text-[10px] tracking-[0.3em] text-primary">
-                          PROBLEM STATEMENT
-                        </p>
-                        <p className="mt-2 text-sm whitespace-pre-line">{t.problem_statement}</p>
-                      </div>
-                    )}
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="panel mt-4 p-5">
-                <p className="font-mono text-xs tracking-[0.2em] text-muted-foreground uppercase">
-                  // LOCKED — THEMES NOT RELEASED YET
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  The themes and problem statements are sealed until the organisers release them.
-                  They will appear here automatically — keep this page handy on event day.
-                </p>
-              </div>
-            )}
-          </div>
+          <ThemePicker data={d} onSaved={() => q.refetch()} />
+
 
 
           <div>

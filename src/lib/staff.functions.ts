@@ -1214,3 +1214,72 @@ export const resetRegistrationSequence = createServerFn({ method: "POST" })
     });
     return { ok: true as const };
   });
+
+/** Theme/problem-statement choices made by each team. */
+export const listThemeSelections = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["admin", "coordinator"]);
+    const { admin } = await import("./db.server");
+    const db = await admin();
+    const { data, error } = await db
+      .from("registrations")
+      .select(
+        "id, registration_code, theme_selected_at, selected_challenge_id, custom_problem_title, custom_problem_statement, teams(team_name, team_code), challenges(title)",
+      )
+      .not("theme_selected_at", "is", null)
+      .order("theme_selected_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => {
+      const row = r as unknown as {
+        id: string;
+        registration_code: string;
+        theme_selected_at: string;
+        custom_problem_title: string | null;
+        custom_problem_statement: string | null;
+        teams: { team_name: string; team_code: string } | null;
+        challenges: { title: string } | null;
+      };
+      return {
+        id: row.id,
+        registration_code: row.registration_code,
+        team_name: row.teams?.team_name ?? "—",
+        team_code: row.teams?.team_code ?? "—",
+        theme_title: row.challenges?.title ?? `403 — ${row.custom_problem_title ?? "Custom"}`,
+        is_custom: !row.challenges,
+        custom_statement: row.custom_problem_statement,
+        selected_at: row.theme_selected_at,
+      };
+    });
+  });
+
+/** Clears a team's pick so they can choose again. */
+export const resetThemeSelection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ registration_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { requireRole } = await import("./staff.server");
+    await requireRole(context.supabase, context.userId, ["admin"]);
+    const { admin, writeAudit } = await import("./db.server");
+    const db = await admin();
+    const { error } = await db
+      .from("registrations")
+      .update({
+        selected_challenge_id: null,
+        custom_problem_title: null,
+        custom_problem_statement: null,
+        theme_selected_at: null,
+      } as never)
+      .eq("id", data.registration_id);
+    if (error) throw new Error(error.message);
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: "admin",
+      action: "THEME_SELECTION_RESET",
+      entity: "registrations",
+      entity_id: data.registration_id,
+      metadata: {},
+    });
+    return { ok: true };
+  });
