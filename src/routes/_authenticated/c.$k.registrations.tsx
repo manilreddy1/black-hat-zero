@@ -25,6 +25,7 @@ type EditMember = {
   phone: string;
   student_id: string;
   department: string;
+  food_pref: "VEG" | "NON_VEG";
 };
 
 
@@ -152,6 +153,7 @@ function RegistrationsPage() {
         phone: localPhone(m.phone ?? ""),
         student_id: m.student_id ?? "",
         department: m.department ?? d.team?.department ?? "",
+        food_pref: (m.food_pref === "NON_VEG" ? "NON_VEG" : "VEG") as "VEG" | "NON_VEG",
       })),
     });
     setEditing(true);
@@ -423,7 +425,8 @@ function RegistrationsPage() {
                       {detail.data.members.map((m) => (
                         <li key={m.id}>
                           {String(m.member_index).padStart(2, "0")} · {m.full_name} · {m.email} ·{" "}
-                          {m.phone} · {m.student_id ?? "—"} · {m.department ?? "—"}
+                          {m.phone} · {m.student_id ?? "—"} · {m.department ?? "—"} ·{" "}
+                          {m.food_pref === "NON_VEG" ? "Non-veg" : "Veg"}
                         </li>
                       ))}
                     </ul>
@@ -526,6 +529,16 @@ function RegistrationsPage() {
                               <option key={o}>{o}</option>
                             ))}
                           </select>
+                          <select
+                            value={m.food_pref}
+                            onChange={(e) =>
+                              setMember(i, { food_pref: e.target.value as "VEG" | "NON_VEG" })
+                            }
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          >
+                            <option value="VEG">Veg</option>
+                            <option value="NON_VEG">Non-veg</option>
+                          </select>
                         </div>
                       ))}
 
@@ -542,6 +555,7 @@ function RegistrationsPage() {
                                 phone: "",
                                 student_id: "",
                                 department: edit.department,
+                                food_pref: "VEG",
                               },
                             ],
                           })
