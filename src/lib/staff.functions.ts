@@ -931,6 +931,7 @@ export const updateRegistrationTeam = createServerFn({ method: "POST" })
                 .preprocess(cleanRoll, z.string().length(10))
                 .refine((v) => ROLL_RE.test(v as string), "Roll number must match 2_X0_A62__"),
               department: dept,
+              food_pref: z.enum(["VEG", "NON_VEG"]).default("VEG"),
             }),
           )
           .min(1)
@@ -1009,6 +1010,7 @@ export const updateRegistrationTeam = createServerFn({ method: "POST" })
         student_id: m.student_id,
         department: m.department || data.department,
         year: m.year,
+        food_pref: m.food_pref,
         is_leader: i === 0,
       };
       if (m.id) await db.from("team_members").update(row).eq("id", m.id);

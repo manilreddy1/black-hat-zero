@@ -25,6 +25,7 @@ type EditMember = {
   phone: string;
   student_id: string;
   department: string;
+  food_pref: "VEG" | "NON_VEG";
 };
 
 
