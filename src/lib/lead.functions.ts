@@ -68,7 +68,7 @@ export const getMyTeam = createServerFn({ method: "GET" })
     // switch in event settings; before that leads only see "not released yet".
     const { data: settings } = await db
       .from("event_settings")
-      .select("themes_revealed, whatsapp_group_url")
+      .select("themes_revealed, whatsapp_group_url, theme_selection_locked")
       .limit(1)
       .maybeSingle();
     const themesRevealed = Boolean(
@@ -187,3 +187,66 @@ export const requestLeadPassword = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+/** Team lead picks their problem statement (or writes a custom "403" one). */
+export const selectTheme = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        challenge_id: z.string().uuid().nullable(),
+        custom_title: z.string().max(120).optional(),
+        custom_statement: z.string().max(4000).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const email = String((context.claims as { email?: string })?.email ?? "").toLowerCase();
+    const found = await myTeam(context.userId, email);
+    if (!found) throw new Error("No team found for this account.");
+    const { db, reg } = found;
+
+    const { data: settings } = await db
+      .from("event_settings")
+      .select("themes_revealed, theme_selection_locked")
+      .limit(1)
+      .maybeSingle();
+    const s = settings as { themes_revealed?: boolean; theme_selection_locked?: boolean } | null;
+    if (!s?.themes_revealed) throw new Error("Problem statements have not been released yet.");
+    const confirmed = reg.status === "REGISTERED" || reg.status === "PAYMENT_APPROVED";
+    if (!confirmed) throw new Error("Your registration is not confirmed yet.");
+    if (s.theme_selection_locked) throw new Error("Selections are locked by the organisers.");
+
+    let patch: Record<string, unknown>;
+    if (data.challenge_id) {
+      const { data: ch } = await db
+        .from("challenges")
+        .select("id")
+        .eq("id", data.challenge_id)
+        .eq("is_published", true)
+        .maybeSingle();
+      if (!ch) throw new Error("That theme is not available.");
+      patch = {
+        selected_challenge_id: data.challenge_id,
+        custom_problem_title: null,
+        custom_problem_statement: null,
+        theme_selected_at: new Date().toISOString(),
+      };
+    } else {
+      const title = (data.custom_title ?? "").trim();
+      const statement = (data.custom_statement ?? "").trim();
+      if (title.length < 3) throw new Error("Give your problem statement a title.");
+      if (statement.length < 20)
+        throw new Error("Describe your problem statement in at least 20 characters.");
+      patch = {
+        selected_challenge_id: null,
+        custom_problem_title: title,
+        custom_problem_statement: statement,
+        theme_selected_at: new Date().toISOString(),
+      };
+    }
+
+    const { error } = await db.from("registrations").update(patch as never).eq("id", reg.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
