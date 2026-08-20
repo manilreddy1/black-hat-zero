@@ -111,19 +111,6 @@ function ThemePicker({ data, onSaved }: { data: TeamData; onSaved: () => void })
               : "// You can change your choice until the organisers lock selections."}
           </p>
           {!locked && (
-            <button
-              disabled={mutation.isPending}
-              onClick={() => {
-                if (confirm("Clear your choice and pick a different problem statement?"))
-                  mutation.mutate({ challenge_id: null, custom_title: "__RESET__", custom_statement: "" });
-              }}
-              className="mt-4 font-mono text-[11px] tracking-[0.2em] text-primary uppercase disabled:opacity-60"
-              hidden
-            >
-              [ Change ]
-            </button>
-          )}
-          {!locked && (
             <ChangeChoice data={data} onSaved={onSaved} />
           )}
         </article>
