@@ -153,6 +153,7 @@ function RegistrationsPage() {
         phone: localPhone(m.phone ?? ""),
         student_id: m.student_id ?? "",
         department: m.department ?? d.team?.department ?? "",
+        food_pref: (m.food_pref === "NON_VEG" ? "NON_VEG" : "VEG") as "VEG" | "NON_VEG",
       })),
     });
     setEditing(true);
@@ -527,6 +528,16 @@ function RegistrationsPage() {
                               <option key={o}>{o}</option>
                             ))}
                           </select>
+                          <select
+                            value={m.food_pref}
+                            onChange={(e) =>
+                              setMember(i, { food_pref: e.target.value as "VEG" | "NON_VEG" })
+                            }
+                            className="w-full border border-input bg-background px-3 py-2 font-mono text-xs"
+                          >
+                            <option value="VEG">Veg</option>
+                            <option value="NON_VEG">Non-veg</option>
+                          </select>
                         </div>
                       ))}
 
@@ -543,6 +554,7 @@ function RegistrationsPage() {
                                 phone: "",
                                 student_id: "",
                                 department: edit.department,
+                                food_pref: "VEG",
                               },
                             ],
                           })
