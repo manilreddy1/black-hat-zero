@@ -317,6 +317,7 @@ export type Database = {
           start_at: string
           start_time: string
           tagline: string
+          theme_selection_locked: boolean
           themes_revealed: boolean
           updated_at: string
           upi_id: string
@@ -355,6 +356,7 @@ export type Database = {
           start_at?: string
           start_time?: string
           tagline?: string
+          theme_selection_locked?: boolean
           themes_revealed?: boolean
           updated_at?: string
           upi_id?: string
@@ -393,6 +395,7 @@ export type Database = {
           start_at?: string
           start_time?: string
           tagline?: string
+          theme_selection_locked?: boolean
           themes_revealed?: boolean
           updated_at?: string
           upi_id?: string
@@ -761,53 +764,72 @@ export type Database = {
       registrations: {
         Row: {
           created_at: string
+          custom_problem_statement: string | null
+          custom_problem_title: string | null
           expected_amount: number
           fee_at_registration: number
           id: string
           is_demo: boolean
           is_waitlisted: boolean
           registration_code: string
+          selected_challenge_id: string | null
           status: Database["public"]["Enums"]["reg_status"]
           submitted_at: string
           team_id: string
           team_size: number
+          theme_selected_at: string | null
           updated_at: string
           verified_at: string | null
           verified_by: string | null
         }
         Insert: {
           created_at?: string
+          custom_problem_statement?: string | null
+          custom_problem_title?: string | null
           expected_amount: number
           fee_at_registration: number
           id?: string
           is_demo?: boolean
           is_waitlisted?: boolean
           registration_code: string
+          selected_challenge_id?: string | null
           status?: Database["public"]["Enums"]["reg_status"]
           submitted_at?: string
           team_id: string
           team_size: number
+          theme_selected_at?: string | null
           updated_at?: string
           verified_at?: string | null
           verified_by?: string | null
         }
         Update: {
           created_at?: string
+          custom_problem_statement?: string | null
+          custom_problem_title?: string | null
           expected_amount?: number
           fee_at_registration?: number
           id?: string
           is_demo?: boolean
           is_waitlisted?: boolean
           registration_code?: string
+          selected_challenge_id?: string | null
           status?: Database["public"]["Enums"]["reg_status"]
           submitted_at?: string
           team_id?: string
           team_size?: number
+          theme_selected_at?: string | null
           updated_at?: string
           verified_at?: string | null
           verified_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "registrations_selected_challenge_id_fkey"
+            columns: ["selected_challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "registrations_team_id_fkey"
             columns: ["team_id"]
