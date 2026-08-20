@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { siteContentQuery } from "@/hooks/useSiteContent";
+import { Logo } from "@/components/site/Logo";
 import { Hero } from "@/components/site/Hero";
 import {
   AboutSection,
@@ -49,19 +50,32 @@ function PostponementBanner() {
   if (dismissed) return null;
 
   return (
-    <div className="fixed top-0 right-0 left-0 z-50 border-b border-primary/30 bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <p className="text-sm font-medium text-foreground sm:text-base">
-          <span className="mr-2 inline-flex h-2 w-2 animate-pulse rounded-full bg-primary" />
-          EVENT POSTPONED: BLACK HAT ZERO &apos;26 is now scheduled for{" "}
-          <strong className="text-primary">2 &amp; 3 September</strong> instead of 21 &amp; 22 August.
-        </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm">
+      <div className="panel clip-notch relative flex max-w-lg flex-col items-center gap-6 p-8 text-center sm:p-12">
+        <span className="absolute top-0 left-0 h-px w-full bg-primary/50" />
+        <span className="absolute bottom-0 right-0 h-px w-full bg-primary/50" />
+
+        <Logo className="h-24 w-24 sm:h-32 sm:w-32" />
+
+        <div>
+          <h2 className="font-display text-2xl font-bold tracking-wider uppercase text-primary sm:text-3xl">
+            Event Postponed
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
+            BLACK HAT ZERO &apos;26 has been rescheduled.
+          </p>
+          <p className="mt-2 text-lg font-semibold text-foreground sm:text-xl">
+            21 &amp; 22 August {" "}
+            <span className="mx-2 text-primary">→</span> 2 &amp; 3 September
+          </p>
+        </div>
+
         <button
           onClick={() => {
             localStorage.setItem("bh-postponed-seen", "1");
             setDismissed(true);
           }}
-          className="clip-notch shrink-0 bg-primary px-4 py-1.5 font-mono text-xs font-bold tracking-[0.15em] text-primary-foreground uppercase hover:shadow-[var(--glow-red)]"
+          className="clip-notch w-full max-w-xs bg-primary px-8 py-3 font-mono text-sm font-bold tracking-[0.2em] text-primary-foreground uppercase transition-shadow hover:shadow-[var(--glow-red)]"
         >
           OK
         </button>
