@@ -139,7 +139,7 @@ function StatusPage() {
               </Link>
             )}
 
-            {result.members.length > 0 && (
+            {result.status === "REGISTERED" && result.members.length > 0 && (
               <div className="mt-6 border-t border-border pt-5">
                 <button
                   type="button"
