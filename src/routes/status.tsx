@@ -32,6 +32,8 @@ function StatusPage() {
   const t = useT();
   const lookup = useServerFn(lookupRegistration);
   const [query, setQuery] = useState("");
+  const [showRolls, setShowRolls] = useState(false);
+
   const mutation = useMutation({ mutationFn: (q: string) => lookup({ data: { query: q } }) });
   const result = mutation.data;
 
@@ -136,6 +138,35 @@ function StatusPage() {
                 [ Complete payment ]
               </Link>
             )}
+
+            {result.members.length > 0 && (
+              <div className="mt-6 border-t border-border pt-5">
+                <button
+                  type="button"
+                  onClick={() => setShowRolls((v) => !v)}
+                  className="clip-notch border border-border px-5 py-3 font-mono text-xs tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+                >
+                  {showRolls ? "[ Hide roll no ]" : "[ Show roll no ]"}
+                </button>
+
+                {showRolls && (
+                  <div className="mt-4 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2">
+                    {result.members.map((m, i) => (
+                      <div key={i} className="bg-surface p-4">
+                        <p className="font-mono text-[10px] tracking-[0.3em] text-primary">
+                          {m.is_leader ? "TEAM LEAD" : `MEMBER ${i + 1}`}
+                        </p>
+                        <p className="mt-1 text-sm break-words">{m.full_name}</p>
+                        <p className="mt-1 font-mono text-xs tracking-[0.15em] text-muted-foreground">
+                          {m.student_id ?? "—"}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
 
           </motion.div>
         )}
