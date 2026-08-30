@@ -32,6 +32,8 @@ function StatusPage() {
   const t = useT();
   const lookup = useServerFn(lookupRegistration);
   const [query, setQuery] = useState("");
+  const [showRolls, setShowRolls] = useState(false);
+
   const mutation = useMutation({ mutationFn: (q: string) => lookup({ data: { query: q } }) });
   const result = mutation.data;
 
