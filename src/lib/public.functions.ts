@@ -312,7 +312,13 @@ export const lookupRegistration = createServerFn({ method: "POST" })
       registration_id: reg.id,
       rejection_reason: rejection?.reason ?? null,
       retry_requested: rejection?.retry_requested ?? false,
+      members: (members ?? []).map((m) => ({
+        full_name: m.full_name as string,
+        student_id: (m.student_id as string | null) ?? null,
+        is_leader: !!m.is_leader,
+      })),
     };
+
   });
 
 /** Latest rejection reason + whether the team already asked for another chance. */
