@@ -709,7 +709,7 @@ function RegistrationsPage() {
                   </div>
                 )}
 
-                {detail.data.registration.status === "PAYMENT_REVIEW" && (
+                {!isViewOnly && detail.data.registration.status === "PAYMENT_REVIEW" && (
                   <div className="space-y-3 border-t border-border pt-4">
                     <p className="font-mono text-[11px] tracking-[0.3em] text-primary">VERIFY</p>
                     <select
