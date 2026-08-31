@@ -287,12 +287,15 @@ function RegistrationsPage() {
               [ Send tokens to all teams ]
             </button>
           )}
-          <button
-            onClick={exportCsv}
-            className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
-          >
-            [ Export CSV ]
-          </button>
+          {!isViewOnly && (
+            <button
+              onClick={exportCsv}
+              className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+            >
+              [ Export CSV ]
+            </button>
+          )}
+
         </div>
       </div>
 
