@@ -55,6 +55,9 @@ function RegistrationsPage() {
   const me = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
   const isSuper = !!me.data?.roles.includes("super_admin");
   const isAdmin = isSuper || !!me.data?.roles.includes("admin");
+  const isViewOnly =
+    !isAdmin && !me.data?.roles.includes("payment_verifier") && !!me.data?.roles.includes("coordinator");
+
 
 
   const [status, setStatus] = useState("ALL");
