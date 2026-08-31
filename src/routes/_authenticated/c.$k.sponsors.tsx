@@ -239,7 +239,7 @@ function SponsorsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => saveMutation.mutate(editing)}
-              disabled={saveMutation.isPending || !editing.name.trim()}
+              disabled={saveMutation.isPending || !(editing.name ?? "").trim()}
               className="bg-primary px-4 py-2 font-mono text-[11px] tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-50"
             >
               [ Save ]
