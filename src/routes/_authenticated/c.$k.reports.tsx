@@ -81,12 +81,18 @@ const TABS = [
   { id: "registrations", label: "Registrations" },
 ] as const;
 
+const parentApi = getRouteApi("/_authenticated/c/$k");
+
 function ReportsPage() {
   const fn = useServerFn(getReports);
+  const roles = parentApi.useLoaderData().roles as string[];
+  const isViewOnly =
+    !roles.some((r) => r === "admin" || r === "super_admin") && roles.includes("coordinator");
   const q = useQuery({ queryKey: ["reports"], queryFn: () => fn(), refetchInterval: 20000 });
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("present");
   const [search, setSearch] = useState("");
   const d = q.data;
+
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
