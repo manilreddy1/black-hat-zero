@@ -37,19 +37,21 @@ export const Route = createFileRoute("/_authenticated/c/$k")({
 });
 
 const LINKS = [
-  { to: "/c/$k", label: "Overview", roles: ["admin", "coordinator", "payment_verifier"] },
+  { to: "/c/$k", label: "Overview", roles: ["admin", "payment_verifier"] },
   {
     to: "/c/$k/registrations",
     label: "Registrations",
-    roles: ["admin", "coordinator", "payment_verifier"],
+    roles: ["admin", "payment_verifier"],
   },
   {
     to: "/c/$k/checkin",
     label: "Check-in",
     roles: ["admin", "coordinator"],
   },
-  { to: "/c/$k/reports", label: "Reports", roles: ["admin", "coordinator"] },
-  { to: "/c/$k/messages", label: "Messages", roles: ["admin", "coordinator"] },
+  { to: "/c/$k/reports", label: "Reports", roles: ["admin"] },
+  { to: "/c/$k/messages", label: "Messages", roles: ["admin"] },
+
+
 
   { to: "/c/$k/themes", label: "Themes", roles: ["admin"] },
   { to: "/c/$k/sponsors", label: "Sponsors", roles: ["admin"] },
