@@ -110,16 +110,20 @@ function ReportsPage() {
             Event reports
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Live attendance, meal redemption and registration records. Export any list as CSV.
+            Live attendance, meal redemption and registration records.
+            {isViewOnly ? " View only." : " Export any list as CSV."}
           </p>
         </div>
-        <button
-          onClick={() => download(tab, filtered)}
-          disabled={filtered.length === 0}
-          className="clip-notch bg-primary px-5 py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-50"
-        >
-          [ Export CSV ]
-        </button>
+        {!isViewOnly && (
+          <button
+            onClick={() => download(tab, filtered)}
+            disabled={filtered.length === 0}
+            className="clip-notch bg-primary px-5 py-3 font-mono text-[11px] font-bold tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-50"
+          >
+            [ Export CSV ]
+          </button>
+        )}
+
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
