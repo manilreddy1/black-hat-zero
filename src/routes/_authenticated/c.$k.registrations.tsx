@@ -55,6 +55,9 @@ function RegistrationsPage() {
   const me = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
   const isSuper = !!me.data?.roles.includes("super_admin");
   const isAdmin = isSuper || !!me.data?.roles.includes("admin");
+  const isViewOnly =
+    !isAdmin && !me.data?.roles.includes("payment_verifier") && !!me.data?.roles.includes("coordinator");
+
 
 
   const [status, setStatus] = useState("ALL");
@@ -284,12 +287,15 @@ function RegistrationsPage() {
               [ Send tokens to all teams ]
             </button>
           )}
-          <button
-            onClick={exportCsv}
-            className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
-          >
-            [ Export CSV ]
-          </button>
+          {!isViewOnly && (
+            <button
+              onClick={exportCsv}
+              className="clip-notch border border-border px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
+            >
+              [ Export CSV ]
+            </button>
+          )}
+
         </div>
       </div>
 
@@ -684,7 +690,7 @@ function RegistrationsPage() {
                   </div>
                 )}
 
-                {detail.data.registration.status === "PAYMENT_REJECTED" && (
+                {!isViewOnly && detail.data.registration.status === "PAYMENT_REJECTED" && (
                   <div className="space-y-3 border-t border-border pt-4">
                     <p className="font-mono text-[11px] tracking-[0.3em] text-destructive">
                       REJECTED — ANOTHER CHANCE
@@ -703,7 +709,7 @@ function RegistrationsPage() {
                   </div>
                 )}
 
-                {detail.data.registration.status === "PAYMENT_REVIEW" && (
+                {!isViewOnly && detail.data.registration.status === "PAYMENT_REVIEW" && (
                   <div className="space-y-3 border-t border-border pt-4">
                     <p className="font-mono text-[11px] tracking-[0.3em] text-primary">VERIFY</p>
                     <select

@@ -41,15 +41,17 @@ const LINKS = [
   {
     to: "/c/$k/registrations",
     label: "Registrations",
-    roles: ["admin", "payment_verifier"],
+    roles: ["admin", "coordinator", "payment_verifier"],
   },
   {
     to: "/c/$k/checkin",
     label: "Check-in",
     roles: ["admin", "coordinator"],
   },
-  { to: "/c/$k/reports", label: "Reports", roles: ["admin"] },
+  { to: "/c/$k/reports", label: "Reports", roles: ["admin", "coordinator"] },
   { to: "/c/$k/messages", label: "Messages", roles: ["admin"] },
+
+
 
 
 
