@@ -278,7 +278,16 @@ function SponsorsPage() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => setEditing({ ...s })}
+                onClick={() =>
+                  setEditing({
+                    ...s,
+                    name: s.name ?? "",
+                    tier: s.tier ?? "",
+                    logo_url: s.logo_url ?? "",
+                    website: s.website ?? "",
+                    sort_order: Number(s.sort_order) || 0,
+                  })
+                }
                 className="border border-border px-3 py-1.5 font-mono text-[10px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
               >
                 Edit
