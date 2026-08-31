@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi, Navigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -19,8 +19,21 @@ import { getDashboardStats } from "@/lib/staff.functions";
 import { formatMoney } from "@/lib/constants";
 
 export const Route = createFileRoute("/_authenticated/c/$k/")({
-  component: Overview,
+  component: OverviewGate,
 });
+
+const parentApi = getRouteApi("/_authenticated/c/$k");
+
+function OverviewGate() {
+  const { k } = Route.useParams();
+  const roles = parentApi.useLoaderData().roles as string[];
+  const coordinatorOnly =
+    roles.includes("coordinator") &&
+    !roles.some((r) => r === "admin" || r === "super_admin" || r === "payment_verifier");
+  if (coordinatorOnly) return <Navigate to="/c/$k/checkin" params={{ k }} replace />;
+  return <Overview />;
+}
+
 
 const CHART_COLORS = ["#e11d2e", "#f97362", "#8a8f98", "#4b5057"];
 
