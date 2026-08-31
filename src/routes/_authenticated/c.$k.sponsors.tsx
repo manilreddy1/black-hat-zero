@@ -60,10 +60,10 @@ function SponsorsPage() {
           table: "sponsors",
           id: row.id ?? null,
           values: {
-            name: row.name.trim(),
-            tier: row.tier.trim() || "Partners",
-            logo_url: row.logo_url.trim(),
-            website: row.website.trim(),
+            name: (row.name ?? "").trim(),
+            tier: (row.tier ?? "").trim() || "Partners",
+            logo_url: (row.logo_url ?? "").trim(),
+            website: (row.website ?? "").trim(),
             sort_order: Number(row.sort_order) || 0,
             is_published: row.is_published,
           },
@@ -239,7 +239,7 @@ function SponsorsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => saveMutation.mutate(editing)}
-              disabled={saveMutation.isPending || !editing.name.trim()}
+              disabled={saveMutation.isPending || !(editing.name ?? "").trim()}
               className="bg-primary px-4 py-2 font-mono text-[11px] tracking-[0.2em] text-primary-foreground uppercase disabled:opacity-50"
             >
               [ Save ]
@@ -278,7 +278,16 @@ function SponsorsPage() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => setEditing({ ...s })}
+                onClick={() =>
+                  setEditing({
+                    ...s,
+                    name: s.name ?? "",
+                    tier: s.tier ?? "",
+                    logo_url: s.logo_url ?? "",
+                    website: s.website ?? "",
+                    sort_order: Number(s.sort_order) || 0,
+                  })
+                }
                 className="border border-border px-3 py-1.5 font-mono text-[10px] tracking-[0.2em] uppercase hover:border-primary hover:text-primary"
               >
                 Edit
