@@ -828,6 +828,8 @@ function RegistrationsPage() {
         </div>
       )}
 
+      {spotOpen && isSuper && <SpotRegistration onClose={() => setSpotOpen(false)} />}
+
       {pendingDelete && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-background/85 p-4 backdrop-blur-sm"
