@@ -17,6 +17,7 @@ import {
 import { formatMoney, REJECTION_REASONS } from "@/lib/constants";
 import { DEPARTMENT_OPTIONS, localPhone } from "@/lib/schemas";
 import { StatusBadge } from "@/components/site/StatusBadge";
+import { SpotRegistration } from "@/components/staff/SpotRegistration";
 
 type EditMember = {
   id: string | null;
