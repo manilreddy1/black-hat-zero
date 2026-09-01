@@ -70,6 +70,7 @@ function RegistrationsPage() {
     null,
   );
   const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
+  const [spotOpen, setSpotOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [edit, setEdit] = useState<{
     team_name: string;
