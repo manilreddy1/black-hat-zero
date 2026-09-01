@@ -1302,7 +1302,9 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
         team_name: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.team_name)),
         college: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.college)),
         department: dept,
-        payment_collected: z.boolean().optional().default(true),
+        utr_number: z
+          .preprocess((v) => String(v ?? "").replace(/\D/g, ""), z.string())
+          .refine((v) => /^\d{12}$/.test(v as string), "UTR must be exactly 12 digits"),
         note: z.preprocess((v) => clean(v ?? ""), z.string().max(200)).optional(),
         members: z
           .array(
