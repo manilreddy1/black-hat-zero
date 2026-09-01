@@ -17,6 +17,7 @@ import {
 import { formatMoney, REJECTION_REASONS } from "@/lib/constants";
 import { DEPARTMENT_OPTIONS, localPhone } from "@/lib/schemas";
 import { StatusBadge } from "@/components/site/StatusBadge";
+import { SpotRegistration } from "@/components/staff/SpotRegistration";
 
 type EditMember = {
   id: string | null;
@@ -69,6 +70,7 @@ function RegistrationsPage() {
     null,
   );
   const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
+  const [spotOpen, setSpotOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [edit, setEdit] = useState<{
     team_name: string;
@@ -271,6 +273,14 @@ function RegistrationsPage() {
           <h1 className="mt-2 font-display text-3xl font-bold tracking-widest uppercase">Teams</h1>
         </div>
         <div className="flex flex-wrap gap-3">
+          {isSuper && (
+            <button
+              onClick={() => setSpotOpen(true)}
+              className="clip-notch border border-primary px-4 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] text-primary uppercase hover:bg-primary hover:text-primary-foreground"
+            >
+              [ Spot registration ]
+            </button>
+          )}
           {isAdmin && (
             <button
               disabled={releaseAll.isPending}
@@ -817,6 +827,8 @@ function RegistrationsPage() {
           </div>
         </div>
       )}
+
+      {spotOpen && isSuper && <SpotRegistration onClose={() => setSpotOpen(false)} />}
 
       {pendingDelete && (
         <div
