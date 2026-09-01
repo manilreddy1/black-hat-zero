@@ -1283,3 +1283,175 @@ export const resetThemeSelection = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/**
+ * Spot registration — super admins only. Creates a walk-in team at the venue,
+ * bypassing the public registration window. Payment can be marked collected on
+ * the spot (team goes straight to REGISTERED) or left pending.
+ */
+export const createSpotRegistration = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => {
+    const { clean, cleanEmail, cleanPhone, cleanRoll, DEPARTMENT_OPTIONS, FIELD_LIMITS, ROLL_RE, yearFromDepartment } =
+      SCHEMAS;
+    const dept = z
+      .preprocess((v) => clean(v ?? ""), z.string().max(FIELD_LIMITS.department))
+      .refine((v) => v === "" || DEPARTMENT_OPTIONS.includes(v as string), "Select a valid department");
+    return z
+      .object({
+        team_name: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.team_name)),
+        college: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.college)),
+        department: dept,
+        payment_collected: z.boolean().optional().default(true),
+        note: z.preprocess((v) => clean(v ?? ""), z.string().max(200)).optional(),
+        members: z
+          .array(
+            z.object({
+              full_name: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.name)),
+              email: z.preprocess(cleanEmail, z.string().email().max(FIELD_LIMITS.email)),
+              phone: z
+                .preprocess(cleanPhone, z.string())
+                .refine((v) => /^\+91[6-9]\d{9}$/.test(v as string), "Enter a valid 10-digit mobile number"),
+              student_id: z
+                .preprocess(cleanRoll, z.string().length(10))
+                .refine((v) => ROLL_RE.test(v as string), "Roll number must match 2_X0_A62__"),
+              department: dept,
+              food_pref: z.enum(["VEG", "NON_VEG"]).default("VEG"),
+            }),
+          )
+          .min(1)
+          .max(10),
+      })
+      .refine((v) => new Set(v.members.map((m) => m.email)).size === v.members.length, {
+        message: "Each member must have a unique email address",
+      })
+      .refine((v) => new Set(v.members.map((m) => m.phone)).size === v.members.length, {
+        message: "Each member must have a unique phone number",
+      })
+      .transform((v) => ({
+        ...v,
+        members: v.members.map((m) => ({ ...m, year: yearFromDepartment(m.department || v.department) })),
+      }))
+      .parse(d);
+  })
+  .handler(async ({ data, context }) => {
+    const { getRoles } = await import("./staff.server");
+    const roles = await getRoles(context.supabase, context.userId);
+    if (!roles.includes("super_admin"))
+      throw new Error("Unauthorized: super admin access required.");
+
+    const { admin, writeAudit, padCode } = await import("./db.server");
+    const db = await admin();
+
+    const { data: settings } = await db.from("event_settings").select("*").limit(1).maybeSingle();
+    if (!settings) throw new Error("Event configuration unavailable.");
+
+    const leader = data.members[0]!;
+
+    const { data: dupe } = await db
+      .from("teams")
+      .select("id")
+      .ilike("leader_email", leader.email)
+      .limit(1)
+      .maybeSingle();
+    if (dupe) throw new Error("A team is already registered with this leader email.");
+
+    const { data: nameDupe } = await db
+      .from("teams")
+      .select("id")
+      .ilike("team_name", data.team_name)
+      .limit(1)
+      .maybeSingle();
+    if (nameDupe) throw new Error("That team name is already taken.");
+
+    const fee = settings.registration_fee;
+    const expected = fee * data.members.length;
+
+    const seq = await db.rpc("next_registration_number");
+    if (seq.error) throw new Error("Could not allocate a registration ID.");
+    const n = Number(seq.data);
+    const year = new Date(settings.event_date).getFullYear();
+    const registration_code = `BH0-${year}-${padCode(n, 5)}`;
+    const team_code = `BH0-TEAM-${padCode(n, 4)}`;
+
+    const { data: team, error: teamErr } = await db
+      .from("teams")
+      .insert({
+        team_code,
+        team_name: data.team_name,
+        leader_name: leader.full_name,
+        leader_email: leader.email,
+        leader_phone: leader.phone,
+        college: data.college,
+        department: data.department,
+        year: SCHEMAS.yearFromDepartment(data.department),
+        city: null,
+        team_size: data.members.length,
+      })
+      .select("id, team_code")
+      .single();
+    if (teamErr || !team) throw new Error("Could not create the team record.");
+
+    await db.from("team_members").insert(
+      data.members.map((m, i) => ({
+        team_id: team.id,
+        member_index: i + 1,
+        full_name: m.full_name,
+        email: m.email,
+        phone: m.phone,
+        student_id: m.student_id,
+        department: m.department || data.department,
+        year: m.year,
+        food_pref: m.food_pref,
+        is_leader: i === 0,
+      })),
+    );
+
+    const status = data.payment_collected ? "REGISTERED" : "PAYMENT_PENDING";
+    const { data: reg, error: regErr } = await db
+      .from("registrations")
+      .insert({
+        registration_code,
+        team_id: team.id,
+        status,
+        team_size: data.members.length,
+        fee_at_registration: fee,
+        expected_amount: expected,
+        verified_by: data.payment_collected ? context.userId : null,
+        verified_at: data.payment_collected ? new Date().toISOString() : null,
+      })
+      .select("id, registration_code, status, expected_amount")
+      .single();
+    if (regErr || !reg) throw new Error("Could not create the registration.");
+
+    await db.from("registration_status_history").insert({
+      registration_id: reg.id,
+      from_status: "DRAFT",
+      to_status: status,
+      note: data.note || "Spot registration (super admin)",
+      changed_by: context.userId,
+    });
+
+    await writeAudit({
+      actor_id: context.userId,
+      actor_role: "super_admin",
+      action: "SPOT_REGISTRATION_CREATED",
+      entity: "registrations",
+      entity_id: reg.id,
+      metadata: {
+        registration_code,
+        team_code,
+        team_size: data.members.length,
+        expected,
+        payment_collected: data.payment_collected,
+      },
+    });
+
+    return {
+      registration_id: reg.id,
+      registration_code,
+      team_code,
+      status,
+      expected_amount: expected,
+    };
+  });
