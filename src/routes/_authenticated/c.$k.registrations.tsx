@@ -273,6 +273,14 @@ function RegistrationsPage() {
           <h1 className="mt-2 font-display text-3xl font-bold tracking-widest uppercase">Teams</h1>
         </div>
         <div className="flex flex-wrap gap-3">
+          {isSuper && (
+            <button
+              onClick={() => setSpotOpen(true)}
+              className="clip-notch border border-primary px-4 py-2.5 font-mono text-[11px] font-bold tracking-[0.2em] text-primary uppercase hover:bg-primary hover:text-primary-foreground"
+            >
+              [ Spot registration ]
+            </button>
+          )}
           {isAdmin && (
             <button
               disabled={releaseAll.isPending}
