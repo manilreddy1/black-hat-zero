@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { createSpotRegistration } from "@/lib/staff.functions";
+import QRCode from "react-qr-code";
+import { createSpotRegistration, getSpotPaymentSettings } from "@/lib/staff.functions";
 import { DEPARTMENT_OPTIONS } from "@/lib/schemas";
+import { buildUpiUri, formatMoney } from "@/lib/constants";
+import upiLogo from "@/assets/upi-logo.png.asset.json";
 
 type Member = {
   full_name: string;
