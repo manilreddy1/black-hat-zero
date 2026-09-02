@@ -34,12 +34,15 @@ const label = "font-mono text-[10px] tracking-[0.25em] text-muted-foreground upp
 export function SpotRegistration({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const createFn = useServerFn(createSpotRegistration);
+  const settingsFn = useServerFn(getSpotPaymentSettings);
+  const { data: pay } = useQuery({ queryKey: ["spot-pay-settings"], queryFn: () => settingsFn({}) });
 
   const defaultDept = DEPARTMENT_OPTIONS[0] ?? "";
   const [teamName, setTeamName] = useState("");
   const [college, setCollege] = useState("Narsimha Reddy Engineering College");
   const [department, setDepartment] = useState(defaultDept);
-  const [paymentCollected, setPaymentCollected] = useState(true);
+  const [paymentMode, setPaymentMode] = useState<"UPI" | "CASH">("UPI");
+  const [utr, setUtr] = useState("");
   const [note, setNote] = useState("");
   const [members, setMembers] = useState<Member[]>([
     emptyMember(defaultDept),
@@ -49,6 +52,20 @@ export function SpotRegistration({ onClose }: { onClose: () => void }) {
   const setMember = (i: number, patch: Partial<Member>) =>
     setMembers((s) => s.map((m, j) => (j === i ? { ...m, ...patch } : m)));
 
+  const amount = (pay?.registration_fee ?? 0) * members.length;
+  const upiUri = useMemo(
+    () =>
+      pay?.upi_id && amount > 0
+        ? buildUpiUri({
+            upiId: pay.upi_id,
+            payeeName: pay.upi_payee_name,
+            amount,
+            note: teamName.trim() || "SPOT REGISTRATION",
+          })
+        : "",
+    [pay, amount, teamName],
+  );
+
   const create = useMutation({
     mutationFn: () =>
       createFn({
@@ -56,7 +73,8 @@ export function SpotRegistration({ onClose }: { onClose: () => void }) {
           team_name: teamName,
           college,
           department,
-          payment_collected: paymentCollected,
+          payment_mode: paymentMode,
+          utr_number: paymentMode === "UPI" ? utr : undefined,
           note,
           members: members.map((m) => ({ ...m, phone: `+91${m.phone}` })),
         },
@@ -73,6 +91,7 @@ export function SpotRegistration({ onClose }: { onClose: () => void }) {
   const valid =
     teamName.trim().length >= 2 &&
     college.trim().length >= 2 &&
+    (paymentMode === "CASH" || /^\d{12}$/.test(utr)) &&
     members.every(
       (m) =>
         m.full_name.trim().length >= 2 &&
