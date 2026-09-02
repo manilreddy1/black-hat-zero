@@ -1439,6 +1439,31 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
       status: "APPROVED",
     });
 
+    // Provision the same portal artefacts a verified team gets: one food token
+    // per participant plus a team-lead login, so check-in and team QRs work.
+    const { data: createdMembers } = await db
+      .from("team_members")
+      .select("id")
+      .eq("team_id", team.id);
+    for (const m of createdMembers ?? []) {
+      await db
+        .from("food_tokens")
+        .upsert({ registration_id: reg.id, member_id: m.id }, { onConflict: "member_id" });
+    }
+    try {
+      const { issueLeadPassword } = await import("./lead.server");
+      const { userId: uid } = await issueLeadPassword(
+        leader.email,
+        leader.full_name,
+        data.team_name,
+      );
+      if (uid) await db.from("teams").update({ lead_user_id: uid }).eq("id", team.id);
+    } catch {
+      /* never block spot registration on email/account provisioning */
+    }
+
+
+
 
     await db.from("registration_status_history").insert({
       registration_id: reg.id,
