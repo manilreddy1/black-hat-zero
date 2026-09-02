@@ -1323,6 +1323,10 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
           .min(1)
           .max(10),
       })
+      .refine((v) => v.payment_mode === "CASH" || /^\d{12}$/.test(v.utr_number ?? ""), {
+        message: "UTR must be exactly 12 digits",
+        path: ["utr_number"],
+      })
       .refine((v) => new Set(v.members.map((m) => m.email)).size === v.members.length, {
         message: "Each member must have a unique email address",
       })
