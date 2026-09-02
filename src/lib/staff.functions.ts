@@ -1433,7 +1433,8 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
     await db.from("payments").insert({
       registration_id: reg.id,
       amount: expected,
-      utr_number: data.utr_number,
+      utr_number:
+        data.payment_mode === "CASH" ? `CASH-${registration_code}` : (data.utr_number ?? ""),
       paid_on: now.slice(0, 10),
       status: "APPROVED",
     });
