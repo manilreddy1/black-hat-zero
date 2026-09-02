@@ -1302,9 +1302,8 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
         team_name: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.team_name)),
         college: z.preprocess(clean, z.string().min(2).max(FIELD_LIMITS.college)),
         department: dept,
-        utr_number: z
-          .preprocess((v) => String(v ?? "").replace(/\D/g, ""), z.string())
-          .refine((v) => /^\d{12}$/.test(v as string), "UTR must be exactly 12 digits"),
+        payment_mode: z.enum(["UPI", "CASH"]).default("UPI"),
+        utr_number: z.preprocess((v) => String(v ?? "").replace(/\D/g, ""), z.string()).optional(),
         note: z.preprocess((v) => clean(v ?? ""), z.string().max(200)).optional(),
         members: z
           .array(
@@ -1323,6 +1322,10 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
           )
           .min(1)
           .max(10),
+      })
+      .refine((v) => v.payment_mode === "CASH" || /^\d{12}$/.test(v.utr_number ?? ""), {
+        message: "UTR must be exactly 12 digits",
+        path: ["utr_number"],
       })
       .refine((v) => new Set(v.members.map((m) => m.email)).size === v.members.length, {
         message: "Each member must have a unique email address",
@@ -1430,7 +1433,8 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
     await db.from("payments").insert({
       registration_id: reg.id,
       amount: expected,
-      utr_number: data.utr_number,
+      utr_number:
+        data.payment_mode === "CASH" ? `CASH-${registration_code}` : (data.utr_number ?? ""),
       paid_on: now.slice(0, 10),
       status: "APPROVED",
     });
@@ -1455,7 +1459,8 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
         team_code,
         team_size: data.members.length,
         expected,
-        utr_number: data.utr_number,
+        payment_mode: data.payment_mode,
+        utr_number: data.utr_number ?? null,
       },
     });
 
@@ -1465,5 +1470,28 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
       team_code,
       status,
       expected_amount: expected,
+    };
+  });
+
+/** Super-admin: UPI details + fee used by the spot-registration QR. */
+export const getSpotPaymentSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { getRoles } = await import("./staff.server");
+    const roles = await getRoles(context.supabase, context.userId);
+    if (!roles.includes("super_admin"))
+      throw new Error("Unauthorized: super admin access required.");
+    const { admin } = await import("./db.server");
+    const db = await admin();
+    const { data } = await db
+      .from("event_settings")
+      .select("upi_id, upi_payee_name, registration_fee, currency")
+      .limit(1)
+      .maybeSingle();
+    return {
+      upi_id: data?.upi_id ?? "",
+      upi_payee_name: data?.upi_payee_name ?? "BLACK HAT ZERO",
+      registration_fee: data?.registration_fee ?? 0,
+      currency: data?.currency ?? "INR",
     };
   });
