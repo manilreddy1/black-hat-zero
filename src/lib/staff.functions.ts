@@ -1409,7 +1409,8 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
       })),
     );
 
-    const status = data.payment_collected ? "REGISTERED" : "PAYMENT_PENDING";
+    const status = "REGISTERED";
+    const now = new Date().toISOString();
     const { data: reg, error: regErr } = await db
       .from("registrations")
       .insert({
@@ -1419,12 +1420,21 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
         team_size: data.members.length,
         fee_at_registration: fee,
         expected_amount: expected,
-        verified_by: data.payment_collected ? context.userId : null,
-        verified_at: data.payment_collected ? new Date().toISOString() : null,
+        verified_by: context.userId,
+        verified_at: now,
       })
       .select("id, registration_code, status, expected_amount")
       .single();
     if (regErr || !reg) throw new Error("Could not create the registration.");
+
+    await db.from("payments").insert({
+      registration_id: reg.id,
+      amount: expected,
+      utr_number: data.utr_number,
+      paid_on: now.slice(0, 10),
+      status: "APPROVED",
+    });
+
 
     await db.from("registration_status_history").insert({
       registration_id: reg.id,
@@ -1445,7 +1455,7 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
         team_code,
         team_size: data.members.length,
         expected,
-        payment_collected: data.payment_collected,
+        utr_number: data.utr_number,
       },
     });
 
