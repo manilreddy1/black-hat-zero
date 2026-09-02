@@ -1455,7 +1455,7 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
         team_code,
         team_size: data.members.length,
         expected,
-        payment_collected: data.payment_collected,
+        utr_number: data.utr_number,
       },
     });
 
