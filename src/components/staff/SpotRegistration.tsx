@@ -242,20 +242,72 @@ export function SpotRegistration({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <label className="flex items-center gap-3 font-mono text-[11px] tracking-[0.2em] uppercase">
-            <input
-              type="checkbox"
-              checked={paymentCollected}
-              onChange={(e) => setPaymentCollected(e.target.checked)}
-            />
-            Fee collected on spot
-          </label>
-          <div>
+        <div className="mt-6 border border-border/70 p-4">
+          <p className="font-mono text-[11px] tracking-[0.3em] text-primary">PAYMENT</p>
+          <div className="mt-3 flex gap-3">
+            {(["UPI", "CASH"] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setPaymentMode(m)}
+                className={`clip-notch border px-4 py-2 font-mono text-[11px] tracking-[0.2em] uppercase ${
+                  paymentMode === m
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:border-primary"
+                }`}
+              >
+                {m === "UPI" ? "[ UPI / QR ]" : "[ Cash on spot ]"}
+              </button>
+            ))}
+          </div>
+
+          <p className="mt-3 font-mono text-[11px] text-muted-foreground">
+            Amount due: <span className="text-foreground">{formatMoney(amount, pay?.currency)}</span>{" "}
+            ({members.length} × {formatMoney(pay?.registration_fee ?? 0, pay?.currency)})
+          </p>
+
+          {paymentMode === "UPI" ? (
+            <div className="mt-4 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-start">
+              <div className="relative w-[180px] bg-white p-3">
+                {upiUri ? (
+                  <>
+                    <QRCode value={upiUri} size={160} level="H" className="block h-auto w-full" />
+                    <span className="absolute inset-0 m-auto flex h-9 w-9 items-center justify-center bg-white p-1">
+                      <img src={upiLogo.url} alt="UPI" className="block h-auto w-full object-contain" />
+                    </span>
+                  </>
+                ) : (
+                  <p className="font-mono text-[10px] text-black">UPI ID not configured</p>
+                )}
+              </div>
+              <div>
+                <p className="font-mono text-[10px] text-muted-foreground">
+                  UPI ID: <span className="text-foreground">{pay?.upi_id || "—"}</span>
+                </p>
+                <div className="mt-3">
+                  <p className={label}>UTR / reference (12 digits)</p>
+                  <input
+                    className={input}
+                    inputMode="numeric"
+                    maxLength={12}
+                    placeholder="123456789012"
+                    value={utr}
+                    onChange={(e) => setUtr(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 font-mono text-[11px] text-muted-foreground">
+              Cash collected at the desk — no UTR required.
+            </p>
+          )}
+
+          <div className="mt-4">
             <p className={label}>Note (optional)</p>
             <input className={input} value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
         </div>
+
 
         <div className="mt-6 flex gap-3">
           <button
