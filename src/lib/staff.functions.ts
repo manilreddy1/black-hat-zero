@@ -1472,3 +1472,26 @@ export const createSpotRegistration = createServerFn({ method: "POST" })
       expected_amount: expected,
     };
   });
+
+/** Super-admin: UPI details + fee used by the spot-registration QR. */
+export const getSpotPaymentSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { getRoles } = await import("./staff.server");
+    const roles = await getRoles(context.supabase, context.userId);
+    if (!roles.includes("super_admin"))
+      throw new Error("Unauthorized: super admin access required.");
+    const { admin } = await import("./db.server");
+    const db = await admin();
+    const { data } = await db
+      .from("event_settings")
+      .select("upi_id, upi_payee_name, registration_fee, currency")
+      .limit(1)
+      .maybeSingle();
+    return {
+      upi_id: data?.upi_id ?? "",
+      upi_payee_name: data?.upi_payee_name ?? "BLACK HAT ZERO",
+      registration_fee: data?.registration_fee ?? 0,
+      currency: data?.currency ?? "INR",
+    };
+  });
